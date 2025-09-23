@@ -2,10 +2,12 @@ package com.example.levelup.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+//Tonos cálidos más claros
+val WarmOrange80 = Color(0xFFFFD8A8) // durazno claro
+val WarmYellow80 = Color(0xFFFFF3B0) // amarillo pastel
+val WarmRed80 = Color(0xFFFFB4A2)    // salmón
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Tonos cálidos más oscuros
+val WarmOrange40 = Color(0xFFCC7722) // terracota
+val WarmYellow40 = Color(0xFFE0A106) // mostaza
+val WarmRed40 = Color(0xFFD1495B)   // rojo cálido
