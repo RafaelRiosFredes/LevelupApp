@@ -123,6 +123,10 @@ fun PantallaContacto(
                             capitalization = KeyboardCapitalization.Words,
                             imeAction = ImeAction.Next
                         ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.LightGray
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (nombreError) {
@@ -147,6 +151,11 @@ fun PantallaContacto(
                         singleLine = true,
                         isError = emailError,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.LightGray,
+                            errorTextColor = Color.Red
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (emailError) {
@@ -165,6 +174,10 @@ fun PantallaContacto(
                         onValueChange = { mensaje = it; mensajeError = it.isBlank() },
                         label = { Text("Contenido") },
                         placeholder = { Text("Escribe tu mensaje") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.LightGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp),
