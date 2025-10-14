@@ -1,12 +1,14 @@
-package com.example.levelup.reporitory
+package com.example.levelup.model.reporitory
 
-import com.example.levelup.local.LoginDao
-import com.example.levelup.local.LoginEntity
+import com.example.levelup.model.local.LoginDao
+import com.example.levelup.model.local.LoginEntity
 import kotlinx.coroutines.flow.Flow
 
 class LoginReporitory(private val dao : LoginDao) {
 
     fun observarUsuarios(): Flow<List<LoginReporitory>> = dao.observarTodos()
+
+    suspend fun obtener(id: Int) = dao.obtenerPorId(id)
 
     suspend fun guardar (
         id: Int?,
