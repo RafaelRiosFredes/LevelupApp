@@ -1,6 +1,7 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.levelup.ui
 
+// Importación de librerías necesarias para UI, manejo de estado, diseño y utilidades
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,25 +30,26 @@ import com.example.levelup.R
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.saveable.rememberSaveable
 
+// Pantalla principal de contacto con formulario y navegación lateral
 @Composable
 fun PantallaContacto(
     onEnviar: (nombre: String, email: String, mensaje: String) -> Unit = { _, _, _ -> }
 ) {
+    // Estado para manejar notificaciones tipo Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Drawer state (for the hamburger menu)
+    // Estado del Drawer (menú lateral)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    //Recibir lo escrito en la barra de búsqueda y recordar aun habiendo rotado el teléfono
+    // Estado del texto de búsqueda (recordado incluso tras rotar la pantalla)
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-
-    // ModalNavigationDrawer with black background for the sheet
+    // Contenedor principal con menú lateral y contenido central
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            // Make the sheet itself black
+            // Contenido del menú lateral (Drawer)
             ModalDrawerSheet(
                 drawerContainerColor = Color.Black,
                 drawerContentColor = Color.White,
@@ -55,7 +57,7 @@ fun PantallaContacto(
                     .background(Color.Black)
                     .width(300.dp)
             ) {
-                // Header
+                // Encabezado (header) con botón para cerrar el menú
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -71,6 +73,7 @@ fun PantallaContacto(
                         )
                     }
                 }
+                // Título de la aplicación en el menú
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -87,14 +90,16 @@ fun PantallaContacto(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Navigation items that mirror your HTML menu
+                // Barra de búsqueda dentro del menú
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO: handle search logic here */ }
+                    onSearch = { /* Lógica de búsqueda pendiente */ }
                 )
 
+                // Elementos de navegación dentro del menú
                 Column(modifier = Modifier.fillMaxWidth()) {
+                    // Cada NavigationDrawerItem representa una sección del menú
                     NavigationDrawerItem(
                         label = { Text("Inicio", color = Color.White) },
                         selected = false,
@@ -108,6 +113,7 @@ fun PantallaContacto(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
+                    // Repetición del patrón para otras secciones del menú
                     NavigationDrawerItem(
                         label = { Text("Juegos de Mesa", color = Color.White) },
                         selected = false,
@@ -117,7 +123,6 @@ fun PantallaContacto(
                                 snackbarHostState.showSnackbar("Juegos de Mesa seleccionado")
                             }
                         },
-                        // no icon to avoid missing-icon issues
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
@@ -169,6 +174,7 @@ fun PantallaContacto(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
+                    // Sección con contador (Carrito)
                     NavigationDrawerItem(
                         label = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -199,8 +205,9 @@ fun PantallaContacto(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
 
+                    // Opciones de cuenta de usuario
                     NavigationDrawerItem(
                         label = { Text("Inicia sesión", color = Color.White) },
                         selected = false,
@@ -256,9 +263,10 @@ fun PantallaContacto(
             }
         }
     ) {
-        // ---- BEGIN ORIGINAL SCAFFOLD (unchanged form logic & colors) ----
+        // Contenido principal de la pantalla con barra superior y formulario
         Scaffold(
             topBar = {
+                // Barra superior con título y botón de menú
                 CenterAlignedTopAppBar(
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -282,19 +290,21 @@ fun PantallaContacto(
             containerColor = Color.Black,
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
+            // Manejo del teclado y foco
             val focusManager = LocalFocusManager.current
             val keyboardController = LocalSoftwareKeyboardController.current
 
-            // Form state
+            // Estados de los campos del formulario
             var nombre by rememberSaveable { mutableStateOf("") }
             var email by rememberSaveable { mutableStateOf("") }
             var mensaje by rememberSaveable { mutableStateOf("") }
 
+            // Variables de error para validación
             var emailError by remember { mutableStateOf(false) }
             var nombreError by remember { mutableStateOf(false) }
             var mensajeError by remember { mutableStateOf(false) }
 
-            // Scrollable column so keyboard doesn't hide content
+            // Contenedor del formulario
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -303,7 +313,7 @@ fun PantallaContacto(
                     .background(Color.Black)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // Banner (responsive height)
+                // Banner superior con imagen y eslogan
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -328,6 +338,7 @@ fun PantallaContacto(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
+                // Título del formulario
                 Text(
                     text = "Formulario de Contacto",
                     fontSize = 22.sp,
@@ -337,13 +348,14 @@ fun PantallaContacto(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Tarjeta que contiene el formulario
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF121212)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        // Nombre
+                        // Campo: Nombre completo
                         OutlinedTextField(
                             value = nombre,
                             onValueChange = { nombre = it; nombreError = it.isBlank() },
@@ -371,7 +383,7 @@ fun PantallaContacto(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Email
+                        // Campo: Correo electrónico
                         OutlinedTextField(
                             value = email,
                             onValueChange = {
@@ -400,7 +412,7 @@ fun PantallaContacto(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Mensaje
+                        // Campo: Mensaje
                         OutlinedTextField(
                             value = mensaje,
                             onValueChange = { mensaje = it; mensajeError = it.isBlank() },
@@ -426,9 +438,10 @@ fun PantallaContacto(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        // Botón de envío con validación de campos
                         Button(
                             onClick = {
-                                // Validación simple
+                                // Validación de campos
                                 nombreError = nombre.isBlank()
                                 emailError = !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
                                 mensajeError = mensaje.isBlank()
@@ -440,7 +453,7 @@ fun PantallaContacto(
                                     scope.launch {
                                         snackbarHostState.showSnackbar("Mensaje enviado")
                                     }
-                                    // limpiar campos si quieres:
+                                    // Limpiar campos tras enviar
                                     nombre = ""
                                     email = ""
                                     mensaje = ""
@@ -461,7 +474,7 @@ fun PantallaContacto(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Footer
+                // Pie de página (footer)
                 Text(
                     text = stringResource(R.string.footer),
                     color = Color.White,
@@ -472,10 +485,10 @@ fun PantallaContacto(
                 )
             }
         }
-        // ---- END ORIGINAL SCAFFOLD ----
     }
 }
 
+// Composable para la barra de búsqueda reutilizable
 @Composable
 fun SearchBar(
     query: String,
@@ -490,6 +503,7 @@ fun SearchBar(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Campo de texto para buscar contenido
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
@@ -521,6 +535,7 @@ fun SearchBar(
 
         Spacer(modifier = Modifier.width(8.dp))
 
+        // Botón de búsqueda con ícono
         IconButton(
             onClick = onSearch,
             modifier = Modifier
@@ -536,7 +551,7 @@ fun SearchBar(
     }
 }
 
-
+// Vista previa del diseño en el editor
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun PreviewPantallaContacto() {
