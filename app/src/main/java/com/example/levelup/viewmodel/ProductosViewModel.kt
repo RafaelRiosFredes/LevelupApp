@@ -22,6 +22,25 @@ data class FormState(
 
 class ProductosViewModel(private val repo: ProductosRepository) : ViewModel() {
 
+    private val _productos = MutableStateFlow(
+        listOf(
+            ProductosEntity(descripcion = "Café molido premium", monto = 4.99, categoria = "Bebidas"),
+            ProductosEntity(descripcion = "Pan artesanal integral", monto = 2.49, categoria = "Panadería"),
+            ProductosEntity(descripcion = "Queso cheddar madurado", monto = 5.99, categoria = "Lácteos"),
+            ProductosEntity(descripcion = "Leche entera orgánica", monto = 1.89, categoria = "Lácteos"),
+            ProductosEntity(descripcion = "Miel pura de abeja", monto = 6.75, categoria = "Dulces"),
+            ProductosEntity(descripcion = "Chocolate negro 70%", monto = 3.50, categoria = "Snacks")
+        )
+    )
+    val productos = _productos.asStateFlow()
+
+    private val _carrito = MutableStateFlow<List<ProductosEntity>>(emptyList())
+    val carrito = _carrito.asStateFlow()
+
+    fun agregarAlCarrito(producto: ProductosEntity) {
+        _carrito.value = _carrito.value + producto
+    }
+
     val productos: StateFlow<List<ProductosEntity>> =
         repo.observarProductos().stateIn(
             scope = viewModelScope,

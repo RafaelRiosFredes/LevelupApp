@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.material3)
     val roomVersion = "2.6.1"
     val lifecycleVersion = "2.8.6"
     val activityCompose = "1.9.3"
@@ -66,6 +67,7 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
 
     implementation(libs.androidx.core.ktx)
