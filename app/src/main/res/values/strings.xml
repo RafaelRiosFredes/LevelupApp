@@ -1,11 +1,7 @@
 <resources>
 
     <string name="app_name">LEVEL-UP GAMER</string>
-
     <string name="slogan">¡DESAFÍA TUS LÍMITES CON LEVEL-UP GAMER!</string>
-
-    <string name="categorias">CATEGORÍAS</string>
-
     <string name="footer">© 2025 LEVEL-UP GAMER. Todos los derechos reservados.</string>
 
 </resources>

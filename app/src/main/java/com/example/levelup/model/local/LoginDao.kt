@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.levelup.model.reporitory.LoginReporitory
+ // import com.example.levelup.model.reporitory.LoginReporitory
 import kotlinx.coroutines.flow.Flow
 
 
@@ -14,20 +14,11 @@ import kotlinx.coroutines.flow.Flow
 interface LoginDao {
 
     @Query("SELECT * FROM usuarios")
-    fun observarTodos(): Flow<List<LoginReporitory>>
+    fun observarTodos(): Flow<List<LoginEntity>>
 
-    @Query("SELECT * FROM usuarios WHERE id = :id")
-    suspend fun obtenerPorId(id: Int): LoginEntity?
+    interface LoginDao {
+        @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena")
+        fun getUserByCorreoAndContrasena(correo: String, contrasena: String): LoginEntity?
+    }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(expense: LoginEntity): Long
-
-    @Update
-    suspend fun actualizar(expense: LoginEntity)
-
-    @Delete
-    suspend fun eliminar(expense: LoginReporitory)
-
-    @Query(value = "DELETE FROM usuarios")
-    suspend fun eliminarTodos()
 }

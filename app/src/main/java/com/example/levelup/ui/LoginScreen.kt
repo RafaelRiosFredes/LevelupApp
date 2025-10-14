@@ -1,19 +1,11 @@
 package com.example.levelup.ui
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,8 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -34,12 +24,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
+import com.example.levelup.viewModel.LoginViewModel
+import com.example.levelup.viewModel.LoginViewModelFactory
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    vm: LoginViewModel
+) {
+    val form by vm.form.collectAsState()
+
     // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -293,11 +289,11 @@ fun LoginScreen() {
                     .background(Color.Black)
             ) {
                 BannerPrincipal()
-                CategoriasGrid() // ahora contiene el footer como último ítem
             }
         }
     }
 }
+
 
 @Composable
 fun SearchBar(
@@ -342,3 +338,31 @@ fun SearchBar(
         }
     }
 }
+@Composable
+fun BannerPrincipal() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(
+                "https://www.azernews.az/media/2023/11/27/2023_rog_zephyrus_duo_16_gx650_scenario_photo_01.jpg?v=1701092248"
+            ),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = stringResource(R.string.slogan),
+            color = Color(0xFF00AAFF),
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 12.dp)
+        )
+    }
+}
+
