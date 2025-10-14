@@ -13,24 +13,14 @@ import com.example.levelup.ui.PantallaPrincipal
 import com.example.levelup.ui.theme.LevelUpTheme
 
 
-
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-
         setContent {
-
             LevelUpTheme {
-
                 PantallaPrincipal()
-
             }
-
         }
-
     }
-
 }
 
