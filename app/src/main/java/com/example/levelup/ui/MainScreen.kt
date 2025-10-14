@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
+import com.example.levelup.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 // -------------------------
@@ -41,7 +42,8 @@ data class Categoria(
 // -------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal() {
+fun PantallaPrincipal(userViewModel: UserViewModel) {
+    val user by userViewModel.user
     // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
