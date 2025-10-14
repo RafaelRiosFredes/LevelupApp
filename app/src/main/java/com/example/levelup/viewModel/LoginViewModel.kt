@@ -1,5 +1,6 @@
 package com.example.levelup.viewModel
 
+import LoginReporitory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.model.reporitory.LoginReporitory

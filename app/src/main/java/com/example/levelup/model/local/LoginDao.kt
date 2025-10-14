@@ -16,9 +16,7 @@ interface LoginDao {
     @Query("SELECT * FROM usuarios")
     fun observarTodos(): Flow<List<LoginEntity>>
 
-    interface LoginDao {
-        @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena")
-        fun getUserByCorreoAndContrasena(correo: String, contrasena: String): LoginEntity?
-    }
+    @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena")
+    fun getUserByCorreoAndContrasena(correo: String, contrasena: String): LoginEntity?
 
 }
