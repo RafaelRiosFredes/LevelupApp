@@ -9,11 +9,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class FormState(
     val id: Int? = null,
-    val correo: String,
-    val contrasena : String
+    val correo: String = "",
+    val contrasena : String = "",
+    val error: String? = null
 )
 
 class LoginViewModel(private val repo: LoginReporitory) : ViewModel() {
@@ -36,7 +39,25 @@ class LoginViewModel(private val repo: LoginReporitory) : ViewModel() {
         )
     }
 
+    fun limpiarFormulario() = run { _form.value = FormState() }
+
+    fun onChangeCorreo (v: String) =  _form.update { it.copy(correo = v) }
+
+    fun onChangeContrasena (v: String) = _form.update { it.copy(contrasena = v) }
 
 
+    fun guardar() = viewModelScope.launch {
+        val f = _form.value
+        if (f.correo.isBlank() || f.contrasena.isBlank()
+
+        ){
+            _form.update { it.copy(error = "completa todos los campos.") }
+            return@launch
+        }
+        repo.guardar(f.id, f.correo, f.contrasena)
+        limpiarFormulario()
+    }
+
+    fun eliminar(login: LoginReporitory) = viewModelScope.launch { repo.eliminar(login) }
 }
 

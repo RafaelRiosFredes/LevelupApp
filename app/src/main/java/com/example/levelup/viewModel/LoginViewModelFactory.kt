@@ -3,8 +3,8 @@ package com.example.levelup.viewModel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.levelup.model.local.AppDatabase
 import com.example.levelup.model.reporitory.LoginReporitory
-import com.example.levelup.viewmodel.LoginViewModel
 
 class LoginViewModelFactory(private val app: Application) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
