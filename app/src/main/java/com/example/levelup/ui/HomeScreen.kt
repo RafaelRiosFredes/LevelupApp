@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
+import com.example.levelup.model.local.CategoriaEntity
+import com.example.levelup.viewmodel.CategoriaViewModel
 import kotlinx.coroutines.launch
 
 // -------------------------
@@ -41,7 +43,7 @@ data class Categoria(
 // -------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal() {
+fun PantallaPrincipal(vm: CategoriaViewModel) {
     // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -295,7 +297,7 @@ fun PantallaPrincipal() {
                     .background(Color.Black)
             ) {
                 BannerPrincipal()
-                CategoriasGrid() // ahora contiene el footer como último ítem
+                CategoriasGrid(vm = vm) // ahora contiene el footer como último ítem
             }
         }
     }
@@ -305,18 +307,22 @@ fun PantallaPrincipal() {
 // GRID DE CATEGORÍAS (implementado con LazyColumn 2x por fila para que el footer sea parte del scroll)
 // -------------------------
 @Composable
-fun CategoriasGrid() {
-    val categorias = listOf(
-        Categoria("Juegos de Mesa", "https://img.icons8.com/?size=100&id=Rz3NTZkvlexz&format=png&color=39ff14"),
-        Categoria("Accesorios", "https://img.icons8.com/?size=100&id=MlGniXnp6gP1&format=png&color=39ff14"),
-        Categoria("Consolas", "https://img.icons8.com/?size=100&id=Tb5XGbRvSX2v&format=png&color=39ff14"),
-        Categoria("Computadores Gamer", "https://img.icons8.com/?size=100&id=5QX8hl5ld2od&format=png&color=39ff14"),
-        Categoria("Sillas Gamer", "https://img.icons8.com/?size=100&id=cnYTrlcPnC0e&format=png&color=39ff14"),
-        Categoria("Mouse", "https://img.icons8.com/?size=100&id=nzxaVHSTEeb8&format=png&color=39ff14"),
-        Categoria("Mousepad", "https://img.icons8.com/?size=100&id=xZ83Lf2CSaVj&format=png&color=39ff14"),
-        Categoria("Poleras Personalizadas", "https://img.icons8.com/?size=100&id=N757ereBOFWm&format=png&color=39ff14"),
-        Categoria("Poleras Gamer Personalizadas", "https://img.icons8.com/?size=100&id=aprOfFsRz9MN&format=png&color=39ff14")
-    )
+fun CategoriasGrid(
+    vm: CategoriaViewModel
+) {
+//    val categorias = listOf(
+//        Categoria("Juegos de Mesa", "https://img.icons8.com/?size=100&id=Rz3NTZkvlexz&format=png&color=39ff14"),
+//        Categoria("Accesorios", "https://img.icons8.com/?size=100&id=MlGniXnp6gP1&format=png&color=39ff14"),
+//        Categoria("Consolas", "https://img.icons8.com/?size=100&id=Tb5XGbRvSX2v&format=png&color=39ff14"),
+//        Categoria("Computadores Gamer", "https://img.icons8.com/?size=100&id=5QX8hl5ld2od&format=png&color=39ff14"),
+//        Categoria("Sillas Gamer", "https://img.icons8.com/?size=100&id=cnYTrlcPnC0e&format=png&color=39ff14"),
+//        Categoria("Mouse", "https://img.icons8.com/?size=100&id=nzxaVHSTEeb8&format=png&color=39ff14"),
+//        Categoria("Mousepad", "https://img.icons8.com/?size=100&id=xZ83Lf2CSaVj&format=png&color=39ff14"),
+//        Categoria("Poleras Personalizadas", "https://img.icons8.com/?size=100&id=N757ereBOFWm&format=png&color=39ff14"),
+//        Categoria("Poleras Gamer Personalizadas", "https://img.icons8.com/?size=100&id=aprOfFsRz9MN&format=png&color=39ff14")
+//    )
+
+    val categorias by vm.categorias.collectAsState()
 
     // Título
     Text(
@@ -371,7 +377,7 @@ fun CategoriasGrid() {
 
 // ------------------------- // CARD DE CATEGORÍA // -------------------------
 @Composable
-fun CategoriaCard(categoria: Categoria) {
+fun CategoriaCard(categoria: CategoriaEntity) {
     Card( modifier = Modifier
         .fillMaxWidth()
         .height(140.dp),
@@ -380,7 +386,7 @@ fun CategoriaCard(categoria: Categoria) {
             .fillMaxSize() .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center ) {
-            Image( painter = rememberAsyncImagePainter(categoria.iconUrl),
+            Image( painter = rememberAsyncImagePainter(categoria.icon_url),
                 contentDescription = categoria.nombre,
                 modifier = Modifier.size(55.dp) )
             Spacer(modifier = Modifier.height(8.dp))
