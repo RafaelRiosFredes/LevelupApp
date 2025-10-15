@@ -69,6 +69,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    // Retrofit (para peticiones HTTP)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+// Convertidor de JSON (usando Gson)
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+// Para Coil (cargar imágenes)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

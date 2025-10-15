@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "productos")
 data class ProductosEntity (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val descripcion: String,
-    val monto: Double,
-    val categoria: String,
+    val nombre: String,
+    val precio: Double,
+    val imagenUrl: String
 )
 
 
