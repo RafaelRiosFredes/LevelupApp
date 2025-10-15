@@ -26,9 +26,24 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
             val lista = repository.obtenerProductos()
             if (lista.isEmpty()) {
                 val iniciales = listOf(
-                    ProductosEntity(nombre = "Camiseta LevelUp", precio = 12990.0, imagenUrl = "https://picsum.photos/200"),
-                    ProductosEntity(nombre = "Zapatillas Training", precio = 39990.0, imagenUrl = "https://picsum.photos/201"),
-                    ProductosEntity(nombre = "Botella LevelUp", precio = 7990.0, imagenUrl = "https://picsum.photos/202")
+                    ProductosEntity(
+                        nombre = "Camiseta LevelUp",
+                        precio = 12990.0,
+                        imagenUrl = "https://picsum.photos/200",
+                        descripcion = "Camiseta deportiva LevelUp de algodón premium, ideal para gamers y entrenamientos."
+                    ),
+                    ProductosEntity(
+                        nombre = "Zapatillas Training",
+                        precio = 39990.0,
+                        imagenUrl = "https://picsum.photos/201",
+                        descripcion = "Zapatillas ligeras y cómodas para sesiones de juego intensas o deporte."
+                    ),
+                    ProductosEntity(
+                        nombre = "Botella LevelUp",
+                        precio = 7990.0,
+                        imagenUrl = "https://picsum.photos/202",
+                        descripcion = "Botella LevelUp de acero inoxidable para mantener tu bebida fría por horas."
+                    )
                 )
                 repository.insertarProductos(iniciales)
                 _productos.value = iniciales

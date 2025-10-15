@@ -48,7 +48,12 @@ fun LevelUpNavHost() {
 
         }
 
-
+        composable("producto/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            if (id != null) {
+                ProductoScreen(id = id, onNavigateBack = { nav.popBackStack() })
+            }
+        }
 
         // 🔐 Login (placeholder temporal)
 

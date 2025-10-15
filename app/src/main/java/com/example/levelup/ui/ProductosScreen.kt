@@ -1,9 +1,9 @@
 package com.example.levelup.ui
 
 import android.app.Application
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
 import com.example.levelup.model.local.AppDatabase
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosScreen(onNavigateBack: () -> Unit = {}) {
+fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
     val context = LocalContext.current
 
 
@@ -124,9 +125,11 @@ fun ProductosScreen(onNavigateBack: () -> Unit = {}) {
                     contentPadding = PaddingValues(8.dp)
                 ) {
                     items(productos) { producto ->
-                        ProductoItem(producto) {
-                            viewModel.agregarAlCarrito(producto)
-                        }
+                        ProductoItem(
+                            producto = producto,
+                            onAddToCart = { viewModel.agregarAlCarrito(producto) },
+                            onClick = { nav.navigate("producto/${producto.id}") } // aquí navegas al detalle
+                        )
                     }
                 }
             }
@@ -135,13 +138,14 @@ fun ProductosScreen(onNavigateBack: () -> Unit = {}) {
 }
 
 @Composable
-fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
+fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit, onClick: () -> Unit ) {
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .height(250.dp)
+            .clickable { onClick() }, // tarjeta clicable
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -162,6 +166,7 @@ fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
             }
         }
     }
+
 }
 
 @Composable

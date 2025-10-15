@@ -9,7 +9,8 @@ data class ProductosEntity (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
     val precio: Double,
-    val imagenUrl: String
+    val imagenUrl: String,
+    val descripcion: String
 )
 
 
