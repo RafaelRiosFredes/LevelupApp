@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 class ProductosRepository(private val dao: ProductosDao) {
 
-    val todosLosProductos: Flow<List<ProductosEntity>> = dao.obtenerTodos()
+    fun  todosLosProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
     suspend fun insertar(producto: ProductosEntity) {
         dao.insertar(producto)
@@ -24,7 +24,7 @@ class ProductosRepository(private val dao: ProductosDao) {
         dao.eliminar(producto)
     }
 
-    fun obtenerPorId(id: Int): Flow<ProductosEntity?> {
+    suspend fun obtenerPorId(id: Int): Flow<ProductosEntity?> {
         return dao.obtenerPorId(id)
     }
 }
