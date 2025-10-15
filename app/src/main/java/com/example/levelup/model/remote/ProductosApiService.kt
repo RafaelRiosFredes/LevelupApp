@@ -15,6 +15,8 @@ data class Productos(
 interface ProductosApiService {
     @GET("productos")
     suspend fun obtenerProductos(): List<Productos>
+
+
     // suspend fun obtenerProductosRemotos(): List<ProductosDto>
     // suspend fun enviarProductos(productos: ProductosDto)
 }

@@ -7,11 +7,15 @@ import com.example.levelup.model.local.AppDatabase
 import com.example.levelup.model.repository.ProductosRepository
 import kotlin.collections.get
 
-class ProductosViewModelFactory(private val repository: ProductosRepository) : ViewModelProvider.Factory {
+class ProductosViewModelFactory(
+    private val application: Application
+) : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProductosViewModel::class.java)) {
-            return ProductosViewModel(repository) as T
+            @Suppress("UNCHECKED_CAST")
+            return ProductosViewModel(application) as T
         }
-        throw IllegalArgumentException("ViewModel desconocido")
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

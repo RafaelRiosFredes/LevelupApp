@@ -10,7 +10,7 @@ import androidx.room.OnConflictStrategy
 interface ProductosDao {
 
     @Query("SELECT * FROM productos ")
-    fun obtenerProductos(): List<ProductosEntity>
+    suspend fun obtenerProductos(): List<ProductosEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarProductos(productos: List<ProductosEntity>)

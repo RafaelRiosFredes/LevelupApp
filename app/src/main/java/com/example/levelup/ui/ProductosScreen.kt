@@ -1,120 +1,63 @@
 package com.example.levelup.ui
 
-
+import android.app.Application
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import com.example.levelup.model.local.ProductosEntity
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
+import com.example.levelup.model.local.AppDatabase
+import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.repository.ProductosRepository
+import com.example.levelup.viewmodel.ProductosViewModel
+import com.example.levelup.viewmodel.ProductosViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosScreen(viewModel: com.example.levelup.viewmodel.ProductosViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun ProductosScreen(onNavigateBack: () -> Unit = {}) {
+    val context = LocalContext.current
+
+
+    // ✅ Obtener la Application de manera segura
+    val application = context.applicationContext as Application
+
+
+    // ✅ Instancia de la base de datos y repositorio
+    val db = AppDatabase.getInstance(application)
+    val repo = ProductosRepository(db.productosDao())
+
+    // ✅ ViewModelFactory
+    val factory = ProductosViewModelFactory(application)
+
+    // ✅ Obtener ViewModel
+    val viewModel: ProductosViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+
     val productos by viewModel.productos.collectAsState()
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "🛒 Nuestros Productos", fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(8.dp)
-        ) {
-            items(productos) { producto->
-                ProductoItem(producto) {
-                    viewModel.agregarAlCarrito(producto)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
-    Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .height(250.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween) {
-            Image(
-                painter = rememberAsyncImagePainter(producto.imagenUrl),
-                contentDescription = producto.nombre,
-                modifier = Modifier
-                    .height(130.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-            Text(producto.nombre, fontWeight = FontWeight.Bold)
-            Text("$${producto.precio}")
-            Button(onClick = onAddToCart) {
-                Text("Añadir al carrito")
-            }
-        }
-    }
-
-    // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -123,218 +66,9 @@ fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            // Contenido del menú lateral (idéntico a PantallaContacto)
-            ModalDrawerSheet(
-                drawerContainerColor = Color.Black,
-                drawerContentColor = Color.White,
-                modifier = Modifier
-                    .background(Color.Black)
-                    .width(300.dp)
-            ) {
-                // Header: botón para cerrar
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 1.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(onClick = { scope.launch { drawerState.close() } }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar menú",
-                            tint = Color(0xFF39FF14)
-                        )
-                    }
-                }
-
-                // Título de la app en el drawer
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .padding(vertical = 18.dp, horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        color = Color(0xFF39FF14),
-                        fontSize = 18.sp,
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO: handle search logic here */ }
-                )
-
-                // Items del drawer (idénticos)
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    NavigationDrawerItem(
-                        label = { Text("Inicio", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Inicio seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Juegos de Mesa", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Juegos de Mesa seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Accesorios", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Accesorios seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Consolas", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Consolas seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Contacto", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Contacto seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Noticias", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Noticias seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Carrito", color = Color.White)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Surface(
-                                    shape = MaterialTheme.shapes.small,
-                                    tonalElevation = 0.dp,
-                                    color = Color(0xFF39FF14)
-                                ) {
-                                    Text(
-                                        text = "0",
-                                        color = Color.Black,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                        fontSize = 12.sp
-                                    )
-                                }
-                            }
-                        },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Carrito seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
-
-                    NavigationDrawerItem(
-                        label = { Text("Inicia sesión", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Inicia sesión seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Regístrate", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Regístrate seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Mi cuenta", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Puntos LevelUp", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            DrawerContent(scope, drawerState, snackbarHostState)
         }
     ) {
-        // Contenido principal con la TopBar que abre el drawer
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -354,7 +88,9 @@ fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
                             fontWeight = FontWeight.Bold
                         )
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Black)
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Black
+                    )
                 )
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -366,30 +102,177 @@ fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
                     .padding(innerPadding)
                     .background(Color.Black)
             ) {
-                BannerPrincipal()
-                CategoriasGrid() // ahora contiene el footer como último ítem
+                // 🔍 Barra de búsqueda
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = { /* Podrías filtrar productos */ }
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "🛒 Nuestros Productos",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    items(productos) { producto ->
+                        ProductoItem(producto) {
+                            viewModel.agregarAlCarrito(producto)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
+@Composable
+fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .height(250.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(producto.imagenUrl),
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .height(130.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+            Text(producto.nombre, fontWeight = FontWeight.Bold)
+            Text("$${producto.precio}")
+            Button(onClick = onAddToCart) {
+                Text("Añadir al carrito")
+            }
+        }
+    }
+}
+
+@Composable
+fun DrawerContent(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    snackbarHostState: SnackbarHostState
+) {
+    ModalDrawerSheet(
+        drawerContainerColor = Color.Black,
+        drawerContentColor = Color.White,
+        modifier = Modifier
+            .background(Color.Black)
+            .width(300.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = { scope.launch { drawerState.close() } }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cerrar menú",
+                    tint = Color(0xFF39FF14)
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(vertical = 18.dp, horizontal = 16.dp)
+        ) {
+            Text(
+                text = "LEVEL-UP GAMER",
+                color = Color(0xFF39FF14),
+                fontSize = 18.sp,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        DrawerItem("Inicio", Icons.Default.Home, scope, drawerState, snackbarHostState)
+        DrawerItem("Juegos de Mesa", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Accesorios", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Consolas", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Contacto", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Noticias", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Carrito", Icons.Default.ShoppingCart, scope, drawerState, snackbarHostState)
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Color.DarkGray
+        )
+
+        DrawerItem("Inicia sesión", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Regístrate", null, scope, drawerState, snackbarHostState)
+        DrawerItem("Mi cuenta", Icons.Default.AccountCircle, scope, drawerState, snackbarHostState)
+        DrawerItem("Puntos LevelUp", Icons.Default.Star, scope, drawerState, snackbarHostState)
+    }
+}
+
+@Composable
+fun DrawerItem(
+    title: String,
+    icon: ImageVector?,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    snackbarHostState: SnackbarHostState
+) {
+    NavigationDrawerItem(
+        label = { Text(title, color = Color.White) },
+        selected = false,
+        onClick = {
+            scope.launch {
+                drawerState.close()
+                snackbarHostState.showSnackbar("$title seleccionado")
+            }
+        },
+        icon = {
+            icon?.let {
+                Icon(it, contentDescription = title, tint = Color.White)
+            }
+        },
+        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+    )
+}
 
 @Composable
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit ) {
-    Row( modifier = Modifier
-        .fillMaxWidth(1f)
-        .padding(horizontal = 16.dp, vertical = 8.dp)
-        .background(Color.Black),
+    onSearch: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(Color.Black),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically ) {
-        // Campo de texto para buscar contenido
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text( "Buscar en LEVEL-UP GAMER", color = Color.Gray, fontSize = 14.sp ) },
+            placeholder = { Text("Buscar en LEVEL-UP GAMER", color = Color.Gray, fontSize = 14.sp) },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF39FF14),
@@ -398,19 +281,25 @@ fun SearchBar(
                 unfocusedContainerColor = Color.Black,
                 cursorColor = Color(0xFF39FF14),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White ),
-            modifier = Modifier .weight(1f)
+                unfocusedTextColor = Color.White
+            ),
+            modifier = Modifier
+                .weight(1f)
                 .height(50.dp),
             keyboardOptions = KeyboardOptions.Default.copy(
                 capitalization = KeyboardCapitalization.None,
-                imeAction = ImeAction.Search ) )
+                imeAction = ImeAction.Search
+            )
+        )
         Spacer(modifier = Modifier.width(8.dp))
-        // Botón de búsqueda con ícono
-        IconButton( onClick = onSearch,
+        IconButton(
+            onClick = onSearch,
             modifier = Modifier
                 .size(50.dp)
-                .background(Color.Transparent) ) {
-            Icon( imageVector = Icons.Default.Search,
+                .background(Color.Transparent)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
                 contentDescription = "Buscar",
                 tint = Color(0xFF39FF14)
             )

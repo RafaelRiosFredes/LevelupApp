@@ -1,42 +1,44 @@
 package com.example.levelup.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.levelup.model.local.AppDatabase
 import com.example.levelup.model.local.ProductosEntity
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class FormState(
-    val id: Int? = null,
-    val descripcion: String = "",
-    val monto: String = "",
-    val categoria: String = "",
-    val error: String? = null
-)
+class ProductosViewModel(application: Application) : AndroidViewModel(application) {
 
-class ProductosViewModel(private val repository: ProductosRepository) : ViewModel() {
+    private val repository: ProductosRepository
 
     private val _productos = MutableStateFlow<List<ProductosEntity>>(emptyList())
     val productos: StateFlow<List<ProductosEntity>> = _productos
 
     init {
-        cargarProductos()
-    }
+        val dao = AppDatabase.getInstance(application).productosDao()
+        repository = ProductosRepository(dao)
 
-    private fun cargarProductos() {
         viewModelScope.launch {
-            _productos.value = repository.obtenerProductos()
+            // Si la base está vacía, agregamos datos iniciales
+            val lista = repository.obtenerProductos()
+            if (lista.isEmpty()) {
+                val iniciales = listOf(
+                    ProductosEntity(nombre = "Camiseta LevelUp", precio = 12990.0, imagenUrl = "https://picsum.photos/200"),
+                    ProductosEntity(nombre = "Zapatillas Training", precio = 39990.0, imagenUrl = "https://picsum.photos/201"),
+                    ProductosEntity(nombre = "Botella LevelUp", precio = 7990.0, imagenUrl = "https://picsum.photos/202")
+                )
+                repository.insertarProductos(iniciales)
+                _productos.value = iniciales
+            } else {
+                _productos.value = lista
+            }
         }
     }
 
     fun agregarAlCarrito(producto: ProductosEntity) {
-        // Aquí podrías guardar el producto en tabla "carrito" o mostrar un Toast
-        println("🛍️ Producto añadido: ${producto.nombre}")
+        // lógica futura para carrito
     }
 }
