@@ -5,7 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.example.levelup.ui.PantallaPrincipal
+import androidx.compose.runtime.collectAsState
+import com.example.levelup.ui.InventarioScreen
 import com.example.levelup.ui.theme.LevelUpTheme
 import com.example.levelup.viewmodel.CategoriaViewModel
 import com.example.levelup.viewmodel.CategoriaViewModelFactory
@@ -20,7 +21,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             LevelUpTheme {
-                PantallaPrincipal(vm)
+                InventarioScreen(
+                    productos = vm.categorias.collectAsState().value,
+                    onAddClick = { /* abrir pantalla de nuevo producto */ },
+                    onEditClick = { /* editar */ },
+                    onDeleteClick = { /* eliminar */ }
+                )
+
             }
         }
     }
