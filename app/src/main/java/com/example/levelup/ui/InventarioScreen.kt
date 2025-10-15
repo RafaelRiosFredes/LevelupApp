@@ -11,7 +11,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +32,7 @@ fun InventarioAdaptiveScreen(
     val widthClass = windowInfo.windowSizeClass.windowWidthSizeClass
 
     // Decide layout según ancho
-    if (widthClass == WindowWidthSizeClass.Expanded) {
+    if (widthClass == WindowWidthSizeClass.EXPANDED) {
         // En pantalla amplia, mostrar tabla estilo web + detalle u opciones
         InventarioExpandedLayout(
             productos = productos,
@@ -243,15 +243,15 @@ fun InventarioExpandedLayout(
 }
 
 @Composable
-fun EstadoChipMini(/* params: estado, etc */, modifier: Modifier = Modifier) {
+fun EstadoChipMini(estadoTexto: String, estadoColor: Color, modifier: Modifier = Modifier) {
     // similar al chip anterior, pero versión compacta
     Surface(
-        color = Color(0xFF39FF14),
+        color = estadoColor,
         shape = MaterialTheme.shapes.small,
         modifier = modifier
     ) {
         Text(
-            "Disponible",
+            estadoTexto,
             color = Color.Black,
             fontSize = 12.sp,
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
