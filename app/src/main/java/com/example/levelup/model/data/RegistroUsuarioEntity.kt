@@ -1,0 +1,18 @@
+package com.example.levelup.model.data
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "registroUsuario")
+data class RegistroUsuarioEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val nombres: String,
+    val apellidos: String,
+    val correo: String,
+    val contrasena: String,
+    val telefono: Int?,
+    val fechaNacimiento: String,
+    val fotoPerfil: ByteArray?,
+    val Duoc: Boolean = false,
+    val DescApl: Boolean = false
+)

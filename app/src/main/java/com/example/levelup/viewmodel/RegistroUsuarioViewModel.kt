@@ -1,0 +1,109 @@
+package com.example.levelup.viewmodel
+
+import android.graphics.Bitmap
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.levelup.model.data.RegistroUsuarioEntity
+import com.example.levelup.model.repository.RegistroUsuarioRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
+
+data class RegistroFormState(
+    val nombres: String = "",
+    val apellidos: String = "",
+    val correo: String = "",
+    val contrasena: String = "",
+    val telefono: String = "",
+    val fechaNacimiento: String = "",
+    val fotoPerfil: Bitmap? = null,
+    val mensaje: String? = null
+)
+
+class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : ViewModel() {
+
+    private val _form = MutableStateFlow(RegistroFormState())
+    val form: StateFlow<RegistroFormState> = _form.asStateFlow()
+
+    fun onChangeNombres(v: String) = _form.update { it.copy(nombres = v) }
+    fun onChangeApellidos(v: String) = _form.update { it.copy(apellidos = v) }
+    fun onChangeCorreo(v: String) = _form.update { it.copy(correo = v) }
+    fun onChangeContrasena(v: String) = _form.update { it.copy(contrasena = v) }
+    fun onChangeTelefono(v: String) = _form.update { it.copy(telefono = v) }
+    fun onChangeFechaNacimiento(v: String) = _form.update { it.copy(fechaNacimiento = v) }
+    fun onChangeFoto(bitmap: Bitmap) = _form.update { it.copy(fotoPerfil = bitmap) }
+
+    fun limpiarFormulario() = run { _form.value = RegistroFormState() }
+
+    fun registrarUsuario(onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            val f = _form.value
+
+            if (f.nombres.isBlank() || f.apellidos.isBlank() ||
+                f.correo.isBlank() || f.contrasena.length < 6 || f.fechaNacimiento.isBlank()
+            ) {
+                _form.update { it.copy(mensaje = "Completa todos los campos!") }
+                return@launch
+            }
+
+            val existente = repo.obtenerPorCorreo(f.correo)
+            if (existente != null) {
+                _form.update { it.copy(mensaje = "Ya existe un usuario con este correo") }
+                return@launch
+            }
+
+            val formatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+            val fechaNac = try {
+                LocalDate.parse(f.fechaNacimiento.trim(), formatter)
+            } catch (e: Exception) {
+                _form.update { it.copy(mensaje = "Formato de fecha inválido usa DD/MM/YYYY") }
+                return@launch
+            }
+
+            val edad = Period.between(fechaNac, LocalDate.now()).years
+            if (edad < 18) {
+                _form.update { it.copy(mensaje = "Solo mayores de 18 años pueden registrarse") }
+                return@launch
+            }
+
+            val Duoc = f.correo.contains("@duocuc.cl", ignoreCase = true)
+            val telefonoInt = f.telefono.toIntOrNull()
+
+            val fotoBytes = f.fotoPerfil?.let {
+                val output = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.PNG, 100, output)
+                output.toByteArray()
+            }
+
+            val usuario = RegistroUsuarioEntity(
+                nombres = f.nombres,
+                apellidos = f.apellidos,
+                correo = f.correo,
+                contrasena = f.contrasena,
+                telefono = telefonoInt,
+                fechaNacimiento = f.fechaNacimiento,
+                fotoPerfil = fotoBytes,
+                Duoc = Duoc,
+                DescApl = Duoc
+            )
+
+            repo.insertar(usuario)
+            _form.update {
+                it.copy(
+                    mensaje = if (Duoc)
+                        "Registro Completado, Descuento Duoc aplicado!!"
+                    else
+                        "Registro exitoso"
+                )
+            }
+            limpiarFormulario()
+            onSuccess()
+        }
+    }
+}
