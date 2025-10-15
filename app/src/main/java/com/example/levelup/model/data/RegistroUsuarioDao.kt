@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RegistroUsuarioDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE) //
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarUsuario(usuario: RegistroUsuarioEntity)
 
     @Query(value = "SELECT * FROM registroUsuario WHERE correo = :correo")
