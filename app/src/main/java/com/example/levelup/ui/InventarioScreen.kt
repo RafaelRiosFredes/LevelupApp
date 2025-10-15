@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,89 +22,45 @@ import androidx.compose.ui.unit.sp
 import com.example.levelup.model.local.CategoriaEntity
 
 @Composable
-fun InventarioScreen(
+fun InventarioAdaptiveScreen(
     productos: List<CategoriaEntity>,
     onAddClick: () -> Unit,
     onEditClick: (CategoriaEntity) -> Unit,
     onDeleteClick: (CategoriaEntity) -> Unit
 ) {
-    var filtro by remember { mutableStateOf("Todos los productos") }
-    var query by remember { mutableStateOf("") }
+    val windowInfo = currentWindowAdaptiveInfo()
+    val widthClass = windowInfo.windowSizeClass.windowWidthSizeClass
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Inventario", color = Color(0xFF39FF14), fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
-                actions = {
-                    IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Agregar", tint = Color.White)
-                    }
-                }
-            )
-        },
-        containerColor = Color.Black
-    ) { inner ->
-        Column(
-            modifier = Modifier
-                .padding(inner)
-                .fillMaxSize()
-                .background(Color.Black)
-                .padding(12.dp)
-        ) {
-            // Filtros
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ExposedDropdownMenuBox(
-                    expanded = false,
-                    onExpandedChange = {}
-                ) {
-                    OutlinedTextField(
-                        value = filtro,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Categoría", color = Color.White) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF39FF14),
-                            unfocusedBorderColor = Color(0xFF39FF14),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        ),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("Buscar producto", color = Color.White) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF39FF14),
-                        unfocusedBorderColor = Color(0xFF39FF14),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Lista
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(productos) { producto ->
-                    InventarioItem(
-                        producto = producto,
-                        onEditClick = { onEditClick(producto) },
-                        onDeleteClick = { onDeleteClick(producto) }
-                    )
-                }
-            }
-        }
+    // Decide layout según ancho
+    if (widthClass == WindowWidthSizeClass.Expanded) {
+        // En pantalla amplia, mostrar tabla estilo web + detalle u opciones
+        InventarioExpandedLayout(
+            productos = productos,
+            onAddClick = onAddClick,
+            onEditClick = onEditClick,
+            onDeleteClick = onDeleteClick
+        )
+    } else {
+        // Para teléfonos / pantallas normales: usar diseño de cards (lista) mejorado
+        InventarioCompactLayout(
+            productos = productos,
+            onAddClick = onAddClick,
+            onEditClick = onEditClick,
+            onDeleteClick = onDeleteClick
+        )
     }
 }
+
+@Composable
+fun InventarioCompactLayout(
+    productos: List<CategoriaEntity>,
+    onAddClick: () -> Unit,
+    onEditClick: (CategoriaEntity) -> Unit,
+    onDeleteClick: (CategoriaEntity) -> Unit
+) {
+    TODO("Not yet implemented")
+}
+
 
 @Composable
 fun InventarioItem(
@@ -116,7 +74,6 @@ fun InventarioItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -157,6 +114,147 @@ fun EstadoChip(producto: CategoriaEntity) {
             color = Color.Black,
             fontSize = 12.sp,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+        )
+    }
+}
+
+@Composable
+fun InventarioExpandedLayout(
+    productos: List<CategoriaEntity>,
+    onAddClick: () -> Unit,
+    onEditClick: (CategoriaEntity) -> Unit,
+    onDeleteClick: (CategoriaEntity) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Inventario", color = Color(0xFF39FF14), fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
+                actions = {
+                    IconButton(onClick = onAddClick) {
+                        Icon(Icons.Default.Add, contentDescription = "Agregar", tint = Color.White)
+                    }
+                }
+            )
+        },
+        containerColor = Color.Black
+    ) { inner ->
+        Column(
+            modifier = Modifier
+                .padding(inner)
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            // Filtros en una fila
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Dropdown categoría (puedes implementar con ExposedDropdownMenu adaptativo)
+                ExposedDropdownMenuBox(
+                    expanded = false,
+                    onExpandedChange = {}
+                ) {
+                    OutlinedTextField(
+                        value = "Todos los productos",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Categoría", color = Color.White) },
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF39FF14),
+                            unfocusedBorderColor = Color(0xFF39FF14),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+                }
+
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = { /*...*/ },
+                    label = { Text("Buscar producto", color = Color.White) },
+                    modifier = Modifier.weight(1f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF39FF14),
+                        unfocusedBorderColor = Color(0xFF39FF14),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    )
+                )
+            }
+
+            // Encabezado tipo tabla
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("ID", color = Color.White, modifier = Modifier.weight(0.5f))
+                Text("Nombre", color = Color.White, modifier = Modifier.weight(2f))
+                Text("Categoría", color = Color.White, modifier = Modifier.weight(1.5f))
+                Text("Stock", color = Color.White, modifier = Modifier.weight(1f))
+                Text("Precio", color = Color.White, modifier = Modifier.weight(1.5f))
+                Text("Estado", color = Color.White, modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(60.dp)) // espacio para acciones
+            }
+
+            Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(horizontal = 12.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
+            ) {
+                items(productos) { producto ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("${producto.id}", color = Color.White, modifier = Modifier.weight(0.5f))
+                        Text(producto.nombre, color = Color.White, modifier = Modifier.weight(2f))
+                        Text(producto.icon_url, color = Color.Gray, modifier = Modifier.weight(1.5f))
+                        Text("10", color = Color.LightGray, modifier = Modifier.weight(1f)) // ejemplo stock
+                        Text("$100.000", color = Color.White, modifier = Modifier.weight(1.5f))
+                        // Estado con chip
+                        EstadoChipMini(/*estado aquí*/, modifier = Modifier.weight(1f))
+                        // Acciones
+                        Row {
+                            IconButton(onClick = { onEditClick(producto) }) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color(0xFF00AAFF))
+                            }
+                            IconButton(onClick = { onDeleteClick(producto) }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
+                            }
+                        }
+                    }
+                    Divider(color = Color.DarkGray, thickness = 0.5.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EstadoChipMini(/* params: estado, etc */, modifier: Modifier = Modifier) {
+    // similar al chip anterior, pero versión compacta
+    Surface(
+        color = Color(0xFF39FF14),
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+    ) {
+        Text(
+            "Disponible",
+            color = Color.Black,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
         )
     }
 }
