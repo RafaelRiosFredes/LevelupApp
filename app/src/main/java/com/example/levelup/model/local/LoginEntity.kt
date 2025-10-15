@@ -3,7 +3,7 @@ package com.example.levelup.model.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "usuarios")
+@Entity(tableName = "usuarios_login")
 data class LoginEntity(
     val correo: String,
     val contrasena: String,

@@ -47,6 +47,9 @@ dependencies {
     val activityCompose = "1.9.3"
     val navCompose = "2.8.3"
 
+
+    implementation("androidx.compose.material3:material3:1.2.1")
+
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")

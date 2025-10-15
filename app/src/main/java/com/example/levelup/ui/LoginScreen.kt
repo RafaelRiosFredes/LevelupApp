@@ -8,107 +8,81 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.levelup.theme.GamerGreen
 import com.example.levelup.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    vm: LoginViewModel
-) {
+fun LoginScreen(vm: LoginViewModel) {
     val form by vm.form.collectAsState()
 
     Surface(
-        color = Color.Black,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black
     ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Iniciar Sesión", color = Color.White) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = GamerGreen,
-                        titleContentColor = Color.White
-                    )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Inicio de Sesión",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            OutlinedTextField(
+                value = form.correo,
+                onValueChange = vm::onChangeCorreo,
+                label = { Text("Correo", color = Color.White) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors( // ✅ fallback si outlinedTextFieldColors no existe
+                    focusedContainerColor = Color.Black,
+                    unfocusedContainerColor = Color.Black,
+                    focusedIndicatorColor = Color.Green,
+                    unfocusedIndicatorColor = Color.Gray,
+                    cursorColor = Color.Green,
+                    focusedLabelColor = Color.Green,
+                    unfocusedLabelColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
                 )
-            },
-            containerColor = Color.Black
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            )
+
+            OutlinedTextField(
+                value = form.contrasena,
+                onValueChange = vm::onChangeContrasena,
+                label = { Text("Contraseña", color = Color.White) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Black,
+                    unfocusedContainerColor = Color.Black,
+                    focusedIndicatorColor = Color.Green,
+                    unfocusedIndicatorColor = Color.Gray,
+                    cursorColor = Color.Green,
+                    focusedLabelColor = Color.Green,
+                    unfocusedLabelColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                )
+            )
+
+            form.mensaje?.let {
+                Spacer(Modifier.height(12.dp))
+                Text(it, color = if (form.exito) Color.Green else Color.Red)
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = { vm.validarUsuario() },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                form.mensaje?.let {
-                    Text(
-                        it,
-                        color = if (form.autenticado) GamerGreen else Color.Red,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
-
-                OutlinedTextField(
-                    value = form.correo,
-                    onValueChange = vm::onChangeCorreo,
-                    label = { Text("Correo electrónico", color = Color.White) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = GamerGreen,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = GamerGreen
-                    )
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = form.contrasena,
-                    onValueChange = vm::onChangeContrasena,
-                    label = { Text("Contraseña", color = Color.White) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = GamerGreen,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = GamerGreen
-                    )
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                Button(
-                    onClick = {
-                        vm.iniciarSesion {
-                            navController.navigate("home") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Ingresar", color = Color.White)
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedButton(
-                    onClick = { navController.navigate("registro") },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = GamerGreen),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Crear cuenta")
-                }
+                Text("Ingresar")
             }
         }
     }

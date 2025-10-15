@@ -1,22 +1,16 @@
-package com.example.levelup.model.local
+package com.example.levelup.model.data
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
- // import com.example.levelup.model.reporitory.LoginReporitory
-import kotlinx.coroutines.flow.Flow
-
+import com.example.levelup.model.local.LoginEntity
 
 @Dao
 interface LoginDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertarUsuario(usuario: LoginEntity)
 
-    @Query("SELECT * FROM usuarios")
-    fun observarTodos(): Flow<List<LoginEntity>>
-
-    @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena")
-    fun getUserByCorreoAndContrasena(correo: String, contrasena: String): LoginEntity?
-
+    @Query("SELECT * FROM usuarios_login WHERE correo = :correo")
+    suspend fun obtenerPorCorreo(correo: String): LoginEntity?
 }
