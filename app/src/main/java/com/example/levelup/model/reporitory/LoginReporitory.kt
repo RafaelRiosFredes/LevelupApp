@@ -1,9 +1,13 @@
-import com.example.levelup.model.local.LoginDao
-import com.example.levelup.model.local.LoginEntity
+package com.example.levelup.model.repository
 
-class LoginReporitory(private val loginDao: LoginDao) {
+import com.example.levelup.model.data.RegistroUsuarioEntity
+import com.example.levelup.model.local.AppDatabase
 
-    suspend fun getUserByCorreoAndContrasena(correo: String, contrasena: String): LoginEntity? {
-        return loginDao.getUserByCorreoAndContrasena(correo, contrasena)
+class LoginRepository(private val db: AppDatabase) {
+
+    suspend fun validarUsuario(correo: String, contrasena: String): RegistroUsuarioEntity? {
+        return db.registroUsuarioDao().obtenerPorCorreo(correo)?.takeIf {
+            it.contrasena == contrasena
+        }
     }
 }
