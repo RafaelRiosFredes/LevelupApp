@@ -224,7 +224,7 @@ fun InventarioExpandedLayout(
                         Text("10", color = Color.LightGray, modifier = Modifier.weight(1f)) // ejemplo stock
                         Text("$100.000", color = Color.White, modifier = Modifier.weight(1.5f))
                         // Estado con chip
-                        EstadoChipMini(/*estado aquí*/, modifier = Modifier.weight(1f))
+
                         // Acciones
                         Row {
                             IconButton(onClick = { onEditClick(producto) }) {
