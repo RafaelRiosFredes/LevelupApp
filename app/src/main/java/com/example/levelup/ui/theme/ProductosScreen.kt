@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosScreen(
-    onNavigateBack: () -> Unit = {},
     nav: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -54,15 +53,15 @@ fun ProductosScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     ModalNavigationDrawer(
+        drawerState = drawerState,
         drawerContent = {
             DrawerContent(scope, drawerState, snackbarHostState)
-        },
-        drawerState = drawerState
+        }
     ) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("LEVEL-UP GAMER") },
+                    title = { Text("LEVEL-UP GAMER", color = Color(0xFF39FF14)) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color(0xFF39FF14))
@@ -82,14 +81,13 @@ fun ProductosScreen(
                 contentPadding = PaddingValues(8.dp)
             ) {
                 items(productos) { producto ->
-                    ProductoItem(producto) {
-                        nav("producto/${producto.id}")
-                    }
+                    ProductoItem(producto) { nav("producto/${producto.id}") }
                 }
             }
         }
     }
 }
+
 
 // Mueve estas funciones fuera de ProductosScreen:
 
@@ -185,32 +183,29 @@ fun DrawerItem(
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 }
-
 @Composable
-fun ProductoItem(producto: ProductosEntity, onClick: () -> Unit){
-Card(
-modifier = Modifier
-.padding(8.dp)
-.fillMaxWidth()
-.height(250.dp),
-elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+fun ProductoItem(producto: ProductosEntity, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .height(250.dp),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = android.R.drawable.ic_menu_gallery),
-            contentDescription = producto.nombre,
-            modifier = Modifier
-                .height(130.dp)
-                .fillMaxWidth()
-        )
-        Text(producto.nombre, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-        Text("$${producto.precio}")
-        Button(onClick = onClick) {
-            Text("Añadir al carrito")
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(id = android.R.drawable.ic_menu_gallery),
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .height(130.dp)
+                    .fillMaxWidth()
+            )
+            Text(producto.nombre, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = Color.White)
+            Text("$${producto.precio}", color = Color(0xFF39FF14))
+            Button(onClick = onClick) { Text("Ver detalle") }
         }
     }
-}
 }
