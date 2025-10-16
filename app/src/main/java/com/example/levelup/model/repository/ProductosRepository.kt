@@ -8,21 +8,13 @@ class ProductosRepository(private val dao: ProductosDao) {
 
     fun  todosLosProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
-    suspend fun insertar(producto: ProductosEntity) {
-        dao.insertar(producto)
-    }
+    suspend fun insertar(producto: ProductosEntity) = dao.insertar(producto)
 
-    suspend fun insertarTodos(productos: List<ProductosEntity>) {
-        dao.insertarTodos(productos)
-    }
+    suspend fun insertarTodos(productos: List<ProductosEntity>) = dao.insertarTodos(productos)
 
-    suspend fun actualizar(producto: ProductosEntity) {
-        dao.actualizar(producto)
-    }
+    suspend fun actualizar(producto: ProductosEntity) = dao.actualizar(producto)
 
-    suspend fun eliminar(producto: ProductosEntity) {
-        dao.eliminar(producto)
-    }
+    suspend fun eliminar(producto: ProductosEntity) = dao.eliminar(producto)
 
     suspend fun obtenerPorId(id: Int): Flow<ProductosEntity?> {
         return dao.obtenerPorId(id)
