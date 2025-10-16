@@ -13,20 +13,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.levelup.R
 import com.example.levelup.local.ProductosEntity
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactory
 import kotlinx.coroutines.launch
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +49,6 @@ fun ProductoDetalleScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
     var cantidad by remember { mutableStateOf(1) }
 
     Scaffold(
@@ -80,17 +81,16 @@ fun ProductoDetalleScreen(
                     .background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Imagen
-                Image(
-                    painter = rememberAsyncImagePainter(p.imagenUrl),
-                    contentDescription = p.nombre,
+                // Imagen con placeholder y manejo de error
+                AsyncImage(
+                    model = producto.imagenUrl,
+                    contentDescription = producto.nombre,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Nombre y precio

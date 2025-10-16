@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     ProductosEntity(
                         nombre = "Mouse Gamer",
                         precio = 49990.0,
-                        imagenUrl = "https://link-a-imagen.com/mouse.png",
+                        imagenUrl = "https://triacs.cl/86-superlarge_default_2x/mouse-gamer-led-rgb.jpg",
                         descripcion = "Mouse RGB con alta precisión"
                     )
                 )
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     ProductosEntity(
                         nombre = "Teclado Mecánico",
                         precio = 79990.0,
-                        imagenUrl = "https://link-a-imagen.com/teclado.png",
+                        imagenUrl = "https://www.chilegatillos.cl/cdn/shop/files/TecladoRKRoyalKludgeR65chilegatillos.cl.jpg?v=1717042966&width=2048",
                         descripcion = "Teclado retroiluminado mecánico"
                     )
                 )
