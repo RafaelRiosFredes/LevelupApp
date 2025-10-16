@@ -41,11 +41,7 @@ fun LevelUpNavHost() {
         // 🛒 Pantalla de productos (principal de esta rama)
 
         composable("productos") {
-            ProductosScreen(
-                onNavigateBack = { nav.popBackStack() }
-
-            )
-
+            ProductosScreen(nav = nav)
         }
 
         composable("producto/{id}") { backStackEntry ->

@@ -20,13 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
 import com.example.levelup.model.local.AppDatabase
@@ -39,22 +38,15 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
+fun ProductosScreen(
+    nav: NavHostController, // ✅ Ahora recibe el navController
+    onNavigateBack: () -> Unit = {}
+) {
     val context = LocalContext.current
-
-
-    // ✅ Obtener la Application de manera segura
     val application = context.applicationContext as Application
-
-
-    // ✅ Instancia de la base de datos y repositorio
     val db = AppDatabase.getInstance(application)
     val repo = ProductosRepository(db.productosDao())
-
-    // ✅ ViewModelFactory
     val factory = ProductosViewModelFactory(application)
-
-    // ✅ Obtener ViewModel
     val viewModel: ProductosViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
 
     val productos by viewModel.productos.collectAsState()
@@ -84,7 +76,7 @@ fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
                     },
                     title = {
                         Text(
-                            text = stringResource(R.string.app_name),
+                            text = context.getString(R.string.app_name),
                             color = Color(0xFF39FF14),
                             fontWeight = FontWeight.Bold
                         )
@@ -107,7 +99,7 @@ fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { /* Podrías filtrar productos */ }
+                    onSearch = { /* TODO: Filtrar productos */ }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -127,8 +119,13 @@ fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
                     items(productos) { producto ->
                         ProductoItem(
                             producto = producto,
-                            onAddToCart = { viewModel.agregarAlCarrito(producto) },
-                            onClick = { nav.navigate("producto/${producto.id}") } // aquí navegas al detalle
+                            onClick = {
+                                // ✅ Al hacer clic, ir al detalle
+                                nav.navigate("producto/${producto.id}")
+                            },
+                            onAddToCart = {
+                                viewModel.agregarAlCarrito(producto)
+                            }
                         )
                     }
                 }
@@ -138,14 +135,18 @@ fun ProductosScreen(nav: NavController, onNavigateBack: () -> Unit = {}) {
 }
 
 @Composable
-fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit, onClick: () -> Unit ) {
+fun ProductoItem(
+    producto: ProductosEntity,
+    onClick: () -> Unit,
+    onAddToCart: () -> Unit
+) {
     Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .height(250.dp)
-            .clickable { onClick() }, // tarjeta clicable
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            .clickable { onClick() } // ✅ clic lleva al detalle
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -166,7 +167,6 @@ fun ProductoItem(producto: ProductosEntity, onAddToCart: () -> Unit, onClick: ()
             }
         }
     }
-
 }
 
 @Composable
@@ -221,16 +221,6 @@ fun DrawerContent(
         DrawerItem("Contacto", null, scope, drawerState, snackbarHostState)
         DrawerItem("Noticias", null, scope, drawerState, snackbarHostState)
         DrawerItem("Carrito", Icons.Default.ShoppingCart, scope, drawerState, snackbarHostState)
-
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp),
-            color = Color.DarkGray
-        )
-
-        DrawerItem("Inicia sesión", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Regístrate", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Mi cuenta", Icons.Default.AccountCircle, scope, drawerState, snackbarHostState)
-        DrawerItem("Puntos LevelUp", Icons.Default.Star, scope, drawerState, snackbarHostState)
     }
 }
 
