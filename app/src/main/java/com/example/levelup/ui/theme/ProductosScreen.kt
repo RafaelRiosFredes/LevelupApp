@@ -14,16 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
-import com.example.levelup.local.AppDatabase
-import com.example.levelup.repository.ProductosRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.levelup.local.ProductosEntity
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactory
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,31 +38,55 @@ fun ProductosScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("LEVEL-UP GAMER") },
-                navigationIcon = {
-                    IconButton(onClick = { /* abrir drawer */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color(0xFF39FF14))
+    // Drawer state
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.DarkGray)
+                    .padding(16.dp)
+            ) {
+                Text("Categorías", color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+                // Aquí puedes listar categorías reales o filtros
+                Text("Periféricos", color = Color.White, modifier = Modifier.padding(8.dp))
+                Text("Consolas", color = Color.White, modifier = Modifier.padding(8.dp))
+                Text("Accesorios", color = Color.White, modifier = Modifier.padding(8.dp))
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("LEVEL-UP GAMER") },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { scope.launch { drawerState.open() } } // Abrir Drawer
+                        ) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color(0xFF39FF14))
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
+                )
+            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            containerColor = Color.Black
+        ) { padding ->
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                items(productos) { producto ->
+                    ProductoItem(producto) {
+                        nav("producto/${producto.id}")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
-            )
-        },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color.Black
-    ) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(8.dp)
-        ) {
-            items(productos) { producto ->
-                ProductoItem(producto) {
-                    nav("producto/${producto.id}")
                 }
             }
         }
@@ -74,7 +94,7 @@ fun ProductosScreen(
 }
 
 @Composable
-fun ProductoItem(producto: com.example.levelup.local.ProductosEntity, onClick: () -> Unit) {
+fun ProductoItem(producto: ProductosEntity, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
