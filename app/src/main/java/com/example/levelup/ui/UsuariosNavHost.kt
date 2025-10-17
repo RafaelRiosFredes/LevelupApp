@@ -14,6 +14,19 @@ fun UsuariosNavHost(vm: LoginViewModel) {
         navController = navController,
         startDestination = "login"
     ) {
-        composable("login") { LoginScreen(vm) }
+        // 🔹 Pantalla de Login
+        composable("login") {
+            LoginScreen(vm) {
+                // 👉 Acción cuando el login sea exitoso
+                navController.navigate("registro") {
+                    popUpTo("registro") { inclusive = true }
+                }
+            }
+        }
+
+        // 🔹 Pantalla Home (después de iniciar sesión)
+        composable("registro") {
+            //RegistroUsuarioScreen()
+        }
     }
 }

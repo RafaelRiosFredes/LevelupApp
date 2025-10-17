@@ -44,11 +44,4 @@ class LoginViewModel(private val repo: LoginRepository) : ViewModel() {
         }
     }
 
-    fun registrarTemporal() {
-        viewModelScope.launch {
-            val f = _form.value
-            repo.registrarUsuarioTemporal(f.correo, f.contrasena)
-            _form.value = f.copy(mensaje = "Usuario temporal registrado (modo demo)")
-        }
-    }
 }

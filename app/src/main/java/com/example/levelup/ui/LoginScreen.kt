@@ -1,6 +1,8 @@
 package com.example.levelup.ui
 
+import android.R
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -8,11 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.levelup.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(vm: LoginViewModel) {
+fun LoginScreen(vm: LoginViewModel, function: () -> Unit) {
     val form by vm.form.collectAsState()
 
     Surface(
@@ -27,7 +30,7 @@ fun LoginScreen(vm: LoginViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Inicio de Sesión",
+                text = "Hola! Inicia sesion",
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium
             )
@@ -37,9 +40,9 @@ fun LoginScreen(vm: LoginViewModel) {
             OutlinedTextField(
                 value = form.correo,
                 onValueChange = vm::onChangeCorreo,
-                label = { Text("Correo", color = Color.White) },
+                label = { Text("Ingresa tu correo", color = Color.White) },
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors( // ✅ fallback si outlinedTextFieldColors no existe
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Black,
                     unfocusedContainerColor = Color.Black,
                     focusedIndicatorColor = Color.Green,
@@ -55,7 +58,7 @@ fun LoginScreen(vm: LoginViewModel) {
             OutlinedTextField(
                 value = form.contrasena,
                 onValueChange = vm::onChangeContrasena,
-                label = { Text("Contraseña", color = Color.White) },
+                label = { Text("Ingresa tu Contraseña", color = Color.White) },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
@@ -80,9 +83,21 @@ fun LoginScreen(vm: LoginViewModel) {
 
             Button(
                 onClick = { vm.validarUsuario() },
-                modifier = Modifier.fillMaxWidth()
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Green,
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(45.dp)
             ) {
-                Text("Ingresar")
+                Text(
+                    text = "Ingresar",
+                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.labelLarge
+
+                )
             }
         }
     }
