@@ -32,4 +32,11 @@ class ProductoViewModel(private val repository: ProductoRepository) : ViewModel(
             repository.insertar(producto)
         }
     }
+
+    fun quitarDelCarrito(producto: ProductoEntity) {
+        viewModelScope.launch {
+            val actualizado = producto.copy(enCarrito = false)
+            repository.actualizar(actualizado)
+        }
+    }
 }
