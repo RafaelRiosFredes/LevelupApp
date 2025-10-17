@@ -2,22 +2,20 @@ package com.example.levelup.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.levelup.ui.producto.ProductoDetalleScreen
-import com.example.levelup.ui.producto.ProductosScreen
+import com.example.levelup.ui.producto.ProductoScreen
+import com.example.levelup.viewmodel.ProductoViewModel
 
 @Composable
-fun LevelUpNavHost(modifier: Modifier) {
-    val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = "productos") {
+fun LevelUpNavHost(navController: NavHostController, viewModel: ProductoViewModel) {
+    NavHost(navController = navController, startDestination = "productos") {
         composable("productos") {
-            ProductosScreen(nav = { route -> nav.navigate(route) })
+            ProductoScreen(navController = navController, viewModel = viewModel)
         }
-        composable("producto/{productoId}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("productoId")?.toInt() ?: 0
-            ProductoDetalleScreen(productoId = id, nav = nav)
+        composable("carrito") {
+            CarritoScreen(navController = navController, viewModel = viewModel)
         }
     }
 }

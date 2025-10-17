@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.cli.js.klib.TopDownAnalyzerFacadeForJSIR.platform
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -55,6 +57,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.2.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
@@ -93,6 +96,44 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.2")
 
     implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // --- Jetpack Compose ---
+    implementation("androidx.compose.ui:ui:1.7.2")
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.2")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.2")
+
+    // Navegación Compose
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+
+    // Icons de Material
+    implementation("androidx.compose.material:material-icons-extended:1.7.2")
+
+    // --- Lifecycle + ViewModel + Flow ---
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    implementation("androidx.activity:activity-compose:1.9.3")
+
+    // --- Room (SQLite local) ---
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    // --- Corrutinas ---
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    // --- Coil (para cargar imágenes desde URL) ---
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // --- Snackbar y Drawer ---
+    implementation("androidx.compose.material3:material3-window-size-class:1.3.0")
+
+    // --- Testing opcional ---
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

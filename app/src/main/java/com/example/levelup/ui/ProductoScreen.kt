@@ -1,16 +1,13 @@
 package com.example.levelup.ui.producto
 
-import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -20,71 +17,68 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.levelup.local.ProductosEntity
-import com.example.levelup.viewmodel.ProductosViewModel
-import com.example.levelup.viewmodel.ProductosViewModelFactory
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.levelup.local.ProductoDao
+import com.example.levelup.local.ProductoEntity
+import com.example.levelup.viewmodel.ProductoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosScreen(
-    nav: (String) -> Unit
-) {
-    val context = LocalContext.current
-    val application = context.applicationContext as Application
+fun ProductoScreen(navController: NavController, viewModel: ProductoViewModel) {
+    val productos = viewModel.productos.collectAsState().value
 
-    val factory = ProductosViewModelFactory(application)
-    val viewModel: ProductosViewModel = viewModel(factory = factory)
-
-    val productos by viewModel.productos.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            DrawerContent(scope, drawerState, snackbarHostState)
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("LEVEL-UP GAMER", color = Color(0xFF39FF14)) },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color(0xFF39FF14))
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
-                )
-            },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-            containerColor = Color.Black
-        ) { padding ->
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(productos) { producto ->
-                    ProductoItem(producto) { nav("producto/${producto.id}") }
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(productos) { producto ->
+                ProductoItem(producto) {
+                    viewModel.agregarAlCarrito(producto)
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("carrito") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ir al carrito")
         }
     }
 }
 
 
+
+
+@Composable
+fun ProductoItem(producto: ProductoEntity, onAddToCart: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            // Imagen desde URL
+            AsyncImage(
+                model = producto.imagenUrl,
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+            )
+
+            Text(text = producto.nombre)
+            Text(text = producto.descripcion ?: "")
+            Text(text = "Precio: $${producto.precio}")
+            Button(onClick = onAddToCart) {
+                Text("Agregar al carrito")
+            }
+        }
+    }
+}
 // Mueve estas funciones fuera de ProductosScreen:
 
 @Composable
@@ -178,30 +172,4 @@ fun DrawerItem(
         },
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     )
-}
-@Composable
-fun ProductoItem(producto: ProductosEntity, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .height(250.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = android.R.drawable.ic_menu_gallery),
-                contentDescription = producto.nombre,
-                modifier = Modifier
-                    .height(130.dp)
-                    .fillMaxWidth()
-            )
-            Text(producto.nombre, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = Color.White)
-            Text("$${producto.precio}", color = Color(0xFF39FF14))
-            Button(onClick = onClick) { Text("Ver detalle") }
-        }
-    }
 }

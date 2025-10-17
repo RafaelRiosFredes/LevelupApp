@@ -5,53 +5,55 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.example.levelup.ui.LevelUpNavHost
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
 import com.example.levelup.local.AppDatabase
-import com.example.levelup.local.ProductosEntity
+import com.example.levelup.local.ProductoEntity
+import com.example.levelup.repository.ProductoRepository
 import com.example.levelup.theme.LevelUpTheme
+import com.example.levelup.ui.LevelUpNavHost
+import com.example.levelup.viewmodel.ProductoViewModel
+import com.example.levelup.viewmodel.ProductoViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Pre-popular la base de datos
-        prepopulateDatabase()
+        val db = AppDatabase.getDatabase(this)
+        val repo = ProductoRepository(db.ProductoDao())
+        val vmFactory = ProductoViewModelFactory(repo)
+        val viewModel = ViewModelProvider(this, vmFactory)[ProductoViewModel::class.java]
+
+        // Inserta algunos productos de ejemplo
+        CoroutineScope(Dispatchers.IO).launch {
+            viewModel.insertarProducto(
+                ProductoEntity(
+                    nombre = "Camisa",
+                    precio = 19.99,
+                    imagenUrl = "",
+                    descripcion = "Camisa de algodón"
+                )
+            )
+            viewModel.insertarProducto(
+                ProductoEntity(nombre = "Pantalón", precio = 29.99, imagenUrl = "https://tusitio.com/imagenes/pantalon.png", descripcion = "Pantalón de mezclilla")
+            )
+            viewModel.insertarProducto(
+                ProductoEntity(nombre = "Zapatos", precio = 49.99, imagenUrl = "https://tusitio.com/imagenes/pantalon.png", descripcion = "Zapatos de cuero")
+            )
+        }
 
         setContent {
             LevelUpTheme {
-                LevelUpNavHost(modifier = Modifier.fillMaxSize())
+                val navController = rememberNavController()
+                LevelUpNavHost(navController, viewModel)
             }
         }
     }
 
-    private fun prepopulateDatabase() {
-        val db = AppDatabase.getInstance(this)
-        val dao = db.productosDao()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val productos = dao.getAllProductos().first()
-            if (productos.isEmpty()) {
-                dao.insertProducto(
-                    ProductosEntity(
-                        nombre = "Mouse Gamer",
-                        precio = 49990.0,
-                        imagenUrl = "https://triacs.cl/86-superlarge_default_2x/mouse-gamer-led-rgb.jpg",
-                        descripcion = "Mouse RGB con alta precisión"
-                    )
-                )
-                dao.insertProducto(
-                    ProductosEntity(
-                        nombre = "Teclado Mecánico",
-                        precio = 79990.0,
-                        imagenUrl = "https://www.chilegatillos.cl/cdn/shop/files/TecladoRKRoyalKludgeR65chilegatillos.cl.jpg?v=1717042966&width=2048",
-                        descripcion = "Teclado retroiluminado mecánico"
-                    )
-                )
-            }
-        }
-    }
 }
+
