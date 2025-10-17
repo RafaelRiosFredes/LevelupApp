@@ -17,16 +17,18 @@ fun UsuariosNavHost(vm: LoginViewModel) {
         // 🔹 Pantalla de Login
         composable("login") {
             LoginScreen(vm) {
-                // 👉 Acción cuando el login sea exitoso
-                navController.navigate("registro") {
-                    popUpTo("registro") { inclusive = true }
+            //   onNavigateToRegistroUsuario() {
+                    navController.navigate("registro")
                 }
             }
-        }
-
-        // 🔹 Pantalla Home (después de iniciar sesión)
+            // ruta de "registro" cuando apreta "¿aun sin cuenta?"
         composable("registro") {
-            //RegistroUsuarioScreen()
+           // RegistroUsuarioScreen(navController)
+            }
         }
-    }
-}
+        // pantalla que muestra al iniciar sesion
+       // composable("index") {
+            //paginadeindex()
+         }
+    // }
+ //}

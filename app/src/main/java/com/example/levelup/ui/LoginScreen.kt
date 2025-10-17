@@ -3,7 +3,9 @@ package com.example.levelup.ui
 import android.R.attr.shape
 import com.example.levelup.R
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -132,6 +134,23 @@ fun LoginScreen(vm: LoginViewModel, function: () -> Unit) {
                     fontFamily = Russo_One,
                     style = MaterialTheme.typography.labelLarge
 
+                )
+            }
+
+            Spacer(Modifier.height(30.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "¿Aún sin cuenta? Crea una aquí",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontFamily = Russo_One,
+                  //  modifier = Modifier.clickable { onNavigateToRegistroUsuario() }
                 )
             }
         }
