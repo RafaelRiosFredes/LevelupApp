@@ -1,102 +1,147 @@
-package com.example.levelup.ui.producto
+package com.example.levelup.ui
 
+import android.app.Application
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import com.example.levelup.local.ProductoEntity
-import com.example.levelup.viewmodel.ProductoViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import androidx.compose.material3.DrawerState
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.example.levelup.R
+import com.example.levelup.local.ProductosEntity
+import com.example.levelup.ui.viewmodel.ProductoViewModel
+import com.example.levelup.ui.viewmodel.ProductoViewModelFactory
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductoScreen(
-    navController: NavController,
-    viewModel: ProductoViewModel,
-    drawerState: DrawerState,
-    scope: CoroutineScope
-) {
-    val productos = viewModel.productos.collectAsState().value
+fun ProductosScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val application = context.applicationContext as Application
+    val factory = ProductoViewModelFactory(application)
+    val viewModel: ProductoViewModel = viewModel(factory = factory)
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    val productos by viewModel.productos.collectAsState()
 
-        // Top bar con botón para abrir Drawer
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF39FF14))
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu")
-            }
-            Text(
-                text = "Productos",
-                color = Color.Black,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(start = 8.dp)
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "LEVEL-UP GAMER",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Black
+                )
             )
-        }
-
-        LazyColumn(
+        },
+        containerColor = Color.Black
+    ) { padding ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(padding)
+                .background(Color.Black)
         ) {
-            items(productos) { producto ->
-                ProductoItem(producto) {
-                    viewModel.agregarAlCarrito(producto)
+            Text(
+                text = "🛒 Nuestros Productos",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                items(productos) { producto ->
+                    ProductoItem(
+                        producto = producto,
+                        onClick = {
+                            navController.navigate("producto/${producto.id}")
+                        },
+                        onAddToCart = {
+                            viewModel.agregarAlCarrito(producto)
+                        }
+                    )
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { navController.navigate("carrito") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text("Ir al carrito")
         }
     }
 }
 
 @Composable
-fun ProductoItem(producto: ProductoEntity, onAddToCart: () -> Unit) {
+fun ProductoItem(
+    producto: ProductosEntity, // ✅ Ahora sin el path completo
+    onClick: () -> Unit,
+    onAddToCart: () -> Unit
+) {
     Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .height(280.dp)
+            .clickable { onClick() }
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            AsyncImage(
-                model = producto.imagenUrl,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Image( // ✅ Quitar el path completo
+                painter = painterResource(id = producto.imagenRes),
                 contentDescription = producto.nombre,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
+                    .size(120.dp)
+                    .padding(top = 5.dp),
+                contentScale = ContentScale.Fit
             )
-            Text(producto.nombre, style = MaterialTheme.typography.titleMedium)
-            Text(producto.descripcion ?: "", style = MaterialTheme.typography.bodyMedium)
-            Text("Precio: $${producto.precio}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-            Button(onClick = onAddToCart, modifier = Modifier.fillMaxWidth()) {
-                Text("Agregar al carrito")
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = producto.nombre,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${producto.precio}",
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Button(
+                onClick = onAddToCart,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text("Añadir al carrito")
             }
         }
     }

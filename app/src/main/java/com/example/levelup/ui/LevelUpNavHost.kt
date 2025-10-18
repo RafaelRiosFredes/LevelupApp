@@ -1,39 +1,58 @@
 package com.example.levelup.ui
 
-import androidx.compose.material3.DrawerState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation.NavHostController
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.levelup.ui.producto.CarritoScreen
-import com.example.levelup.ui.producto.ProductoScreen
-import com.example.levelup.viewmodel.ProductoViewModel
-import kotlinx.coroutines.CoroutineScope
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun LevelUpNavHost(
-    navController: NavHostController,
-    viewModel: ProductoViewModel,
-    drawerState: DrawerState,
-    scope: CoroutineScope
-) {
-    NavHost(navController = navController, startDestination = "productos") {
+fun LevelUpNavHost() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "productos"
+    ) {
         composable("productos") {
-            ProductoScreen(
-                navController = navController,
-                viewModel = viewModel,
-                drawerState = drawerState,
-                scope = scope
-            )
+            ProductosScreen(navController = navController)
         }
+
+        composable("producto/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            if (id != null) {
+                ProductosScreen(
+                    id = id,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
         composable("carrito") {
-            CarritoScreen(
-                navController = navController,
-                viewModel = viewModel,
-                drawerState = drawerState,
-                scope = scope
-            )
+            PlaceholderScreen("Carrito de Compras")
+        }
+    }
+}
+
+@Composable
+fun PlaceholderScreen(texto: String) {
+    Surface {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(texto)
         }
     }
 }

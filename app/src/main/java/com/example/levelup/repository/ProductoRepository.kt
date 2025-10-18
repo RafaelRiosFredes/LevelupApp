@@ -1,18 +1,22 @@
 package com.example.levelup.repository
 
 import com.example.levelup.local.ProductoDao
-import com.example.levelup.local.ProductoEntity
+import com.example.levelup.local.ProductosEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
-class ProductoRepository(private val productoDao: ProductoDao) {
-    val productos: Flow<List<ProductoEntity>> = productoDao.obtenerProductos()
-    val carrito: Flow<List<ProductoEntity>> = productoDao.obtenerCarrito()
+class ProductoRepository(private val dao: ProductoDao) {
 
-    suspend fun insertar(producto: ProductoEntity) {
-        productoDao.insertar(producto)
+    suspend fun obtenerProductos(): List<ProductosEntity> = withContext(Dispatchers.IO) {
+        dao.getAllProductos()
     }
 
-    suspend fun actualizar(producto: ProductoEntity) {
-        productoDao.actualizar(producto)
+    suspend fun obtenerProductoPorId(id: Int): ProductosEntity? = withContext(Dispatchers.IO) {
+        dao.getProductoPorId(id)
+    }
+
+    suspend fun insertarProductos(productos: List<ProductosEntity>) = withContext(Dispatchers.IO) {
+        dao.insertarProductos(productos)
     }
 }
