@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +49,7 @@ fun FormScreen(
     // carga la imagen desde la camara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? -> bitmap?.let { vm.onChangeFoto(it) } }
+    ) { bitmap: Bitmap? -> bitmap?.let { vm.onChangeFoto(it) } } // guarda la fto en el viewModel
 
     // carga la imagen desde la galeria
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -71,7 +73,7 @@ fun FormScreen(
             if (granted) galleryLauncher.launch("image/*")
         }
 
-    // colores del boton "registrar" dependiendo del mensaje
+    // Color dinámico del botón Registrar
     val botonColor = if (
         form.mensaje?.contains("Completa") == true ||
         form.mensaje?.contains("Ya existe") == true ||
@@ -115,22 +117,47 @@ fun FormScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-
-                form.fotoPerfil?.let { bitmap ->
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .clickable { cameraLauncher.launch() }
-                    )
-
-                } ?: Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                // espacio para circulo de foto de perfil
+                Box(
                     modifier = Modifier
-                        .padding(top = 160.dp)
+                        .padding(top = 20.dp)
+                        .size(140.dp)
+                        .clip(CircleShape)
+                        .border(
+                            width = 3.dp,
+                            color = if (form.fotoPerfil != null) GamerGreen else Color.Gray,
+                            shape = CircleShape
+                        )
+                        .shadow(
+                            elevation = if (form.fotoPerfil != null) 12.dp else 4.dp,
+                            shape = CircleShape,
+                            ambientColor = GamerGreen.copy(alpha = 0.6f),
+                            spotColor = GamerGreen.copy(alpha = 0.8f)
+                        )
+                        .clickable { requestCameraPermission.launch(Manifest.permission.CAMERA) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (form.fotoPerfil != null) {
+                        Image(
+                            bitmap = form.fotoPerfil!!.asImageBitmap(),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            alignment = Alignment.Center
+                        )
+                    } else {
+                        Text(
+                            text = "Agregar foto",
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
                         onClick = { requestCameraPermission.launch(Manifest.permission.CAMERA) },
@@ -147,6 +174,7 @@ fun FormScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = GamerBlue)
                     ) { Text("Ingresa una foto", color = Color.White) }
                 }
+
 
 
                 form.mensaje?.let {
