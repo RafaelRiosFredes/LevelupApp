@@ -11,7 +11,7 @@ interface RegistroUsuarioDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarUsuario(usuario: RegistroUsuarioEntity)
 
-    @Query(value = "SELECT * FROM registroUsuario WHERE correo = :correo")
+    @Query(value = "SELECT * FROM usuarios WHERE correo = :correo")
     suspend fun obtenerPorCorreo(correo: String): RegistroUsuarioEntity?
 
 

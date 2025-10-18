@@ -12,7 +12,6 @@ import com.example.levelup.viewmodel.RegistroUsuarioViewModelFactory
 fun RegistroUsuarioScreen(
     navController: NavController
 ) {
-    // ✅ Cast seguro para evitar crashes si el contexto no es Application
     val app = LocalContext.current.applicationContext as? Application
         ?: throw IllegalStateException("No se pudo obtener la instancia de Application")
 
@@ -20,13 +19,11 @@ fun RegistroUsuarioScreen(
         factory = RegistroUsuarioViewModelFactory(app)
     )
 
-    // ✅ Llamamos al formulario y conectamos la navegación
     FormScreen(
         vm = vm,
         onBack = { navController.popBackStack() },
         onSaved = {
             vm.registrarUsuario {
-                // Al registrarse correctamente, navegar a login
                 navController.navigate("login") {
                     popUpTo("registro") { inclusive = true }
                 }

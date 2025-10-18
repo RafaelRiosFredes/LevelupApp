@@ -3,7 +3,7 @@ package com.example.levelup.model.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "registroUsuario")
+@Entity(tableName = "usuarios")
 data class RegistroUsuarioEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombres: String,

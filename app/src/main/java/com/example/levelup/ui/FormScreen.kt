@@ -8,11 +8,13 @@ import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -25,8 +27,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.example.levelup.ui.theme.GamerBlue
 import com.example.levelup.viewmodel.RegistroUsuarioViewModel
 import com.example.levelup.ui.theme.GamerGreen
 
@@ -41,7 +45,7 @@ fun FormScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    // ✅ Launchers para cámara y galería
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? -> bitmap?.let { vm.onChangeFoto(it) } }
@@ -55,7 +59,7 @@ fun FormScreen(
         }
     }
 
-    // ✅ Pedir permisos
+
     val requestCameraPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) cameraLauncher.launch()
@@ -72,7 +76,7 @@ fun FormScreen(
         form.mensaje?.contains("menores") == true
     ) MaterialTheme.colorScheme.error else GamerGreen
 
-    // 🖤 Fondo negro general
+
     Surface(
         color = Color.Black,
         modifier = Modifier.fillMaxSize()
@@ -80,10 +84,18 @@ fun FormScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Registro de Usuario", color = Color.White) },
+                    title = {
+                        Text(
+                            text = "Registro de Usuario",
+                            color = Color.Black,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = GamerGreen,
-                        titleContentColor = Color.White
+                        containerColor = GamerBlue,
+                        titleContentColor = Color.Black
                     )
                 )
             },
@@ -100,7 +112,7 @@ fun FormScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // 🖼️ Imagen o botones de cámara/galería
+
                 form.fotoPerfil?.let { bitmap ->
                     Image(
                         bitmap = bitmap.asImageBitmap(),
@@ -110,14 +122,17 @@ fun FormScreen(
                             .clip(CircleShape)
                             .clickable { cameraLauncher.launch() }
                     )
+
                 } ?: Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(top = 160.dp)
                 ) {
                     Button(
                         onClick = { requestCameraPermission.launch(Manifest.permission.CAMERA) },
-                        colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
-                    ) { Text("📷 Tomar foto", color = Color.White) }
+                        colors = ButtonDefaults.buttonColors(containerColor = GamerBlue)
+                    ) { Text("Toma una foto", color = Color.White) }
 
                     Button(
                         onClick = {
@@ -126,8 +141,8 @@ fun FormScreen(
                             else
                                 requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
-                    ) { Text("🖼️ Galería", color = Color.White) }
+                        colors = ButtonDefaults.buttonColors(containerColor = GamerBlue)
+                    ) { Text("Ingresa una foto", color = Color.White) }
                 }
 
                 Divider(Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
@@ -140,12 +155,25 @@ fun FormScreen(
                     )
                 }
 
-                // 🧾 Campos del formulario
+                AnimatedVisibility(visible = form.mensaje != null) {
+                    Text(
+                        text = form.mensaje ?: "",
+                        color = if (form.mensaje?.contains("exitoso", true) == true ||
+                            form.mensaje?.contains("Duoc", true) == true) GamerGreen else Color.Red,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                Spacer(Modifier.height(10.dp))
+
                 OutlinedTextField(
                     value = form.nombres,
                     onValueChange = vm::onChangeNombres,
-                    label = { Text("Nombres", color = Color.White) },
-                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Ingresa tu nombre", color = Color.White) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -154,12 +182,17 @@ fun FormScreen(
                         cursorColor = GamerGreen
                     )
                 )
+
+                Spacer(Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = form.apellidos,
                     onValueChange = vm::onChangeApellidos,
-                    label = { Text("Apellidos", color = Color.White) },
-                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Ingresa tu apellido", color = Color.White) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -168,12 +201,17 @@ fun FormScreen(
                         cursorColor = GamerGreen
                     )
                 )
+
+                Spacer(Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = form.correo,
                     onValueChange = vm::onChangeCorreo,
-                    label = { Text("Correo electrónico", color = Color.White) },
-                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Ingresa tu correo electrónico", color = Color.White) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -183,12 +221,17 @@ fun FormScreen(
                     )
                 )
 
+                Spacer(Modifier.height(10.dp))
+
                 OutlinedTextField(
                     value = form.contrasena,
                     onValueChange = vm::onChangeContrasena,
-                    label = { Text("Contraseña", color = Color.White) },
+                    label = { Text("Ingresa tu contraseña", color = Color.White) },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -197,13 +240,37 @@ fun FormScreen(
                         cursorColor = GamerGreen
                     )
                 )
+                Spacer(Modifier.height(10.dp))
+
+                OutlinedTextField(
+                    value = form.contrasenaConfirmacion,
+                    onValueChange = vm::onChangeContrasenaConfirmacion,
+                    label = { Text("Vuelve a ingresar tu contraseña", color = Color.White) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = GamerGreen,
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = GamerGreen
+                    )
+                )
+
+                Spacer(Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = form.telefono,
                     onValueChange = vm::onChangeTelefono,
                     label = { Text("Teléfono (opcional)", color = Color.White) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -212,12 +279,17 @@ fun FormScreen(
                         cursorColor = GamerGreen
                     )
                 )
+
+                Spacer(Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = form.fechaNacimiento,
                     onValueChange = vm::onChangeFechaNacimiento,
                     label = { Text("Fecha de nacimiento (dd/MM/yyyy)", color = Color.White) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -227,9 +299,9 @@ fun FormScreen(
                     )
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(10.dp))
 
-                // ✅ Botones dentro del formulario
+
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -242,13 +314,6 @@ fun FormScreen(
                         Text("Registrar", color = Color.White)
                     }
 
-                    OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = GamerGreen)
-                    ) {
-                        Text("Cancelar")
-                    }
                 }
 
                 Spacer(Modifier.height(30.dp))

@@ -23,7 +23,10 @@ data class RegistroFormState(
     val telefono: String = "",
     val fechaNacimiento: String = "",
     val fotoPerfil: Bitmap? = null,
-    val mensaje: String? = null
+    val mensaje: String? = null,
+    val contrasenaConfirmacion: String = ""
+
+
 )
 
 class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : ViewModel() {
@@ -39,7 +42,10 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
     fun onChangeFechaNacimiento(v: String) = _form.update { it.copy(fechaNacimiento = v) }
     fun onChangeFoto(bitmap: Bitmap) = _form.update { it.copy(fotoPerfil = bitmap) }
 
+    fun onChangeContrasenaConfirmacion(v: String) = _form.update { it.copy(contrasenaConfirmacion = v) }
+
     fun limpiarFormulario() = run { _form.value = RegistroFormState() }
+
 
     fun registrarUsuario(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
@@ -49,6 +55,12 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 f.correo.isBlank() || f.contrasena.length < 6 || f.fechaNacimiento.isBlank()
             ) {
                 _form.update { it.copy(mensaje = "Completa todos los campos!") }
+                return@launch
+            }
+
+            // 🔹 Validar que ambas contraseñas sean iguales
+            if (f.contrasena != f.contrasenaConfirmacion) {
+                _form.update { it.copy(mensaje = "Las contraseñas no coinciden") }
                 return@launch
             }
 
@@ -68,7 +80,7 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
 
             val edad = Period.between(fechaNac, LocalDate.now()).years
             if (edad < 18) {
-                _form.update { it.copy(mensaje = "Solo mayores de 18 años pueden registrarse") }
+                _form.update { it.copy(mensaje = "Solo mayores de 18 años se pueden registrarse") }
                 return@launch
             }
 

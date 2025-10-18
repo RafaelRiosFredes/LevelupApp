@@ -19,15 +19,14 @@ fun LevelUpNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "registro" // 🚀 Pantalla principal temporal
+        startDestination = "registro"
     ) {
 
-        // 🟢 Registro de usuario
         composable("registro") {
-            RegistroUsuarioScreen(navController) // ✅ Aquí pasamos el controlador
+            RegistroUsuarioScreen(navController)
         }
 
-        // 🔵 Pantalla Login (placeholder por ahora)
+
         composable("login") {
             PlaceholderScreen(
                 texto = "Pantalla de Login (en desarrollo)",
@@ -35,7 +34,7 @@ fun LevelUpNavHost(
             )
         }
 
-        // 🏠 Pantalla principal o Home (placeholder temporal)
+
         composable("home") {
             PlaceholderScreen(
                 texto = "Pantalla Principal (Home) — En desarrollo",
