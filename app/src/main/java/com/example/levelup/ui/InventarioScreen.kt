@@ -34,7 +34,7 @@ fun InventarioScreen(
 ) {
     val productos by productosViewModel.productos.collectAsState()
 
-    // estado para seleccionar producto
+    // Estado para seleccionar producto
     var selectedProduct by remember { mutableStateOf<ProductosEntity?>(null) }
     var showConfirmDelete by remember { mutableStateOf(false) }
 
@@ -55,7 +55,7 @@ fun InventarioScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = DarkGray.copy(alpha = 0.95f)
                 )
             )

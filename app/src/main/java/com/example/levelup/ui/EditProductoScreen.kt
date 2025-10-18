@@ -12,6 +12,7 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +37,7 @@ fun EditProductScreen(
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
-            precioText = it.precio.toString() // formateo simple
+            precioText = BigDecimal.valueOf(it.precio).setScale(2,java.math.RoundingMode.HALF_UP).toPlainString()
             imagenUrl = it.imagenUrl
         }
     }

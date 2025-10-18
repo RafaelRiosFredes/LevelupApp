@@ -28,7 +28,7 @@ fun AddProductScreen(
     // Regex que acepta números enteros o con un solo punto decimal
     val numeroRegex = Regex("""^\d+(\.\d+)?$""")
 
-    // isValid ahora exige nombre y precio con formato numérico válido
+    // isValid exige nombre y precio con formato numérico válido
     val isValid = nombre.isNotBlank() && numeroRegex.matches(precioText)
 
     Scaffold(
@@ -60,15 +60,15 @@ fun AddProductScreen(
             OutlinedTextField(
                 value = precioText,
                 onValueChange = { raw ->
-                    // Filtrado en caliente: sólo permite dígitos y un único punto decimal.
+                    // Filtrado: sólo permite dígitos y un único punto decimal.
                     var puntoVisto = false
                     val filtered = StringBuilder()
                     for (ch in raw) {
                         if (ch == '.') {
                             if (!puntoVisto) {
-                                // evitar punto al inicio (".12" -> "0.12" sería más amable, pero aquí lo rechazamos)
+                                // evitar punto al inicio
                                 if (filtered.isEmpty()) {
-                                    // si el primer carácter es '.', preprendemos '0' para que quede "0."
+                                    // si el primer carácter es '.', preasignamos '0' para que quede "0."
                                     filtered.append('0')
                                 }
                                 filtered.append('.')
