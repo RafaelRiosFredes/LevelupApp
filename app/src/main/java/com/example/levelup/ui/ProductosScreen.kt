@@ -20,11 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
@@ -39,15 +41,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosScreen(
-    nav: NavHostController, // ✅ Ahora recibe el navController
+    nav: NavHostController,
     onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val application = context.applicationContext as Application
-    val db = AppDatabase.getInstance(application)
-    val repo = ProductosRepository(db.productosDao())
     val factory = ProductosViewModelFactory(application)
-    val viewModel: ProductosViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+    val viewModel: ProductosViewModel = viewModel(factory = factory)
 
     val productos by viewModel.productos.collectAsState()
 
@@ -95,7 +95,6 @@ fun ProductosScreen(
                     .padding(innerPadding)
                     .background(Color.Black)
             ) {
-                // 🔍 Barra de búsqueda
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
@@ -117,10 +116,9 @@ fun ProductosScreen(
                     contentPadding = PaddingValues(8.dp)
                 ) {
                     items(productos) { producto ->
-                        ProductoItem(
+                        ProductoItem( // ✅ Ahora este composable existe
                             producto = producto,
                             onClick = {
-                                // ✅ Al hacer clic, ir al detalle
                                 nav.navigate("producto/${producto.id}")
                             },
                             onAddToCart = {
@@ -134,6 +132,7 @@ fun ProductosScreen(
     }
 }
 
+// ✅ AGREGAR ESTE COMPOSABLE (el que te puse arriba)
 @Composable
 fun ProductoItem(
     producto: ProductosEntity,
@@ -145,30 +144,51 @@ fun ProductoItem(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .height(250.dp)
-            .clickable { onClick() } // ✅ clic lleva al detalle
+            .height(280.dp)
+            .clickable { onClick() }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(8.dp)
         ) {
             Image(
-                painter = rememberAsyncImagePainter(producto.imagenUrl),
+                painter = painterResource(id = producto.imagenRes),
                 contentDescription = producto.nombre,
                 modifier = Modifier
-                    .height(130.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
+                    .size(120.dp)
+                    .padding(top = 5.dp),
+                contentScale = ContentScale.Fit
             )
-            Text(producto.nombre, fontWeight = FontWeight.Bold)
-            Text("$${producto.precio}")
-            Button(onClick = onAddToCart) {
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = producto.nombre,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    maxLines = 2
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${producto.precio}",
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Button(
+                onClick = onAddToCart,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            ) {
                 Text("Añadir al carrito")
             }
         }
     }
 }
-
 @Composable
 fun DrawerContent(
     scope: CoroutineScope,

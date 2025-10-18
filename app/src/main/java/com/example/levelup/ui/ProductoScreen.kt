@@ -16,10 +16,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.model.local.ProductosEntity
 import com.example.levelup.model.local.AppDatabase
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.example.levelup.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,12 +63,12 @@ fun ProductoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(prod.imagenUrl),
-                    contentDescription = prod.nombre,
+                    painter = painterResource(id = prod.imagenRes), //poner nombre de imagen despues del punto
+                    contentDescription = "producto 1",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp),
-                    contentScale = ContentScale.Crop
+                        .size(250.dp)
+                        .padding(top = 5.dp),
+                    contentScale = ContentScale.Fit
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

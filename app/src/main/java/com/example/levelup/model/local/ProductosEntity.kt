@@ -4,15 +4,13 @@ package com.example.levelup.model.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+
 @Entity(tableName = "productos")
-data class ProductosEntity (
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+data class ProductosEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0, // ✅ Room manejará la generación automática
     val nombre: String,
     val precio: Double,
-    val imagenUrl: String,
+    val imagenRes: Int,
     val descripcion: String
 )
-
-
-
-

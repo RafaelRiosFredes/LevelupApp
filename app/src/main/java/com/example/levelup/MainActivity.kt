@@ -11,13 +11,12 @@ import com.example.levelup.ui.theme.LevelUpTheme
 
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?){
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent{
+        setContent {
             LevelUpTheme {
                 LevelUpNavHost()
             }
         }
     }
-
 }

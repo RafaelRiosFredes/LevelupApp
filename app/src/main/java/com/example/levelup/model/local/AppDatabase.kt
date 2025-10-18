@@ -7,10 +7,12 @@ import androidx.room.RoomDatabase
 
 
 
-@Database(entities = [ProductosEntity::class], version = 1,   exportSchema = false )
-
-abstract class AppDatabase  : RoomDatabase() {
-
+@Database(
+    entities = [ProductosEntity::class],
+    version = 2, // ✅ Cambiar de 1 a 2
+    exportSchema = false
+)
+abstract class AppDatabase : RoomDatabase() {
     abstract fun productosDao(): ProductosDao
 
     companion object {
@@ -23,13 +25,12 @@ abstract class AppDatabase  : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "levelup.db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // ✅ Agregar esto
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
     }
-
-
 }
-
