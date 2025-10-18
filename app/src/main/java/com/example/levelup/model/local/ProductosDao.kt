@@ -9,8 +9,7 @@ import androidx.room.Query
 interface ProductosDao {
 
     @Query("SELECT * FROM productos")
-    suspend fun getAllProductos(): List<ProductosEntity>
-
+    fun getAllProductos(): kotlinx.coroutines.flow.Flow<List<ProductosEntity>>
     @Query("SELECT * FROM productos WHERE id = :id")
     suspend fun getProductoPorId(id: Int): ProductosEntity?
 

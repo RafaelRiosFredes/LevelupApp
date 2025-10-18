@@ -20,14 +20,12 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
     // ✅ Agregar StateFlow para el producto seleccionado
     private val _productoSeleccionado = MutableStateFlow<ProductosEntity?>(null)
     val productoSeleccionado: StateFlow<ProductosEntity?> = _productoSeleccionado
-
     init {
         val dao = AppDatabase.getInstance(application).productosDao()
         repository = ProductosRepository(dao)
 
         viewModelScope.launch {
-            try {
-                val lista = repository.obtenerProductos()
+            repository.obtenerProductos().collect { lista ->
                 if (lista.isEmpty()) {
                     val productosIniciales = listOf(
                         ProductosEntity(
@@ -50,12 +48,8 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
                         )
                     )
                     repository.insertarProductos(productosIniciales)
-                    _productos.value = productosIniciales
-                } else {
-                    _productos.value = lista
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                _productos.value = lista
             }
         }
     }
