@@ -21,4 +21,18 @@ class ProductosViewModel (private val repo: ProductosRepository): ViewModel(){
             repo.insertar(producto)
         }
     }
+
+    fun eliminarProducto(producto: ProductosEntity) {
+        viewModelScope.launch {
+            repo.eliminar(producto)
+        }
+    }
+
+    fun actualizarProducto(producto: ProductosEntity) {
+        viewModelScope.launch {
+            repo.actualizar(producto)
+        }
+    }
+
+    fun productoPorId(id: Int): Flow<ProductosEntity?> = repo.obtenerPorId(id)
 }
