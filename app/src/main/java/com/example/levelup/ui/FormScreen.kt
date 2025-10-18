@@ -1,6 +1,7 @@
 package com.example.levelup.ui
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.levelup.ui.theme.GamerBlue
 import com.example.levelup.viewmodel.RegistroUsuarioViewModel
 import com.example.levelup.ui.theme.GamerGreen
@@ -44,7 +46,14 @@ fun FormScreen(
     val form by vm.form.collectAsState()
     val context = LocalContext.current //Da el acceso a android
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
+    // muestra los mensajes
+    LaunchedEffect(form.mensaje) {
+        form.mensaje?.let { mensaje ->
+            snackbarHostState.showSnackbar(mensaje)
+        }
+    }
 
     // carga la imagen desde la camara
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -70,10 +79,33 @@ fun FormScreen(
     // permisos de galeria
     val requestGalleryPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) galleryLauncher.launch("image/*")
+            if (granted) {
+                galleryLauncher.launch("image/*")
+            } else {
+                vm.onChangeCorreo("Permiso de galería denegado")
+            }
         }
 
-    // Color dinámico del botón Registrar
+    // fuerza permiso con galeria
+    fun abrirGaleriaConPermiso() {
+        val permiso =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                Manifest.permission.READ_MEDIA_IMAGES
+            else
+                Manifest.permission.READ_EXTERNAL_STORAGE
+
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(context, permiso) -> {
+                galleryLauncher.launch("image/*")
+            }
+
+            else -> {
+                requestGalleryPermission.launch(permiso)
+            }
+        }
+    }
+
+    // Colores dinámicos del botón Registrar
     val botonColor = if (
         form.mensaje?.contains("Completa") == true ||
         form.mensaje?.contains("Ya existe") == true ||
@@ -104,6 +136,22 @@ fun FormScreen(
                     )
                 )
             },
+            // tipos de mensajes dinamicos
+            snackbarHost = {
+                SnackbarHost(snackbarHostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = if (
+                            data.visuals.message.contains("exitoso", true) ||
+                            data.visuals.message.contains("Completado", true) ||
+                            data.visuals.message.contains("Duoc", true)
+                        ) GamerGreen else Color.Red,
+                        contentColor = Color.White,
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            },
             containerColor = Color.Black
         ) { padding ->
 
@@ -117,7 +165,7 @@ fun FormScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // espacio para circulo de foto de perfil
+                // circulo de foto de perfil
                 Box(
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -159,43 +207,26 @@ fun FormScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // boton "tomar una foto"
                     Button(
                         onClick = { requestCameraPermission.launch(Manifest.permission.CAMERA) },
                         colors = ButtonDefaults.buttonColors(containerColor = GamerBlue)
-                    ) { Text("Toma una foto", color = Color.White) }
+                    ) {
+                        Text("Toma una foto", color = Color.White)
+                    }
 
+                    // boton "Carga una foto"
                     Button(
-                        onClick = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                                requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            else
-                                requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        },
+                        onClick = { abrirGaleriaConPermiso() },
                         colors = ButtonDefaults.buttonColors(containerColor = GamerBlue)
-                    ) { Text("Ingresa una foto", color = Color.White) }
-                }
-
-
-
-                form.mensaje?.let {
-                    Text(
-                        it,
-                        color = if (it.contains("exitoso", true)) GamerGreen else Color.Red,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-
-                AnimatedVisibility(visible = form.mensaje != null) {
-                    Text(
-                        text = form.mensaje ?: "",
-                        color = if (form.mensaje?.contains("exitoso", true) == true ||
-                            form.mensaje?.contains("Duoc", true) == true) GamerGreen else Color.Red,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    ) {
+                        Text("Carga una foto", color = Color.White)
+                    }
                 }
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de Nombre
                 OutlinedTextField(
                     value = form.nombres,
                     onValueChange = vm::onChangeNombres,
@@ -215,6 +246,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de apellidos
                 OutlinedTextField(
                     value = form.apellidos,
                     onValueChange = vm::onChangeApellidos,
@@ -234,6 +266,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de Correo
                 OutlinedTextField(
                     value = form.correo,
                     onValueChange = vm::onChangeCorreo,
@@ -253,6 +286,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de Contraseña
                 OutlinedTextField(
                     value = form.contrasena,
                     onValueChange = vm::onChangeContrasena,
@@ -272,6 +306,7 @@ fun FormScreen(
                 )
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de ContraeñaConfirmacion
                 OutlinedTextField(
                     value = form.contrasenaConfirmacion,
                     onValueChange = vm::onChangeContrasenaConfirmacion,
@@ -292,6 +327,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de telefono
                 OutlinedTextField(
                     value = form.telefono,
                     onValueChange = vm::onChangeTelefono,
@@ -312,6 +348,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
+                // caja de texto de fecha de nacimiento
                 OutlinedTextField(
                     value = form.fechaNacimiento,
                     onValueChange = vm::onChangeFechaNacimiento,
@@ -331,7 +368,7 @@ fun FormScreen(
 
                 Spacer(Modifier.height(10.dp))
 
-
+                // boton registar
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -343,7 +380,6 @@ fun FormScreen(
                     ) {
                         Text("Registrar", color = Color.White)
                     }
-
                 }
 
                 Spacer(Modifier.height(30.dp))

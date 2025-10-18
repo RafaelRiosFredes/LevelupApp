@@ -23,7 +23,7 @@ fun RegistroUsuarioScreen(
         vm = vm,
         onSaved = {
             vm.registrarUsuario {
-                navController.navigate("login") {
+                navController.navigate("index") {
                     popUpTo("registro") { inclusive = true }
                 }
             }
