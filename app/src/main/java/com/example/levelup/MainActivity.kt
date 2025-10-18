@@ -12,8 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.levelup.navigation.AppNavigation
 import com.example.levelup.ui.theme.LevelUpTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     //Insertamos el flujo de navegación en lugar de Greeting()
                     Box(modifier = Modifier.padding(innerPadding)){
-                        AppNavigation()
+
                     }
                 }
             }
