@@ -1,30 +1,26 @@
 package com.example.levelup.repository
 
-
 import com.example.levelup.model.local.CarritoDao
 import com.example.levelup.model.local.CarritoEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 
-class CarroRepository(private val dao: CarritoDao) {
+class CarroRepository(private val carritoDao: CarritoDao) {
 
-    suspend fun obtenerCarrito() = withContext(Dispatchers.IO) {
-        dao.getCarrito()
+    val carritoItems: Flow<List<CarritoEntity>> = carritoDao.getAllCarrito()
+
+    suspend fun agregarProducto(producto: CarritoEntity) {
+        carritoDao.insertItem(producto)
     }
 
-    suspend fun agregarAlCarrito(item: CarritoEntity) = withContext(Dispatchers.IO) {
-        dao.agregarAlCarrito(item)
+    suspend fun eliminarProducto(producto: CarritoEntity) {
+        carritoDao.deleteItem(producto)
     }
 
-    suspend fun eliminarDelCarrito(productoId: Int) = withContext(Dispatchers.IO) {
-        dao.eliminarDelCarrito(productoId)
+    suspend fun actualizarProducto(producto: CarritoEntity) {
+        carritoDao.updateItem(producto)
     }
 
-    suspend fun limpiarCarrito() = withContext(Dispatchers.IO) {
-        dao.limpiarCarrito()
-    }
-
-    suspend fun actualizarCantidad(productoId: Int, cantidad: Int) = withContext(Dispatchers.IO) {
-        dao.actualizarCantidad(productoId, cantidad)
+    suspend fun limpiarCarrito() {
+        carritoDao.clearCarrito()
     }
 }

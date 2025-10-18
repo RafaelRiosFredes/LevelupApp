@@ -1,26 +1,29 @@
 package com.example.levelup.model.local
 
-
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
+import com.example.levelup.model.local.CarritoEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CarritoDao {
+
     @Query("SELECT * FROM carrito")
-    suspend fun getCarrito(): List<CarritoEntity>
+    fun getAllCarrito(): Flow<List<CarritoEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun agregarAlCarrito(item: CarritoEntity)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    suspend fun insertItem(item: CarritoEntity)
 
-    @Query("DELETE FROM carrito WHERE productoId = :productoId")
-    suspend fun eliminarDelCarrito(productoId: Int)
+    @Update
+    suspend fun updateItem(item: CarritoEntity)
+
+    @Delete
+    suspend fun deleteItem(item: CarritoEntity)
 
     @Query("DELETE FROM carrito")
-    suspend fun limpiarCarrito()
-
-    @Query("UPDATE carrito SET cantidad = :cantidad WHERE productoId = :productoId")
-    suspend fun actualizarCantidad(productoId: Int, cantidad: Int)
+    suspend fun clearCarrito()
 }

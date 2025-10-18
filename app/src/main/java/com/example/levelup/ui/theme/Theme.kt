@@ -5,7 +5,6 @@ package com.example.levelup.ui.theme
 import android.os.Build
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 
 import androidx.compose.material3.MaterialTheme
 
@@ -20,12 +19,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 import androidx.compose.ui.platform.LocalContext
-import com.example.levelup.ui.ui.theme.DarkGray
-import com.example.levelup.ui.ui.theme.GamerBlue
-import com.example.levelup.ui.ui.theme.GamerGreen
-import com.example.levelup.ui.ui.theme.JetBlack
-import com.example.levelup.ui.ui.theme.LightGray
-import com.example.levelup.ui.ui.theme.PureWhite
 
 
 // ----------- ESQUEMAS DE COLOR PERSONALIZADOS -----------
