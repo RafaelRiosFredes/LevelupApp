@@ -29,7 +29,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import com.example.levelup.ui.theme.GamerBlue
 import com.example.levelup.viewmodel.RegistroUsuarioViewModel
 import com.example.levelup.ui.theme.GamerGreen
@@ -38,18 +37,19 @@ import com.example.levelup.ui.theme.GamerGreen
 @Composable
 fun FormScreen(
     vm: RegistroUsuarioViewModel,
-    onBack: () -> Unit,
-    onSaved: () -> Unit
+    onSaved: () -> Unit  // se ejecuta si el usuario apreta "Registrar"
 ) {
     val form by vm.form.collectAsState()
-    val context = LocalContext.current
+    val context = LocalContext.current //Da el acceso a android
     val scrollState = rememberScrollState()
 
 
+    // carga la imagen desde la camara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? -> bitmap?.let { vm.onChangeFoto(it) } }
 
+    // carga la imagen desde la galeria
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -59,21 +59,24 @@ fun FormScreen(
         }
     }
 
-
+    // permisos de camara
     val requestCameraPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) cameraLauncher.launch()
         }
 
+    // permisos de galeria
     val requestGalleryPermission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) galleryLauncher.launch("image/*")
         }
 
-    val botonColor = if (form.mensaje?.contains("Completa") == true ||
+    // colores del boton "registrar" dependiendo del mensaje
+    val botonColor = if (
+        form.mensaje?.contains("Completa") == true ||
         form.mensaje?.contains("Ya existe") == true ||
         form.mensaje?.contains("inválido") == true ||
-        form.mensaje?.contains("menores") == true
+        form.mensaje?.contains("mayores") == true
     ) MaterialTheme.colorScheme.error else GamerGreen
 
 
@@ -145,7 +148,6 @@ fun FormScreen(
                     ) { Text("Ingresa una foto", color = Color.White) }
                 }
 
-                Divider(Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
 
                 form.mensaje?.let {
                     Text(

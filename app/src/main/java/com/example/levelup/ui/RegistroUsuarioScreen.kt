@@ -21,7 +21,6 @@ fun RegistroUsuarioScreen(
 
     FormScreen(
         vm = vm,
-        onBack = { navController.popBackStack() },
         onSaved = {
             vm.registrarUsuario {
                 navController.navigate("login") {

@@ -20,7 +20,6 @@ abstract class AppDatabase: RoomDatabase() {
                     AppDatabase::class.java,
                     "usuarios.db"
                 )
-                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }

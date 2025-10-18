@@ -13,6 +13,6 @@ data class RegistroUsuarioEntity(
     val telefono: Int?,
     val fechaNacimiento: String,
     val fotoPerfil: ByteArray?,
-    val Duoc: Boolean = false,
-    val DescApl: Boolean = false
+    val duoc: Boolean = false,
+    val descApl: Boolean = false
 )

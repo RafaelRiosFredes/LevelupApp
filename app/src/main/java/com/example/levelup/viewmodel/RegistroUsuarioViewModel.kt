@@ -51,6 +51,7 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
         viewModelScope.launch {
             val f = _form.value
 
+            // valida que todos los campos esten completos
             if (f.nombres.isBlank() || f.apellidos.isBlank() ||
                 f.correo.isBlank() || f.contrasena.length < 6 || f.fechaNacimiento.isBlank()
             ) {
@@ -64,12 +65,14 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 return@launch
             }
 
+            // valida que no haya un usuario con el mismo correo
             val existente = repo.obtenerPorCorreo(f.correo)
             if (existente != null) {
                 _form.update { it.copy(mensaje = "Ya existe un usuario con este correo") }
                 return@launch
             }
 
+            // valida la fecha de nacimiento en el formato correcto
             val formatter = DateTimeFormatter.ofPattern("d/M/yyyy")
             val fechaNac = try {
                 LocalDate.parse(f.fechaNacimiento.trim(), formatter)
@@ -78,13 +81,19 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 return@launch
             }
 
+            // verifica que el usuario sea +18
             val edad = Period.between(fechaNac, LocalDate.now()).years
             if (edad < 18) {
                 _form.update { it.copy(mensaje = "Solo mayores de 18 años se pueden registrarse") }
                 return@launch
             }
 
-            val Duoc = f.correo.contains("@duocuc.cl", ignoreCase = true)
+            // valida que el correo sea del duoc para el beneficio
+            val duoc = f.correo.contains("@duocuc.cl", ignoreCase = true)
+            if (duoc)
+                _form.update { it.copy(mensaje = "Beneficio Duoc aplicado!!") }
+
+
             val telefonoInt = f.telefono.toIntOrNull()
 
             val fotoBytes = f.fotoPerfil?.let {
@@ -101,14 +110,14 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 telefono = telefonoInt,
                 fechaNacimiento = f.fechaNacimiento,
                 fotoPerfil = fotoBytes,
-                Duoc = Duoc,
-                DescApl = Duoc
+                duoc = duoc,
+                descApl = duoc
             )
 
             repo.insertar(usuario)
             _form.update {
                 it.copy(
-                    mensaje = if (Duoc)
+                    mensaje = if (duoc)
                         "Registro Completado, Descuento Duoc aplicado!!"
                     else
                         "Registro exitoso"
