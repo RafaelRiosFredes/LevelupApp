@@ -5,9 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.levelup.ui.viewmodel.LevelUpNavHost
+import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
-import com.example.levelup.ui.viewmodel.CarritoViewModel
+import com.example.levelup.viewmodel.CarritoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

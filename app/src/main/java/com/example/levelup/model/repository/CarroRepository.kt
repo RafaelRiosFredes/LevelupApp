@@ -1,4 +1,4 @@
-package com.example.levelup.repository
+package com.example.levelup.model.repository
 
 import com.example.levelup.model.local.CarritoDao
 import com.example.levelup.model.local.CarritoEntity

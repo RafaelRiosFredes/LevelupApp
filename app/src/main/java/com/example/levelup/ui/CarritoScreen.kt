@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.levelup.model.local.CarritoEntity
-import com.example.levelup.ui.viewmodel.CarritoViewModel
+import com.example.levelup.viewmodel.CarritoViewModel
 
 @Composable
 fun CarritoScreen(viewModel: CarritoViewModel = viewModel()) {

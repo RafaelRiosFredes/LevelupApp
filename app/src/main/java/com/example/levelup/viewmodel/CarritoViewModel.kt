@@ -1,11 +1,11 @@
-package com.example.levelup.ui.viewmodel
+package com.example.levelup.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.model.local.AppDatabase
 import com.example.levelup.model.local.CarritoEntity
-import com.example.levelup.repository.CarroRepository
+import com.example.levelup.model.repository.CarroRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
