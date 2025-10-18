@@ -18,7 +18,7 @@ abstract class LoginDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     LoginDatabase::class.java,
-                    "login_database.db"
+                    "usuarios.db"
                 ).build().also { INSTANCE = it }
             }
     }
