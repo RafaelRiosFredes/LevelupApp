@@ -1,16 +1,14 @@
-package com.example.levelup.viewmodel
+package com.example.levelup_gamerapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.levelup.model.data.AppDatabase
-import com.example.levelup.model.repository.LoginRepository
 
 class LoginViewModelFactory(private val app: Application) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val dao = AppDatabase.get(app).registroUsuarioDao() // ✅ Usa la misma base del registro
-        val repo = LoginRepository(dao)
-        return LoginViewModel(repo) as T
+        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+            return LoginViewModel(app) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -32,6 +32,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -40,9 +42,15 @@ android {
     buildFeatures {
         compose = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
 }
 
 dependencies {
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.compose.runtime.saveable)
+    implementation(libs.androidx.compose.foundation)
     val roomVersion = "2.6.1"
     val lifecycleVersion = "2.8.6"
     val activityCompose = "1.9.3"
@@ -50,23 +58,27 @@ dependencies {
 
     // --- Compose ---
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+    implementation("androidx.compose.ui:ui-text")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    // --- Navigation & Activity ---
-    implementation("androidx.activity:activity-compose:$activityCompose")
-    implementation("androidx.navigation:navigation-compose:$navCompose")
 
-    // --- Lifecycle / MVVM ---
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+// --- ViewModel + Compose ---
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
-    // --- Room (SQLite) ---
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion") // ⚡ IMPORTANTE
+// --- Activity y Navigation ---
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+
+// --- Room ---
+    implementation("androidx.room:room-runtime:2.8.2")
+    implementation("androidx.room:room-ktx:2.8.2")
+    kapt("androidx.room:room-compiler:2.8.2")
+
 
     // --- Otros ---
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
