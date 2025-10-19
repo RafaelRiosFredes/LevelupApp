@@ -2,12 +2,18 @@ package com.example.levelup.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-//Tonos cálidos más claros
-val WarmOrange80 = Color(0xFFFFD8A8) // durazno claro
-val WarmYellow80 = Color(0xFFFFF3B0) // amarillo pastel
-val WarmRed80 = Color(0xFFFFB4A2)    // salmón
 
-// Tonos cálidos más oscuros
-val WarmOrange40 = Color(0xFFCC7722) // terracota
-val WarmYellow40 = Color(0xFFE0A106) // mostaza
-val WarmRed40 = Color(0xFFD1495B)   // rojo cálido
+
+// Paleta Level-Up Gamer
+
+val GamerGreen = Color(0xFF39FF14)  // Verde neón
+
+val GamerBlue = Color(0xFF00AAFF)  // Azul eléctrico
+
+val DarkGray = Color(0xFF1A1A1A)   // Fondo oscuro principal
+
+val LightGray = Color(0xFF262626)  // Tarjetas o contenedores
+
+val JetBlack = Color(0xFF000000)   // Fondo absoluto
+
+val PureWhite = Color(0xFFFFFFFF)  // Texto principal
