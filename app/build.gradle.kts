@@ -49,6 +49,10 @@ dependencies {
         implementation("androidx.room:room-ktx:$roomVersion")
         kapt("androidx.room:room-compiler:$roomVersion")
 
+        implementation("androidx.compose.material:material-icons-extended:1.7.0")
+        implementation("androidx.compose.material3:material3:1.3.0")
+
+
         // Core y Compose
         implementation(libs.androidx.core.ktx)
         implementation(libs.androidx.lifecycle.runtime.ktx)
