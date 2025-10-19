@@ -109,8 +109,10 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 return@launch
             }
 
-            //  Detectar correo DUOC
+            //  Detectar correo DUOC y si es ADMIN
             val duoc = f.correo.contains("@duocuc.cl", ignoreCase = true)
+            val esAdmin = f.correo.contains("admin@", ignoreCase = true) ||
+                    f.correo.endsWith("@admin.duocuc.cl", ignoreCase = true)
 
             //  Convertir teléfono a Long
             val telefonoLong = f.telefono.toLongOrNull()
@@ -132,7 +134,8 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 fechaNacimiento = f.fechaNacimiento,
                 fotoPerfil = fotoBytes,
                 duoc = duoc,
-                descApl = duoc
+                descApl = duoc,
+                rol = if (esAdmin) "admin" else "user"
             )
 
             //  insertar un usuario
@@ -146,10 +149,11 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
             // muestra un mensaje según el  tipo de correo
             _form.update {
                 it.copy(
-                    mensaje = if (duoc)
-                        "Registro Completado, Descuento Duoc aplicado!!"
-                    else
-                        "Registro exitoso"
+                    mensaje = when {
+                        duoc -> "Registro Completado 🎓 ¡Descuento Duoc aplicado!"
+                        esAdmin -> "Hola admin! administrador 🔧"
+                        else -> "Registro exitoso ✅"
+                    }
                 )
             }
 
@@ -161,4 +165,9 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
             onSuccess()
         }
     }
+    suspend fun obtenerUltimoUsuarioRegistrado(): RegistroUsuarioEntity? {
+        return repo.obtenerPorCorreo(_form.value.correo)
+    }
 }
+
+

@@ -14,5 +14,6 @@ data class RegistroUsuarioEntity(
     val fechaNacimiento: String,
     val fotoPerfil: ByteArray?,
     val duoc: Boolean = false,
-    val descApl: Boolean = false
+    val descApl: Boolean = false,
+    val rol: String = "user"
 )
