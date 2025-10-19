@@ -4,22 +4,27 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.levelup.model.local.LoginEntity
+import com.example.levelup.local.data.RegistroUsuarioDao
 
-@Database(entities = [LoginEntity::class], version = 1, exportSchema = false)
-abstract class LoginDatabase : RoomDatabase() {
-    abstract fun loginDao(): LoginDao
+@Database(entities = [RegistroUsuarioEntity::class], version = 2, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
+
+    abstract fun registroUsuarioDao(): RegistroUsuarioDao
 
     companion object {
-        @Volatile private var INSTANCE: LoginDatabase? = null
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): LoginDatabase =
+        fun get(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
-                    LoginDatabase::class.java,
+                    AppDatabase::class.java,
                     "usuarios.db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+                    .also { INSTANCE = it }
             }
     }
 }

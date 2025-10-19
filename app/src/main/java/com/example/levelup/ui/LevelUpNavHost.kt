@@ -7,28 +7,25 @@ import androidx.navigation.compose.rememberNavController
 import com.example.levelup.viewmodel.LoginViewModel
 
 @Composable
-fun UsuariosNavHost(vm: LoginViewModel) {
+fun LevelUpNavHost(vm: LoginViewModel) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
-        // 🔹 Pantalla de Login
         composable("login") {
-            LoginScreen(vm) {
-            //   onNavigateToRegistroUsuario() {
-                    navController.navigate("registro")
-                }
-            }
-            // ruta de "registro" cuando apreta "¿aun sin cuenta?"
-        composable("registro") {
-           // RegistroUsuarioScreen(navController)
-            }
+            LoginScreen(vm, navController)
         }
-        // pantalla que muestra al iniciar sesion
-       // composable("index") {
-            //paginadeindex()
-         }
-    // }
- //}
+
+
+        composable("registro") {
+            // RegistroUsuarioScreen(navController)
+        }
+
+
+        composable("index") {
+           // IndexScreen()
+        }
+    }
+}

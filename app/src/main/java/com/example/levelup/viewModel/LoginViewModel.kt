@@ -27,21 +27,50 @@ class LoginViewModel(private val repo: LoginRepository) : ViewModel() {
         _form.value = _form.value.copy(contrasena = v)
     }
 
-
     fun validarUsuario() {
         viewModelScope.launch {
             val f = _form.value
+
+            // Validación de campos vacíos
             if (f.correo.isBlank() || f.contrasena.isBlank()) {
-                _form.value = f.copy(mensaje = "Completa todos los campos")
+                _form.value = f.copy(mensaje = "Completa todos los campos", exito = false)
                 return@launch
             }
 
-            val esValido = repo.validarUsuario(f.correo, f.contrasena)
-            _form.value = if (esValido)
-                f.copy(exito = true, mensaje = "Inicio de sesión exitoso")
-            else
-                f.copy(mensaje = "Correo o contraseña incorrectos")
+            try {
+                val usuario = repo.obtenerUsuarioPorCorreo(f.correo)
+
+                when {
+                    usuario == null -> {
+                        _form.value = f.copy(
+                            mensaje = "Usuario no encontrado",
+                            exito = false
+                        )
+                    }
+
+                    usuario.contrasena != f.contrasena -> {
+                        _form.value = f.copy(
+                            mensaje = "Contraseña incorrecta",
+                            exito = false
+                        )
+                    }
+
+                    else -> {
+                        _form.value = f.copy(
+                            mensaje = "Inicio de sesión exitoso",
+                            exito = true
+                        )
+                    }
+                }
+
+            } catch (e: Exception) {
+                _form.value = f.copy(
+                    mensaje = "Error al validar usuario",
+                    exito = false
+                )
+            }
         }
     }
+
 
 }
