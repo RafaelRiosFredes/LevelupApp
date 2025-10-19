@@ -17,7 +17,7 @@ abstract class AppDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "categorias.db"
+                    "levelup.db"
                 ).build().also { INSTANCE = it }
             }
     }

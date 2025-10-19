@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,8 +13,7 @@ import com.example.levelup.viewmodel.CategoriaViewModel
 import com.example.levelup.viewmodel.CategoriaViewModelFactory
 
 @Composable
-fun LevelUpNavHost(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
+fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostController = rememberNavController()) {
 
     // Instancia el ViewModel con la factory que usa Application (igual que en la rama login)
     val app = LocalContext.current.applicationContext as Application
@@ -55,7 +55,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier) {
         }
 
         composable("registro") {
-            // LoginScreen(...)  // si existe
+            // RegistroScreen
         }
 
         composable("login") {
