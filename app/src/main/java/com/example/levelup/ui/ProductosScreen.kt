@@ -23,9 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +44,7 @@ import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,13 +105,13 @@ fun ProductosScreen(
             ) {
                 CustomSearchBar(
                     query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO: Filtrar productos */ }
+                    onQueryChange = { value -> searchQuery = value },
+                    onSearch = { /* TODO: Filtrar productos con searchQuery */ }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "🛒 Nuestros Productos",
+                    text = "Nuestros Productos",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -136,7 +136,8 @@ fun ProductosScreen(
     }
 }
 
-// 🟢 PRODUCTO ITEM
+/* ------------------------- ProductoItem ------------------------- */
+
 @Composable
 fun ProductoItem(
     producto: ProductosEntity,
@@ -145,15 +146,15 @@ fun ProductoItem(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val localSnack = remember { SnackbarHostState() }
 
-    // 💡 Animación para el brillo "neón pulsante"
+    // Animación de “brillo” suave del botón
     val infiniteTransition = rememberInfiniteTransition(label = "neonPulse")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
+        initialValue = 0.65f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1500, easing = LinearEasing),
+            animation = tween(durationMillis = 1400, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "glow"
@@ -164,7 +165,7 @@ fun ProductoItem(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
-                .height(370.dp)
+                .height(380.dp)
                 .clickable { onClick() }
                 .graphicsLayer {
                     shadowElevation = 12f
@@ -184,7 +185,7 @@ fun ProductoItem(
                     .fillMaxSize()
                     .padding(12.dp)
             ) {
-                // 🖼 Imagen
+                // Imagen
                 Image(
                     painter = painterResource(id = producto.imagenRes),
                     contentDescription = producto.nombre,
@@ -194,7 +195,7 @@ fun ProductoItem(
                     contentScale = ContentScale.Fit
                 )
 
-                // 🏷 Nombre y precio centrados
+                // Nombre y precio
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
@@ -208,9 +209,10 @@ fun ProductoItem(
                         fontSize = 17.sp,
                         color = Color.White,
                         lineHeight = 20.sp,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 6.dp),
-                        maxLines = 2
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -219,21 +221,20 @@ fun ProductoItem(
                         text = "$${producto.precio}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 19.sp,
-                        color = Color(0xFF39FF14), // ✅ Verde sólido sin brillo
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        color = Color(0xFF39FF14),
+                        textAlign = TextAlign.Center
                     )
-
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // 🛒 Botón animado gamer con brillo, rebote y snackbar
+                // Botón Añadir al carrito
                 Button(
                     onClick = {
                         isPressed = true
                         onAddToCart()
                         scope.launch {
-                            snackbarHostState.showSnackbar("✅ Producto añadido al carrito")
+                            localSnack.showSnackbar("✅ Producto añadido al carrito")
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -243,10 +244,10 @@ fun ProductoItem(
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(65.dp)
+                        .height(60.dp)
                         .graphicsLayer {
-                            scaleX = if (isPressed) 1.08f else 1f
-                            scaleY = if (isPressed) 1.08f else 1f
+                            scaleX = if (isPressed) 1.06f else 1f
+                            scaleY = if (isPressed) 1.06f else 1f
                             shadowElevation = if (isPressed) 24f else 8f
                         }
                 ) {
@@ -259,19 +260,19 @@ fun ProductoItem(
                     )
                 }
 
-                // 🔄 Restablecer animación del rebote
+                // Reset rebote
                 LaunchedEffect(isPressed) {
                     if (isPressed) {
-                        kotlinx.coroutines.delay(150)
+                        delay(150)
                         isPressed = false
                     }
                 }
             }
         }
 
-        // 🧃 Snackbar gamer
+        // Snackbar local del item
         SnackbarHost(
-            hostState = snackbarHostState,
+            hostState = localSnack,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 10.dp)
@@ -290,7 +291,9 @@ fun ProductoItem(
         }
     }
 }
-// 🟢 DRAWER CONTENT
+
+/* ------------------------- DrawerContent ------------------------- */
+
 @Composable
 fun DrawerContent(
     scope: CoroutineScope,
@@ -330,12 +333,14 @@ fun DrawerContent(
                 text = "LEVEL-UP GAMER",
                 color = Color(0xFF39FF14),
                 fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Menú principal
         DrawerItem("Inicio", Icons.Default.Home, scope, drawerState, snackbarHostState)
         DrawerItem("Juegos de Mesa", null, scope, drawerState, snackbarHostState)
         DrawerItem("Accesorios", null, scope, drawerState, snackbarHostState)
@@ -343,10 +348,71 @@ fun DrawerContent(
         DrawerItem("Contacto", null, scope, drawerState, snackbarHostState)
         DrawerItem("Noticias", null, scope, drawerState, snackbarHostState)
         DrawerItem("Carrito", Icons.Default.ShoppingCart, scope, drawerState, snackbarHostState)
+
+        // Separador
+        Divider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Color.DarkGray,
+            thickness = 1.dp
+        )
+
+        // Sección de cuenta / usuario
+        NavigationDrawerItem(
+            label = { Text("Inicia sesión", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    snackbarHostState.showSnackbar("Inicia sesión seleccionado")
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Regístrate", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    snackbarHostState.showSnackbar("Regístrate seleccionado")
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Mi cuenta", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                }
+            },
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Puntos LevelUp", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
+                }
+            },
+            icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
-// 🟢 DRAWER ITEM
+/* ------------------------- DrawerItem helper ------------------------- */
+
 @Composable
 fun DrawerItem(
     title: String,
@@ -365,15 +431,16 @@ fun DrawerItem(
             }
         },
         icon = {
-            icon?.let {
-                Icon(it, contentDescription = title, tint = Color.White)
+            if (icon != null) {
+                Icon(icon, contentDescription = title, tint = Color.White)
             }
         },
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 }
 
-// 🟢 CUSTOM SEARCH BAR
+/* ------------------------- CustomSearchBar ------------------------- */
+
 @Composable
 fun CustomSearchBar(
     query: String,
@@ -390,14 +457,8 @@ fun CustomSearchBar(
     ) {
         OutlinedTextField(
             value = query,
-            onValueChange = onQueryChange,
-            placeholder = {
-                Text(
-                    "Buscar en LEVEL-UP GAMER",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            },
+            onValueChange = { value -> onQueryChange(value) },
+            placeholder = { Text("Buscar en LEVEL-UP GAMER", color = Color.Gray, fontSize = 14.sp) },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF39FF14),
