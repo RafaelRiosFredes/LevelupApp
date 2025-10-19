@@ -102,6 +102,7 @@ android {
 dependencies {
 
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.compose.foundation)
     // ------------------------------
 
     // 🔹 Versiones

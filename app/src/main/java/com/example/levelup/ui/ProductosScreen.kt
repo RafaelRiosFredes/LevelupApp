@@ -1,6 +1,12 @@
 package com.example.levelup.ui
 
 import android.app.Application
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,7 +23,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -24,15 +34,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
-import com.example.levelup.model.local.AppDatabase
 import com.example.levelup.model.local.ProductosEntity
-import com.example.levelup.model.repository.ProductosRepository
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -95,7 +103,7 @@ fun ProductosScreen(
                     .padding(innerPadding)
                     .background(Color.Black)
             ) {
-                SearchBar(
+                CustomSearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = { /* TODO: Filtrar productos */ }
@@ -116,14 +124,10 @@ fun ProductosScreen(
                     contentPadding = PaddingValues(8.dp)
                 ) {
                     items(productos) { producto ->
-                        ProductoItem( // ✅ Ahora este composable existe
+                        ProductoItem(
                             producto = producto,
-                            onClick = {
-                                nav.navigate("producto/${producto.id}")
-                            },
-                            onAddToCart = {
-                                viewModel.agregarAlCarrito(producto)
-                            }
+                            onClick = { nav.navigate("producto/${producto.id}") },
+                            onAddToCart = { viewModel.agregarAlCarrito(producto) }
                         )
                     }
                 }
@@ -132,63 +136,161 @@ fun ProductosScreen(
     }
 }
 
-// ✅ AGREGAR ESTE COMPOSABLE (el que te puse arriba)
+// 🟢 PRODUCTO ITEM
 @Composable
 fun ProductoItem(
     producto: ProductosEntity,
     onClick: () -> Unit,
     onAddToCart: () -> Unit
 ) {
-    Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .height(280.dp)
-            .clickable { onClick() }
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(8.dp)
+    var isPressed by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // 💡 Animación para el brillo "neón pulsante"
+    val infiniteTransition = rememberInfiniteTransition(label = "neonPulse")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .height(370.dp)
+                .clickable { onClick() }
+                .graphicsLayer {
+                    shadowElevation = 12f
+                    shape = RoundedCornerShape(18.dp)
+                    clip = true
+                },
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF1A1A1A),
+                contentColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            Image(
-                painter = painterResource(id = producto.imagenRes),
-                contentDescription = producto.nombre,
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(top = 5.dp),
-                contentScale = ContentScale.Fit
-            )
-
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = producto.nombre,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                    maxLines = 2
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "$${producto.precio}",
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Button(
-                onClick = onAddToCart,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+                    .fillMaxSize()
+                    .padding(12.dp)
             ) {
-                Text("Añadir al carrito")
+                // 🖼 Imagen
+                Image(
+                    painter = painterResource(id = producto.imagenRes),
+                    contentDescription = producto.nombre,
+                    modifier = Modifier
+                        .size(140.dp)
+                        .padding(top = 5.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+                // 🏷 Nombre y precio centrados
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .padding(vertical = 6.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = producto.nombre,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp,
+                        color = Color.White,
+                        lineHeight = 20.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                        maxLines = 2
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "$${producto.precio}",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 19.sp,
+                        color = Color(0xFF39FF14), // ✅ Verde sólido sin brillo
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // 🛒 Botón animado gamer con brillo, rebote y snackbar
+                Button(
+                    onClick = {
+                        isPressed = true
+                        onAddToCart()
+                        scope.launch {
+                            snackbarHostState.showSnackbar("✅ Producto añadido al carrito")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF39FF14).copy(alpha = glowAlpha),
+                        contentColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(65.dp)
+                        .graphicsLayer {
+                            scaleX = if (isPressed) 1.08f else 1f
+                            scaleY = if (isPressed) 1.08f else 1f
+                            shadowElevation = if (isPressed) 24f else 8f
+                        }
+                ) {
+                    Text(
+                        text = "Añadir al carrito",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // 🔄 Restablecer animación del rebote
+                LaunchedEffect(isPressed) {
+                    if (isPressed) {
+                        kotlinx.coroutines.delay(150)
+                        isPressed = false
+                    }
+                }
+            }
+        }
+
+        // 🧃 Snackbar gamer
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)
+        ) { data ->
+            Snackbar(
+                containerColor = Color(0xFF39FF14),
+                contentColor = Color.Black,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = data.visuals.message,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
             }
         }
     }
 }
+// 🟢 DRAWER CONTENT
 @Composable
 fun DrawerContent(
     scope: CoroutineScope,
@@ -244,6 +346,7 @@ fun DrawerContent(
     }
 }
 
+// 🟢 DRAWER ITEM
 @Composable
 fun DrawerItem(
     title: String,
@@ -270,8 +373,9 @@ fun DrawerItem(
     )
 }
 
+// 🟢 CUSTOM SEARCH BAR
 @Composable
-fun SearchBar(
+fun CustomSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit
@@ -287,7 +391,13 @@ fun SearchBar(
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text("Buscar en LEVEL-UP GAMER", color = Color.Gray, fontSize = 14.sp) },
+            placeholder = {
+                Text(
+                    "Buscar en LEVEL-UP GAMER",
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+            },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF39FF14),

@@ -12,16 +12,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.model.local.ProductosEntity
 import com.example.levelup.model.local.AppDatabase
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.levelup.R
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,66 +46,106 @@ fun ProductoScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Detalle del producto") },
+                title = {
+                    Text(
+                        text = "Detalle del producto",
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF39FF14)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color(0xFF39FF14)
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Black
+                )
             )
-        }
+        },
+        containerColor = Color.Black
     ) { padding ->
         producto?.let { prod ->
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
+                // 🖼 Imagen principal
                 Image(
-                    painter = painterResource(id = prod.imagenRes), //poner nombre de imagen despues del punto
-                    contentDescription = "producto 1",
+                    painter = painterResource(id = prod.imagenRes),
+                    contentDescription = prod.nombre,
                     modifier = Modifier
-                        .size(250.dp)
-                        .padding(top = 5.dp),
+                        .size(260.dp)
+                        .padding(top = 10.dp),
                     contentScale = ContentScale.Fit
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
+                // 🏷 Nombre
                 Text(
                     text = prod.nombre,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
+                // 📜 Descripción
                 Text(
                     text = prod.descripcion,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.LightGray,
+                    textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
+                // 💸 Precio centrado visualmente
                 Text(
                     text = "Precio: $${prod.precio}",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    fontSize = 22.sp,
+                    color = Color(0xFF39FF14),
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(80.dp)) // ✅ Baja el botón visualmente
 
-                Button(onClick = { /* TODO: Agregar al carrito */ }) {
-                    Text("Añadir al carrito")
+                // 🛒 Botón gamer grande y ovalado
+                Button(
+                    onClick = { /* TODO: Agregar al carrito */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF39FF14),
+                        contentColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(60.dp)
+                ) {
+                    Text(
+                        "Añadir al carrito",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         } ?: Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = Color(0xFF39FF14))
         }
     }
 }
