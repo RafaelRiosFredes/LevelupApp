@@ -27,7 +27,17 @@ fun LevelUpNavHost(modifier: Modifier = Modifier) {
             InventarioScreen(
                 productosViewModel = productosViewModel,
                 onAgregarClick = { navController.navigate("agregar") },
-                onEditarClick = { id -> navController.navigate("editar/$id") }
+                onEditarClick = { id -> navController.navigate("editar/$id") },
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    }
+                }
             )
         }
 
