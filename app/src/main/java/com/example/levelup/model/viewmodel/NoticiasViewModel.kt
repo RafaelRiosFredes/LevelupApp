@@ -7,18 +7,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class NoticiasViewModel (
+class NoticiasViewModel(
     private val repo: NoticiaRepository = NoticiaRepository()
 ) : ViewModel() {
 
     private val _noticias = MutableStateFlow<List<NoticiaEntity>>(emptyList())
-    val noicias: StateFlow<List<NoticiaEntity>> = _noticias.asStateFlow()
+    val noticias: StateFlow<List<NoticiaEntity>> = _noticias.asStateFlow()
 
     init {
         cargarNoticias()
     }
 
-    private fun cargarNoticias(){
+    private fun cargarNoticias() {
         _noticias.value = repo.obtenerNoticias()
     }
 }
