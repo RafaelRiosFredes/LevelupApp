@@ -41,13 +41,17 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.adaptive)
+    implementation(libs.androidx.compose.material3.window.size.class1)
+    implementation(libs.androidx.compose.foundation)
     val navCompose = "2.8.3"
     val activityCompose = "1.9.3"
     val lifecycleVersion = "2.8.6"
     val roomVersion = "2.6.1"
 
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
-
+    implementation("androidx.compose.material3.adaptive:adaptive:1.1.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0")
 
     implementation("androidx.activity:activity-compose:${activityCompose}")
 

@@ -6,5 +6,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoriaDao {
     @Query("SELECT * FROM categorias")
-    fun obtenerTodos(): Flow<List<CategoriaEntity>>
+    fun obtenerTodas(): Flow<List<CategoriaEntity>>
+
+
 }

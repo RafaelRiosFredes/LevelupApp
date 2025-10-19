@@ -1,0 +1,20 @@
+package com.example.levelup.model.repository
+
+import com.example.levelup.model.data.ProductosDao
+import com.example.levelup.model.data.ProductosEntity
+import kotlinx.coroutines.flow.Flow
+
+class ProductosRepository(private val dao: ProductosDao) {
+
+    fun  todosLosProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
+
+    suspend fun insertar(producto: ProductosEntity) = dao.insertar(producto)
+
+    suspend fun actualizar(producto: ProductosEntity) = dao.actualizar(producto)
+
+    suspend fun eliminar(producto: ProductosEntity) = dao.eliminar(producto)
+
+    fun obtenerPorId(id: Int): Flow<ProductosEntity?> {
+        return dao.obtenerPorId(id)
+    }
+}
