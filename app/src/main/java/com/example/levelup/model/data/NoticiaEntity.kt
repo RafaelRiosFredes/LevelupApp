@@ -1,6 +1,6 @@
 package com.example.levelup.model.data
 
-class NoticiaEntity (
+data class NoticiaEntity(
     val id: Int,
     val titulo: String,
     val descripcion: String,

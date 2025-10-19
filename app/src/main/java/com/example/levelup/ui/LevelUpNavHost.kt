@@ -9,7 +9,6 @@ import androidx.navigation.compose.rememberNavController
 fun LevelUpNavHost() {
     val navController = rememberNavController()
 
-    // 🚀 Solo una pantalla activa: Noticias
     NavHost(
         navController = navController,
         startDestination = "noticias"
