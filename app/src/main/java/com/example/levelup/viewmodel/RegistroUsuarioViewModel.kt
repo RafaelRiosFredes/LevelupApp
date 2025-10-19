@@ -151,7 +151,7 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
                 it.copy(
                     mensaje = when {
                         duoc -> "Registro Completado 🎓 ¡Descuento Duoc aplicado!"
-                        esAdmin -> "Hola admin! administrador 🔧"
+                        esAdmin -> "Hola admin!"
                         else -> "Registro exitoso ✅"
                     }
                 )
