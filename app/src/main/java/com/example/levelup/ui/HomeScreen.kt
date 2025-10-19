@@ -20,13 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
-import com.example.levelup.model.local.CategoriaEntity
+import com.example.levelup.model.data.CategoriaEntity
 import com.example.levelup.viewmodel.CategoriaViewModel
 import kotlinx.coroutines.launch
 
@@ -43,7 +44,9 @@ data class Categoria(
 // -------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal(vm: CategoriaViewModel) {
+fun PantallaPrincipal(vm: CategoriaViewModel,
+                      onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
+                      onLogout: () -> Unit = {}   ) {
     // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -110,7 +113,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Inicio seleccionado")
+                                onNavigate("index")
                             }
                         },
                         icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
@@ -123,7 +126,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Juegos de Mesa seleccionado")
+                                onNavigate("productos")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -135,7 +138,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Accesorios seleccionado")
+                                onNavigate("productos")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -147,7 +150,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Consolas seleccionado")
+                                onNavigate("productos")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -159,7 +162,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Contacto seleccionado")
+                                onNavigate("contacto")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -171,7 +174,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Noticias seleccionado")
+                                onNavigate("noticias")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -200,14 +203,18 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Carrito seleccionado")
+                                onNavigate("carrito")
                             }
                         },
                         icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.DarkGray
+                    )
 
                     NavigationDrawerItem(
                         label = { Text("Inicia sesión", color = Color.White) },
@@ -215,7 +222,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Inicia sesión seleccionado")
+                                onNavigate("login")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -227,7 +234,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Regístrate seleccionado")
+                                onNavigate("registro")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -310,17 +317,6 @@ fun PantallaPrincipal(vm: CategoriaViewModel) {
 fun CategoriasGrid(
     vm: CategoriaViewModel
 ) {
-//    val categorias = listOf(
-//        Categoria("Juegos de Mesa", "https://img.icons8.com/?size=100&id=Rz3NTZkvlexz&format=png&color=39ff14"),
-//        Categoria("Accesorios", "https://img.icons8.com/?size=100&id=MlGniXnp6gP1&format=png&color=39ff14"),
-//        Categoria("Consolas", "https://img.icons8.com/?size=100&id=Tb5XGbRvSX2v&format=png&color=39ff14"),
-//        Categoria("Computadores Gamer", "https://img.icons8.com/?size=100&id=5QX8hl5ld2od&format=png&color=39ff14"),
-//        Categoria("Sillas Gamer", "https://img.icons8.com/?size=100&id=cnYTrlcPnC0e&format=png&color=39ff14"),
-//        Categoria("Mouse", "https://img.icons8.com/?size=100&id=nzxaVHSTEeb8&format=png&color=39ff14"),
-//        Categoria("Mousepad", "https://img.icons8.com/?size=100&id=xZ83Lf2CSaVj&format=png&color=39ff14"),
-//        Categoria("Poleras Personalizadas", "https://img.icons8.com/?size=100&id=N757ereBOFWm&format=png&color=39ff14"),
-//        Categoria("Poleras Gamer Personalizadas", "https://img.icons8.com/?size=100&id=aprOfFsRz9MN&format=png&color=39ff14")
-//    )
 
     val categorias by vm.categorias.collectAsState()
 

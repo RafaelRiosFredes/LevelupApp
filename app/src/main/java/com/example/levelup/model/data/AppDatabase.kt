@@ -1,4 +1,4 @@
-package com.example.levelup.model.local
+package com.example.levelup.model.data
 
 import android.content.Context
 import androidx.room.Database

@@ -2,7 +2,7 @@ package com.example.levelup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.model.local.CategoriaEntity
+import com.example.levelup.model.data.CategoriaEntity
 import com.example.levelup.model.repository.CategoriaRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

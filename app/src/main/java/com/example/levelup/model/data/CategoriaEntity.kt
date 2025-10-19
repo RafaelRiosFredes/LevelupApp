@@ -1,4 +1,4 @@
-package com.example.levelup.model.local
+package com.example.levelup.model.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
