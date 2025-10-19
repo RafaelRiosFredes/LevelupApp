@@ -7,4 +7,8 @@ class LoginRepository(private val dao: RegistroUsuarioDAO) {
         val usuario = dao.verificarLogin(correo, contrasena)
         return usuario != null
     }
+
+    suspend fun login(correo: String, contrasena: String): RegistroUsuarioEntity? {
+        return dao.verificarLogin(correo, contrasena)
+    }
 }
