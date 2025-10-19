@@ -2,7 +2,7 @@ package com.example.levelup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

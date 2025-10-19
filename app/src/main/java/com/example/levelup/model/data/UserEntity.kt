@@ -1,4 +1,4 @@
-package com.example.levelup.model.local
+package com.example.levelup.model.data
 
 data class UserEntity (
     val correo: String,

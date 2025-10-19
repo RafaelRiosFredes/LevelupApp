@@ -1,7 +1,7 @@
 package com.example.levelup.model.repository
 
-import com.example.levelup.model.local.ProductosDao
-import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.data.ProductosDao
+import com.example.levelup.model.data.ProductosEntity
 import kotlinx.coroutines.flow.Flow
 
 class ProductosRepository(private val dao: ProductosDao) {

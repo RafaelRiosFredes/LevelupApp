@@ -16,7 +16,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.ui.theme.DarkGray
 import com.example.levelup.ui.theme.GamerGreen

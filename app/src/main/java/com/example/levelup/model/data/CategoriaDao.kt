@@ -1,4 +1,4 @@
-package com.example.levelup.model.local
+package com.example.levelup.model.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
