@@ -291,7 +291,7 @@ fun PantallaPrincipal(vm: CategoriaViewModel,
                             fontWeight = FontWeight.Bold
                         )
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Black)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
                 )
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
