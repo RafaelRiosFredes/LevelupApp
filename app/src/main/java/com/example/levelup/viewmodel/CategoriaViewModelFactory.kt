@@ -10,7 +10,7 @@ class CategoriaViewModelFactory(private val app: Application) : ViewModelProvide
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T{
         val db = AppDatabase.get(app)
-        val repo = CategoriaRepository(db.exposeDao())
+        val repo = CategoriaRepository(db.categoriaDao())
         return CategoriaViewModel(repo) as T
     }
 }

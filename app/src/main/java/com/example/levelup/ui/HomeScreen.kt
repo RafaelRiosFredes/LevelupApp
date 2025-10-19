@@ -47,7 +47,6 @@ data class Categoria(
 fun PantallaPrincipal(vm: CategoriaViewModel,
                       onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
                       onLogout: () -> Unit = {}   ) {
-    // Copiado de PantallaContacto: snackbar, scope, estado del drawer y searchQuery
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
