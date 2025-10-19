@@ -10,7 +10,7 @@ data class RegistroUsuarioEntity(
     val apellidos: String,
     val correo: String,
     val contrasena: String,
-    val telefono: Int?,
+    val telefono: Long?,
     val fechaNacimiento: String,
     val fotoPerfil: ByteArray?,
     val duoc: Boolean = false,

@@ -19,12 +19,16 @@ fun RegistroUsuarioScreen(
         factory = RegistroUsuarioViewModelFactory(app)
     )
 
+
     FormScreen(
         vm = vm,
         onSaved = {
             vm.registrarUsuario {
+                // Navega al index solo si el registro fue exitoso
                 navController.navigate("index") {
+
                     popUpTo("registro") { inclusive = true }
+                    launchSingleTop = true
                 }
             }
         }

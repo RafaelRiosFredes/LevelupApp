@@ -1,13 +1,11 @@
 package com.example.levelup.ui
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
 
 @Composable
 fun LevelUpNavHost(
@@ -22,10 +20,9 @@ fun LevelUpNavHost(
             RegistroUsuarioScreen(navController)
         }
 
-        // Pantalla principal
+        // Ruta a index
         composable("index") {
-             // IndexScreen(navController)
+
         }
     }
 }
-
