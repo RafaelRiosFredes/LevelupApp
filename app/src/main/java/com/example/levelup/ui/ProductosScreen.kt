@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.levelup.R
-import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactory
 import kotlinx.coroutines.CoroutineScope

@@ -12,14 +12,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.levelup.model.local.ProductosEntity
-import com.example.levelup.model.local.AppDatabase
+import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.model.data.AppDatabase
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.example.levelup.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign

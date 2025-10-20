@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.R
-import com.example.levelup.model.local.AppDatabase
-import com.example.levelup.model.local.ProductosEntity
+import com.example.levelup.model.data.AppDatabase
+import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.model.repository.ProductosRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +54,7 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // ✅ Nuevo método para obtener producto por ID
+    //Nuevo método para obtener producto por ID
     fun obtenerProductoPorId(id: Int) {
         viewModelScope.launch {
             try {

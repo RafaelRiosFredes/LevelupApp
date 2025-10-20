@@ -12,10 +12,11 @@ import com.example.levelup.ui.theme.LevelUpTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Define el contenido de la interfaz usando compose
         super.onCreate(savedInstanceState)
         setContent {
-            LevelUpTheme {
-                LevelUpNavHost()
+            LevelUpTheme {//aplica el tema visual
+                LevelUpNavHost()//Controla la navegacion entre pantallas
             }
         }
     }
