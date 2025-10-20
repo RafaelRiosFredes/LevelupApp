@@ -18,4 +18,8 @@ class UsuariosRepository(private val dao: UsuarioDao) {
     suspend fun eliminarPorCorreo(correo: String) = dao.eliminarPorCorreo(correo)
 
     suspend fun obtenerPorCorreo(correo: String) = dao.obtenerPorCorreo(correo)
+
+    suspend fun login(correo: String,contrasena: String): UsuarioEntity?{
+        return dao.verificarLogin(correo,contrasena)
+    }
 }

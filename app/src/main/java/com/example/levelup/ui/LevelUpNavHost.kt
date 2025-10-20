@@ -16,6 +16,7 @@ import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
+import com.example.levelup_gamerapp.ui.LoginScreen
 
 @Composable
 fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostController = rememberNavController()) {
@@ -136,7 +137,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         }
 
         composable("login") {
-            // LoginScreen(...)  // si existe
+            LoginScreen(navController)
         }
 
         composable("productos") {

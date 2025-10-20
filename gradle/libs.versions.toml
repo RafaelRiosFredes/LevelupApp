@@ -16,6 +16,7 @@ roomCommonJvm = "2.8.2"
 roomKtx = "2.8.2"
 navigationCompose = "2.9.5"
 runtime = "1.9.3"
+runtimeSaveable = "1.9.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,9 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -22,6 +22,8 @@ import com.example.levelup.ui.theme.LevelUpTheme
 import com.example.levelup.viewmodel.CategoriaViewModel
 import com.example.levelup.viewmodel.CategoriaViewModelFactory
 
+import androidx.navigation.compose.rememberNavController
+
 
 class MainActivity : ComponentActivity() {
 

@@ -28,6 +28,7 @@ data class RegistroFormState(
 
 class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
 
+    private val _mensaje = MutableStateFlow("")
     private val _form = MutableStateFlow(RegistroFormState())
     val form: StateFlow<RegistroFormState> = _form.asStateFlow()
 
@@ -172,6 +173,24 @@ class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
     suspend fun obtenerUltimoUsuarioRegistrado(): UsuarioEntity? {
         return repo.obtenerPorCorreo(_form.value.correo)
     }
+
+    fun login(correo: String, contrasena: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            if (correo.isBlank() || contrasena.isBlank()) {
+                _mensaje.value = "Completa todos los campos."
+                return@launch
+            }
+
+            val accesoValido = repo.login(correo, contrasena)
+            if (accesoValido !== null) {
+                _mensaje.value = "Bienvenido!!"
+                onSuccess()
+            } else {
+                _mensaje.value = "Correo o contraseña incorrectos"
+            }
+        }
+    }
+
     fun insertarUsuario(u: UsuarioEntity) {
         viewModelScope.launch { repo.insertar(u) }
     }
