@@ -29,7 +29,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
 
     NavHost(
         navController = navController,
-        startDestination = "index",
+        startDestination = "inventario",
         modifier = modifier
     ) {
 
@@ -54,8 +54,8 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         composable("inventario") {
             InventarioScreen(
                 productosViewModel = productosViewModel,
-                onAgregarClick = { navController.navigate("agregar") },
-                onEditarClick = { id -> navController.navigate("editar/$id") },
+                onAgregarClick = { navController.navigate("agregarProducto") },
+                onEditarClick = { id -> navController.navigate("editarProducto/$id") },
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
@@ -113,7 +113,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
             )
         }
 
-        composable("editar/{productId}") { backStackEntry ->
+        composable("editarProducto/{productId}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
             EditProductoScreen(
                 productosViewModel = productosViewModel,
