@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import com.example.levelup.ui.LevelUpNavHost
+import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
 import com.example.levelup.viewmodel.CategoriaViewModel
 import com.example.levelup.viewmodel.CategoriaViewModelFactory
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
         CategoriaViewModelFactory(application)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Define el contenido de la interfaz usando compose
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

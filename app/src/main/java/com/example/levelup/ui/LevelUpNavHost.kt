@@ -2,11 +2,17 @@ package com.example.levelup.ui
 
 import android.app.Application
 import androidx.compose.material3.*
+
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.compose.ui.unit.dp
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,6 +23,20 @@ import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 import com.example.levelup_gamerapp.ui.LoginScreen
+
+
+
+
+
+/**
+
+ * NavHost del módulo Productos.
+
+ * Ahora la pantalla principal es ProductosScreen.
+
+ * Además ya incluye rutas para las demás pantallas de otras ramas (placeholders).
+
+ */
 
 @Composable
 fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostController = rememberNavController()) {
@@ -29,7 +49,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
 
     NavHost(
         navController = navController,
-        startDestination = "inventario",
+        startDestination = "index",
         modifier = modifier
     ) {
 
@@ -87,6 +107,17 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
             )
         }
 
+        composable("productos") {
+            ProductosScreen(nav = navController)
+        }
+
+        composable("producto/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            if (id != null) {
+                ProductoScreen(id = id, onNavigateBack = { navController.popBackStack() })
+            }
+        }
+
         composable("editarUsuario/{userId}") { back ->
             val id = back.arguments?.getString("userId")?.toIntOrNull() ?: 0
             EditUsuarioScreen(
@@ -140,16 +171,48 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
             LoginScreen(navController)
         }
 
-        composable("productos") {
-            // LoginScreen(...)  // si existe
-        }
 
         composable("contacto") {
             // LoginScreen(...)  // si existe
         }
 
+        // 📰 Noticias (placeholder temporal)
+
         composable("noticias") {
             // LoginScreen(...)  // si existe
+            PlaceholderScreen("Pantalla de Noticias (en desarrollo)")
+
         }
     }
+}
+
+
+
+/**
+
+ * Pantalla temporal que muestra texto cuando una ruta aún no está lista.
+
+ */
+
+@Composable
+
+fun PlaceholderScreen(texto: String) {
+
+    androidx.compose.material3.Surface {
+        androidx.compose.foundation.layout.Column(
+            modifier = androidx.compose.ui.Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+
+        ) {
+
+            androidx.compose.material3.Text(texto)
+
+        }
+
+    }
+
 }

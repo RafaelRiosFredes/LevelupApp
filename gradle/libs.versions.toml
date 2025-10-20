@@ -17,6 +17,9 @@ roomKtx = "2.8.2"
 navigationCompose = "2.9.5"
 runtime = "1.9.3"
 runtimeSaveable = "1.9.3"
+roomCompiler = "2.8.2"
+engageCore = "1.5.9"
+ui = "1.9.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,8 +48,12 @@ androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime
 
 androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
 
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+engage-core = { group = "com.google.android.engage", name = "engage-core", version.ref = "engageCore" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
