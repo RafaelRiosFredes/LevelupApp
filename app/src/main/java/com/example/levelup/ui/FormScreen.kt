@@ -44,14 +44,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.levelup.R
 import com.example.levelup.ui.theme.GamerBlue
-import com.example.levelup.viewmodel.RegistroUsuarioViewModel
+import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.ui.theme.GamerGreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormScreen(
-    vm: RegistroUsuarioViewModel,
+    vm: UsuariosViewModel,
     onSaved: () -> Unit  // se ejecuta si el usuario apreta "Registrar"
 ) {
     val form by vm.form.collectAsState()

@@ -28,7 +28,6 @@ android {
             )
         }
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -36,7 +35,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-
     buildFeatures {
         compose = true
     }
@@ -46,16 +44,17 @@ dependencies {
     implementation(libs.androidx.compose.adaptive)
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
+    val navCompose = "2.8.3"
+    val activityCompose = "1.9.3"
+    val lifecycleVersion = "2.8.6"
+    val roomVersion = "2.6.1"
 
 
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
     implementation("androidx.compose.material3.adaptive:adaptive:1.1.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.1.0")
     implementation(libs.androidx.compose.foundation)
-    val roomVersion = "2.6.1"
-    val lifecycleVersion = "2.8.6"
-    val activityCompose = "1.9.3"
-    val navCompose = "2.8.3"
 
     // --- Compose ---
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
@@ -83,7 +82,9 @@ dependencies {
 
     implementation("androidx.compose.material3:material3")
 
+    implementation("androidx.compose.ui:ui-tooling-preview")
 
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation(libs.androidx.core.ktx)

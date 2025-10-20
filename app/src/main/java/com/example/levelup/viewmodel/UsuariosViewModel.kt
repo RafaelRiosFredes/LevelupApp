@@ -3,14 +3,12 @@ package com.example.levelup.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.model.data.RegistroUsuarioEntity
-import com.example.levelup.model.repository.RegistroUsuarioRepository
+import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.model.repository.UsuariosRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.Period
@@ -28,7 +26,7 @@ data class RegistroFormState(
     val contrasenaConfirmacion: String = ""
 )
 
-class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : ViewModel() {
+class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
 
     private val _form = MutableStateFlow(RegistroFormState())
     val form: StateFlow<RegistroFormState> = _form.asStateFlow()
@@ -45,6 +43,12 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
     fun limpiarMensaje() {
         _form.update { it.copy(mensaje = null) }
     }
+    val usuarios: StateFlow<List<UsuarioEntity>> =
+        repo.todosLosUsuarios().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
     fun limpiarFormulario() {
         _form.value = RegistroFormState()
@@ -125,7 +129,7 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
             }
 
             //  Crear entidad de usuario
-            val usuario = RegistroUsuarioEntity(
+            val usuario = UsuarioEntity(
                 nombres = f.nombres,
                 apellidos = f.apellidos,
                 correo = f.correo,
@@ -165,9 +169,20 @@ class RegistroUsuarioViewModel(private val repo: RegistroUsuarioRepository) : Vi
             onSuccess()
         }
     }
-    suspend fun obtenerUltimoUsuarioRegistrado(): RegistroUsuarioEntity? {
+    suspend fun obtenerUltimoUsuarioRegistrado(): UsuarioEntity? {
         return repo.obtenerPorCorreo(_form.value.correo)
     }
+    fun insertarUsuario(u: UsuarioEntity) {
+        viewModelScope.launch { repo.insertar(u) }
+    }
+
+    fun actualizarUsuario(u: UsuarioEntity) {
+        viewModelScope.launch { repo.actualizar(u) }
+    }
+
+    fun eliminarUsuario(u: UsuarioEntity) {
+        viewModelScope.launch { repo.eliminar(u) }
+    }
+
+    fun usuarioPorId(id: Int): Flow<UsuarioEntity?> = repo.obtenerPorId(id)
 }
-
-

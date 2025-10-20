@@ -14,12 +14,15 @@ import com.example.levelup.viewmodel.CategoriaViewModel
 import com.example.levelup.viewmodel.CategoriaViewModelFactory
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
+import com.example.levelup.viewmodel.UsuariosViewModel
+import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 
 @Composable
 fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostController = rememberNavController()) {
 
     val app = LocalContext.current.applicationContext as Application
     val productosViewModel: ProductosViewModel = viewModel(factory = ProductosViewModelFactoryApp(app))
+    val usuariosViewModel: UsuariosViewModel = viewModel(factory = UsuariosViewModelFactoryApp(app))
 
     val categoriaVm: CategoriaViewModel = viewModel(factory = CategoriaViewModelFactory(app))
 
@@ -28,6 +31,7 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         startDestination = "index",
         modifier = modifier
     ) {
+
         composable("index") {
             // Paso lambdas para que PantallaPrincipal pueda navegar usando este NavController
             PantallaPrincipal(
@@ -64,6 +68,42 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
             )
         }
 
+        composable("usuarios") {
+            UsuariosScreen(
+                usuariosViewModel = usuariosViewModel,
+                onAgregarClick = { navController.navigate("agregarUsuario") },
+                onEditarClick = { id -> navController.navigate("editarUsuario/$id") },
+                onNavigate = { route ->
+                    navController.navigate(route){
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate("login"){
+                        popUpTo(navController.graph.startDestinationId){inclusive = true}
+                    }
+                }
+            )
+        }
+
+        composable("editarUsuario/{userId}") { back ->
+            val id = back.arguments?.getString("userId")?.toIntOrNull() ?: 0
+            EditUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                userId = id,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        composable("agregarUsuario") {
+            AddUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                onSaved = {navController.popBackStack()},
+                onCancel = {navController.popBackStack()}
+            )
+        }
+
         composable("agregarProducto") {
             AddProductScreen(
                 productosViewModel = productosViewModel,
@@ -82,10 +122,6 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
                 )
         }
 
-        composable("adminUsuarios") {
-            // PantallaUsuarios() // implementa en otra branch
-        }
-
         composable("adminCategorias") {
             //PantallaCategorias(vm = categoriaVm)
         }
@@ -93,15 +129,14 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
 
         // Pantalla de registro
         composable("registro") {
-            RegistroUsuarioScreen(navController)
+            AddUsuarioScreen(usuariosViewModel = usuariosViewModel,
+                onSaved = {navController.popBackStack()},
+                onCancel = {navController.popBackStack()}
+            )
         }
-
 
         composable("login") {
             // LoginScreen(...)  // si existe
-        }
-        composable("usuarios") {
-            //UsuariosScreen()
         }
 
         composable("productos") {
@@ -117,4 +152,3 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         }
     }
 }
-
