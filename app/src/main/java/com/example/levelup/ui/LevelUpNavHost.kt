@@ -1,6 +1,7 @@
 package com.example.levelup.ui
 
 import android.app.Application
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -80,9 +81,6 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
                 onCancel = { navController.popBackStack() }
                 )
         }
-        composable("adminInventario") {
-            // InventarioScreen(productosViewModel = ..., onAgregarClick = ..., onEditarClick = ...)
-        }
 
         composable("adminUsuarios") {
             // PantallaUsuarios() // implementa en otra branch
@@ -93,12 +91,11 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         }
 
 
+        // Pantalla de registro
         composable("registro") {
-            // RegistroScreen
+            RegistroUsuarioScreen(navController)
         }
-        composable("categorias") {
-            //CategoriasScreen()
-        }
+
 
         composable("login") {
             // LoginScreen(...)  // si existe
@@ -118,5 +115,6 @@ fun LevelUpNavHost(modifier: Modifier = Modifier,navController: NavHostControlle
         composable("noticias") {
             // LoginScreen(...)  // si existe
         }
+    }
+}
 
-    }}

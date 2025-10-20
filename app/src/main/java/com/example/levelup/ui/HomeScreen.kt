@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
 import com.example.levelup.model.data.CategoriaEntity
+import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.viewmodel.CategoriaViewModel
 import kotlinx.coroutines.launch
 
@@ -438,11 +439,11 @@ fun SearchBar(
             placeholder = { Text( "Buscar en LEVEL-UP GAMER", color = Color.Gray, fontSize = 14.sp ) },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF39FF14),
-                unfocusedBorderColor = Color(0xFF39FF14),
+                focusedBorderColor = GamerGreen,
+                unfocusedBorderColor = GamerGreen,
                 focusedContainerColor = Color.Black,
                 unfocusedContainerColor = Color.Black,
-                cursorColor = Color(0xFF39FF14),
+                cursorColor = GamerGreen,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White ),
             modifier = Modifier .weight(1f)
@@ -458,7 +459,7 @@ fun SearchBar(
                 .background(Color.Transparent) ) {
             Icon( imageVector = Icons.Default.Search,
                 contentDescription = "Buscar",
-                tint = Color(0xFF39FF14)
+                tint = GamerGreen
             )
         }
     }
