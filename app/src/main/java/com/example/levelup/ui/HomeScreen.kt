@@ -27,9 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
-import com.example.levelup.model.data.CategoriaEntity
 import com.example.levelup.ui.theme.GamerGreen
-import com.example.levelup.viewmodel.CategoriaViewModel
 import kotlinx.coroutines.launch
 
 // -------------------------
@@ -45,7 +43,7 @@ data class Categoria(
 // -------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaPrincipal(vm: CategoriaViewModel,
+fun PantallaPrincipal(
                       onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
                       onLogout: () -> Unit = {}   ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -304,91 +302,10 @@ fun PantallaPrincipal(vm: CategoriaViewModel,
                     .background(Color.Black)
             ) {
                 BannerPrincipal()
-                CategoriasGrid(vm = vm) // ahora contiene el footer como último ítem
             }
         }
     }
 }
-
-// -------------------------
-// GRID DE CATEGORÍAS (implementado con LazyColumn 2x por fila para que el footer sea parte del scroll)
-// -------------------------
-@Composable
-fun CategoriasGrid(
-    vm: CategoriaViewModel
-) {
-
-    val categorias by vm.categorias.collectAsState()
-
-    // Título
-    Text(
-        text = stringResource(R.string.categorias),
-        fontSize = 22.sp,
-        fontWeight = FontWeight.Bold,
-        color = Color.White,
-        modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp)
-    )
-
-    // LazyColumn que renderiza filas con 2 cards cada una, y añade el footer al final
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(categorias.chunked(2)) { fila ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    CategoriaCard(fila[0])
-                }
-                if (fila.size > 1) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        CategoriaCard(fila[1])
-                    }
-                } else {
-                    Spacer(modifier = Modifier.weight(1f)) // mantener la alineación si la última fila tiene 1 item
-                }
-            }
-        }
-
-        // Footer como último ítem: forma parte del scroll ahora
-        item {
-            Spacer(modifier = Modifier.height(18.dp))
-            Text(
-                text = stringResource(R.string.footer),
-                color = Color.White,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-
-
-// ------------------------- // CARD DE CATEGORÍA // -------------------------
-@Composable
-fun CategoriaCard(categoria: CategoriaEntity) {
-    Card( modifier = Modifier
-        .fillMaxWidth()
-        .height(140.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)) ) {
-        Column( modifier = Modifier
-            .fillMaxSize() .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center ) {
-            Image( painter = rememberAsyncImagePainter(categoria.icon_url),
-                contentDescription = categoria.nombre,
-                modifier = Modifier.size(55.dp) )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text( text = categoria.nombre, color = Color.White, fontSize = 14.sp, textAlign = TextAlign.Center ) } } }
-
-
 
 // -------------------------
 // BANNER PRINCIPAL

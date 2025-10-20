@@ -9,6 +9,5 @@ data class ProductosEntity (
     val nombre: String,
     val precio: Double,
     val imagenUrl: String = "", // default para evitar errores al insertar
-    val imagenRes: Int? = null,
-    val descripcion: String
+    val descripcion: String = ""
 )

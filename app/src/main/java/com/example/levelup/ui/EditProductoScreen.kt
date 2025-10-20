@@ -1,5 +1,6 @@
 package com.example.levelup.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,7 +14,9 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.math.RoundingMode
 
+@SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProductoScreen(
@@ -25,20 +28,24 @@ fun EditProductoScreen(
     val scope = rememberCoroutineScope()
 
     // Obtener el producto desde el ViewModel (Flow)
-    val productoFlow = remember(productId) { productosViewModel.productoPorId(productId) }
+    val productoFlow = remember(productId) { productosViewModel.obtenerProductoPorId(productId) }
     val producto by productoFlow.collectAsState(initial = null)
+
+
 
     // Campos locales para edición
     var nombre by remember { mutableStateOf("") }
     var precioText by remember { mutableStateOf("") }
     var imagenUrl by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
 
     // Cuando cargue el producto, inicializar campos (solo una vez por carga)
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
-            precioText = BigDecimal.valueOf(it.precio).setScale(2,java.math.RoundingMode.HALF_UP).toPlainString()
+            precioText = BigDecimal.valueOf(it.precio).setScale(2, RoundingMode.HALF_UP).toPlainString()
             imagenUrl = it.imagenUrl
+            descripcion = it.descripcion
         }
     }
 
@@ -120,7 +127,8 @@ fun EditProductoScreen(
                             id = productId,
                             nombre = nombre.trim(),
                             precio = precio,
-                            imagenUrl = imagenUrl.trim()
+                            imagenUrl = imagenUrl.trim(),
+                            descripcion = descripcion
                         )
                         scope.launch {
                             productosViewModel.actualizarProducto(actualizado)

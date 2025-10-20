@@ -24,6 +24,7 @@ fun AddProductScreen(
     var nombre by remember { mutableStateOf("") }
     var precioText by remember { mutableStateOf("") }
     var imagenUrl by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
 
     // Regex que acepta números enteros o con un solo punto decimal
     val numeroRegex = Regex("""^\d+(\.\d+)?$""")
@@ -116,7 +117,8 @@ fun AddProductScreen(
                             id = 0,
                             nombre = nombre.trim(),
                             precio = precio,
-                            imagenUrl = imagenUrl.trim()
+                            imagenUrl = imagenUrl.trim(),
+                            descripcion =descripcion,
                         )
                         scope.launch {
                             productosViewModel.insertarProducto(nuevo)

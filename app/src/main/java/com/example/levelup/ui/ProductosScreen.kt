@@ -148,7 +148,6 @@ fun ProductoItem(
     val scope = rememberCoroutineScope()
     val localSnack = remember { SnackbarHostState() }
 
-    val imagenResSeguro = producto.imagenRes ?: R.drawable.placeholder
 
     // Animación de “brillo” suave del botón
     val infiniteTransition = rememberInfiniteTransition(label = "neonPulse")
@@ -188,15 +187,6 @@ fun ProductoItem(
                     .padding(12.dp)
             ) {
 
-                // Imagen
-                Image(
-                    painter = painterResource(id = imagenResSeguro),
-                    contentDescription = producto.nombre,
-                    modifier = Modifier
-                        .size(140.dp)
-                        .padding(top = 5.dp),
-                    contentScale = ContentScale.Fit
-                )
 
                 // Nombre y precio
                 Column(

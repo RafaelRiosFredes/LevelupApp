@@ -8,15 +8,14 @@ import kotlinx.coroutines.withContext
 
 class ProductosRepository(private val dao: ProductosDao) {
 
-    fun todosLosProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
+    fun obtenerProductoPorId(id: Int): Flow<ProductosEntity?> = dao.obtenerPorId(id)
 
-    suspend fun insertar(producto: ProductosEntity) = withContext(Dispatchers.IO) { dao.insertar(producto) }
+    fun obtenerProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
-    suspend fun actualizar(producto: ProductosEntity) = withContext(Dispatchers.IO) { dao.actualizar(producto) }
+    suspend fun insertarProducto(producto: ProductosEntity) = dao.insertar(producto)
 
-    suspend fun eliminar(producto: ProductosEntity) = withContext(Dispatchers.IO) { dao.eliminar(producto) }
+    suspend fun actualizarProducto(producto: ProductosEntity) = dao.actualizar(producto)
 
-    suspend fun obtenerProductoPorId(id: Int): ProductosEntity? = withContext(Dispatchers.IO) { dao.obtenerPorId(id) }
-
-    suspend fun insertarProductos(productos: List<ProductosEntity>) = withContext(Dispatchers.IO) { dao.insertarProductos(productos) }
+    suspend fun eliminarProducto(producto: ProductosEntity) = dao.eliminar(producto)
 }
+

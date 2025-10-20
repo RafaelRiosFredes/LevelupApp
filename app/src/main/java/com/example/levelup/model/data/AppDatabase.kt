@@ -10,11 +10,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [CategoriaEntity::class, ProductosEntity::class, UsuarioEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ProductosEntity::class, UsuarioEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun categoriaDao(): CategoriaDao
-    abstract fun productoDao(): ProductosDao
     abstract fun usuarioDao(): UsuarioDao
+    abstract fun productosDao(): ProductosDao
 
     companion object {
         @Volatile
@@ -39,27 +38,24 @@ abstract class AppDatabase : RoomDatabase() {
                         // Inserción inicial en background
                         CoroutineScope(Dispatchers.IO).launch {
                             // Espera a que INSTANCE esté asignado (ya que buildDatabase devuelve el instance y lo asignamos con also)
-                            val dao = INSTANCE?.productoDao() ?: return@launch
+                            val dao = INSTANCE?.productosDao() ?: return@launch
                             val productosIniciales = listOf(
                                 ProductosEntity(
                                     nombre = "Teclado Gamer",
                                     precio = 12990.0,
                                     descripcion = "Teclado ideal para gamers",
-                                    imagenRes = R.drawable.producto1,
                                     imagenUrl = ""
                                 ),
                                 ProductosEntity(
                                     nombre = "Mouse Gamer",
                                     precio = 39990.0,
                                     descripcion = "Mouse cómodo ideal para tus juegos",
-                                    imagenRes = R.drawable.mouse,
                                     imagenUrl = ""
                                 ),
                                 ProductosEntity(
                                     nombre = "Camiseta personalizada",
                                     precio = 7990.0,
                                     descripcion = "Elige el diseño que quieras",
-                                    imagenRes = R.drawable.descarga,
                                     imagenUrl = ""
                                 )
                             )

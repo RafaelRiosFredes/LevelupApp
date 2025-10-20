@@ -20,17 +20,12 @@ import androidx.compose.material3.Surface
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
-import com.example.levelup.viewmodel.CategoriaViewModel
-import com.example.levelup.viewmodel.CategoriaViewModelFactory
 
 import androidx.navigation.compose.rememberNavController
 
 
 class MainActivity : ComponentActivity() {
 
-    private val vm: CategoriaViewModel by viewModels{
-        CategoriaViewModelFactory(application)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         //Define el contenido de la interfaz usando compose
         super.onCreate(savedInstanceState)

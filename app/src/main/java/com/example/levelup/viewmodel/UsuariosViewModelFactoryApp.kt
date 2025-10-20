@@ -9,7 +9,7 @@ import com.example.levelup.model.repository.UsuariosRepository
 class UsuariosViewModelFactoryApp(private val app: Application) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db = AppDatabase.get(app)
+        val db = AppDatabase.getInstance(app)
         val repo = UsuariosRepository(db.usuarioDao())
         if (modelClass.isAssignableFrom(UsuariosViewModel::class.java)) {
             return UsuariosViewModel(repo) as T

@@ -9,10 +9,10 @@ import com.example.levelup.model.repository.ProductosRepository
 class ProductosViewModelFactoryApp(private val app: Application) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db = AppDatabase.get(app)
-        val repo = ProductosRepository(db.productoDao())
+        val db = AppDatabase.getInstance(app)
+        val repo = ProductosRepository(db.productosDao())
         if (modelClass.isAssignableFrom(ProductosViewModel::class.java)) {
-            return ProductosViewModel(repo) as T
+            return ProductosViewModel(app) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -33,14 +33,15 @@ fun ProductoScreen(
 ) {
     val context = LocalContext.current
     val db = AppDatabase.getInstance(context)
-    val repo = ProductosRepository(db.productoDao())
+    val repo = ProductosRepository(db.productosDao())
+
 
     var producto by remember { mutableStateOf<ProductosEntity?>(null) }
 
     // 🔹 Cargar producto desde la base de datos
     LaunchedEffect(id) {
-        withContext(Dispatchers.IO) {
-            producto = repo.obtenerProductoPorId(id)
+        repo.obtenerProductoPorId(id).collect { prod ->
+            producto = prod
         }
     }
 
@@ -79,16 +80,14 @@ fun ProductoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                val imagenResSeguro = prod.imagenRes ?: R.drawable.placeholder
-                // 🖼 Imagen principal
-                Image(
-                    painter = painterResource(id = imagenResSeguro),
-                    contentDescription = prod.nombre,
-                    modifier = Modifier
-                        .size(260.dp)
-                        .padding(top = 10.dp),
-                    contentScale = ContentScale.Fit
-                )
+                LaunchedEffect(id) {
+                    repo.obtenerProductoPorId(id).collect { prod ->
+                        producto = prod
+                    }
+                }
+
+
+
 
                 Spacer(modifier = Modifier.height(20.dp))
 
