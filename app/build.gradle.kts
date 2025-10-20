@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.compose.adaptive)
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
     val navCompose = "2.8.3"
     val activityCompose = "1.9.3"
     val lifecycleVersion = "2.8.6"

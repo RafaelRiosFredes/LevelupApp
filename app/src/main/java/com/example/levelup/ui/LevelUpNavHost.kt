@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
+import com.example.levelup.viewmodel.UsuariosViewModel
+import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 
 @Composable
 fun LevelUpNavHost(modifier: Modifier = Modifier) {
@@ -17,54 +19,53 @@ fun LevelUpNavHost(modifier: Modifier = Modifier) {
     // create the ProductosViewModel using our Application-backed factory
     val app = androidx.compose.ui.platform.LocalContext.current.applicationContext as Application
     val productosViewModel: ProductosViewModel = viewModel(factory = ProductosViewModelFactoryApp(app))
+    val usuariosViewModel: UsuariosViewModel = viewModel(factory = UsuariosViewModelFactoryApp(app))
 
     NavHost(
         navController = navController,
-        startDestination = "inventario",
+        startDestination = "usuarios",
         modifier = modifier
     ) {
-        composable("inventario") {
-            InventarioScreen(
-                productosViewModel = productosViewModel,
-                onAgregarClick = { navController.navigate("agregar") },
-                onEditarClick = { id -> navController.navigate("editar/$id") },
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
-                onLogout = {
-                    navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable("agregar") {
-            AddProductScreen(
-                productosViewModel = productosViewModel,
-                onSaved = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() }
-            )
-        }
-
-        composable("editar/{productId}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
-            EditProductoScreen(
-                productosViewModel = productosViewModel,
-                productId = id,
-                onSaved = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() }
-            )
-        }
 
         composable("categorias") {
             //CategoriasScreen()
         }
 
         composable("usuarios") {
-            //UsuariosScreen()
+            UsuariosScreen(
+                usuariosViewModel = usuariosViewModel,
+                onAgregarClick = { navController.navigate("agregarUsuario") },
+                onEditarClick = { id -> navController.navigate("editarUsuario/$id") },
+                onNavigate = { route ->
+                    navController.navigate(route){
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate("login"){
+                        popUpTo(navController.graph.startDestinationId){inclusive = true}
+                    }
+                }
+            )
         }
+
+        composable("editarUsuario/{userId}") { back ->
+            val id = back.arguments?.getString("userId")?.toIntOrNull() ?: 0
+            EditUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                userId = id,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        composable("agregarUsuario") {
+            AddUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                onSaved = {navController.popBackStack()},
+                onCancel = {navController.popBackStack()}
+            )
+        }
+
     }
 }
