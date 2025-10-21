@@ -49,6 +49,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosScreen(
+    onNavigate: (String) -> Unit = {},
     nav: NavHostController,
     onNavigateBack: () -> Unit = {}
 ) {
@@ -67,7 +68,12 @@ fun ProductosScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(scope, drawerState, snackbarHostState)
+            DrawerContent(
+                scope = scope,
+                drawerState = drawerState,
+                snackbarHostState = snackbarHostState,
+                onNavigate = onNavigate
+            )
         }
     ) {
         Scaffold(
@@ -291,7 +297,8 @@ fun ProductoItem(
 fun DrawerContent(
     scope: CoroutineScope,
     drawerState: DrawerState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    onNavigate: (String) -> Unit
 ) {
     ModalDrawerSheet(
         drawerContainerColor = Color.Black,
@@ -334,19 +341,64 @@ fun DrawerContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Menú principal
-        DrawerItem("Inicio", Icons.Default.Home, scope, drawerState, snackbarHostState)
-        DrawerItem("Juegos de Mesa", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Accesorios", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Consolas", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Contacto", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Noticias", null, scope, drawerState, snackbarHostState)
-        DrawerItem("Carrito", Icons.Default.ShoppingCart, scope, drawerState, snackbarHostState)
+        NavigationDrawerItem(
+            label = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Carrito", color = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        tonalElevation = 0.dp,
+                        color = Color(0xFF39FF14)
+                    ) {
+                        Text(
+                            text = "0",
+                            color = Color.Black,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    onNavigate("carrito")
+                }
+            },
+            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
 
         // Separador
         Divider(
             modifier = Modifier.padding(vertical = 8.dp),
             color = Color.DarkGray,
             thickness = 1.dp
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Inicio", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    onNavigate("PantallaPrincipal")
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            label = { Text("Productos", color = Color.White) },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+                    onNavigate("productos")
+                }
+            },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
         // Sección de cuenta / usuario
@@ -356,7 +408,7 @@ fun DrawerContent(
             onClick = {
                 scope.launch {
                     drawerState.close()
-                    snackbarHostState.showSnackbar("Inicia sesión seleccionado")
+                    onNavigate("login")
                 }
             },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -368,7 +420,7 @@ fun DrawerContent(
             onClick = {
                 scope.launch {
                     drawerState.close()
-                    snackbarHostState.showSnackbar("Regístrate seleccionado")
+                    onNavigate("registro")
                 }
             },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -380,7 +432,7 @@ fun DrawerContent(
             onClick = {
                 scope.launch {
                     drawerState.close()
-                    snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                    onNavigate("login")
                 }
             },
             icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },

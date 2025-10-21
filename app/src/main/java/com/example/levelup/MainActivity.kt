@@ -17,28 +17,45 @@ import com.example.levelup.ui.PantallaPrincipal
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
 
 import androidx.navigation.compose.rememberNavController
+import com.example.levelup.viewmodel.ProductosViewModel
+import com.example.levelup.viewmodel.ProductosViewModelFactory
+import com.example.levelup.viewmodel.UsuariosViewModel
+import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //Define el contenido de la interfaz usando compose
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-
             LevelUpTheme {
+
+                // ✅ ViewModels
+                val productosViewModel: ProductosViewModel = viewModel(
+                    factory = ProductosViewModelFactory(application)
+                )
+
+                val usuariosViewModel: UsuariosViewModel = viewModel(
+                    factory = UsuariosViewModelFactoryApp(application)
+                )
+
+                // ✅ NavHost principal
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LevelUpNavHost()
+                    LevelUpNavHost(
+                        productosViewModel = productosViewModel,
+                        usuariosViewModel = usuariosViewModel
+                    )
                 }
             }
         }

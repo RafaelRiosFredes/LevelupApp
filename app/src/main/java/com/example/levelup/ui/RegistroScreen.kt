@@ -9,7 +9,6 @@ import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,16 +32,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.example.levelup.R
+import androidx.navigation.NavController
 import com.example.levelup.ui.theme.GamerBlue
 import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.ui.theme.GamerGreen
@@ -50,7 +47,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormScreen(
+fun RegistroScreen( navController: NavController,
     vm: UsuariosViewModel,
     onSaved: () -> Unit  // se ejecuta si el usuario apreta "Registrar"
 ) {
@@ -118,12 +115,6 @@ fun FormScreen(
     }
 
     // Colores dinámicos del botón Registrar
-    val botonColor = if (
-        form.mensaje?.contains("Completa") == true ||
-        form.mensaje?.contains("Ya existe") == true ||
-        form.mensaje?.contains("inválido") == true ||
-        form.mensaje?.contains("mayores") == true
-    ) MaterialTheme.colorScheme.error else GamerGreen
 
     // --------------------------
     // BARRA LATERAL
@@ -186,27 +177,104 @@ fun FormScreen(
 
                 // Ítems del drawer
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    val items = listOf(
-                        "Inicio" to Icons.Default.Home,
-                        "Noticias" to Icons.Default.Newspaper,
-                        "Contacto" to Icons.Default.Phone,
-                        "Inicia sesión" to Icons.Default.Login,
+
+
+                    NavigationDrawerItem(
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Carrito", color = Color.White)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    tonalElevation = 0.dp,
+                                    color = Color(0xFF39FF14)
+                                ) {
+                                    Text(
+                                        text = "0",
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Carrito seleccionado")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    items.forEach { (label, icon) ->
-                        NavigationDrawerItem(
-                            label = { Text(label, color = Color.White) },
-                            selected = false,
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    snackbarHostState.showSnackbar("$label seleccionado")
-                                }
-                            },
-                            icon = { Icon(icon, contentDescription = null, tint = Color.White) },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.DarkGray
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Inicio", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("PantallaPrincipal")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Productos", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Regístrate", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("registro")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Mi cuenta", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                            }
+                        },
+
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Puntos LevelUp", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
                 }
             }
         }
@@ -256,8 +324,8 @@ fun FormScreen(
                                 data.visuals.message.contains("Duoc", true)
 
                         Snackbar(
-                            containerColor = if (isSuccess) GamerGreen else Color.Red,
-                            contentColor = Color.Black,
+                            containerColor = Color(0xFFEAEAEA),
+                            contentColor = Color.White,
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
                                 .padding(12.dp)
@@ -501,12 +569,19 @@ fun FormScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Button(
-                            onClick = onSaved,
+                            onClick = {
+                                vm.registrarUsuario {
+                                    // Solo se ejecuta si pasa todas las validaciones
+                                    navController.navigate("login") {
+                                        popUpTo("registro") { inclusive = true }
+                                    }
+                                }
+                            },
                             modifier = Modifier
                                 .width(200.dp)
                                 .height(45.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = botonColor),
-                            shape = RoundedCornerShape(20.dp)
+                            shape = RoundedCornerShape(20.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                         ) {
                             Text("Registrar", color = Color.Black, fontWeight = FontWeight.Bold)
                         }

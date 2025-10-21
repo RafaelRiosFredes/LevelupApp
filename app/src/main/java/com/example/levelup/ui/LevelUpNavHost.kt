@@ -2,8 +2,10 @@ package com.example.levelup.ui
 
 import android.app.Application
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,101 +18,99 @@ import com.example.levelup.viewmodel.UsuariosViewModelFactory
 import com.example.levelup_gamerapp.ui.LoginScreen
 
 @Composable
-fun LevelUpNavHost() {
-    val navController = rememberNavController()
-    val app = LocalContext.current.applicationContext as Application
-
-    val productosVM: ProductosViewModel = viewModel(factory = ProductosViewModelFactory(app))
-    val usuariosVM: UsuariosViewModel = viewModel(factory = UsuariosViewModelFactory(app))
-
+fun LevelUpNavHost(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    productosViewModel: ProductosViewModel,
+    usuariosViewModel: UsuariosViewModel
+) {
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "PantallaPrincipal",
+        modifier = modifier
     ) {
-        composable(route = "login") {
-            LoginScreen(
-                navController = navController,
-                onNavigate = {
-                    navController.navigate("registro")
-                },
-                onLogout = {
-                    // ejemplo: vuelve al login desde cualquier lado
-                    navController.navigate("login") {
-                        popUpTo("login") { inclusive = true }
-                    }
-                }
+
+        // 🏠 Pantalla principal
+        composable("PantallaPrincipal") {
+            PantallaPrincipal(
+                onNavigate = { route -> navController.navigate(route) },
+                onLogout = { navController.navigate("login") }
             )
         }
 
+        // 🔐 Login
+        composable("login") {
+            LoginScreen(navController = navController)
+        }
 
-        // 🟦 REGISTRO DE USUARIO
+        // 📝 Registro de usuario
         composable("registro") {
-            FormScreen(
-                vm = usuariosVM,
-                onSaved = {
-                    // una vez registrado, volvemos al login
-                    navController.navigate("login") {
-                        popUpTo("registro") { inclusive = true }
-                    }
-                }
+            RegistroScreen(
+                vm = usuariosViewModel,
+                navController = navController,
+                onSaved = { navController.navigate("PantallaPrincipal") },
+
             )
         }
 
-        // 🟪 PANTALLA PRINCIPAL DE PRODUCTOS (cliente)
+        // 👤 Gestión de usuarios
+        composable("add_usuario") {
+            AddUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        composable("edit_usuario/{userId}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0
+            EditUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                userId = id,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        // 🛒 Catálogo de productos
         composable("productos") {
-            ProductosScreen(
-                nav = navController,
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ProductosScreen(nav = navController, onNavigate = { route -> navController.navigate(route) },)
+
         }
 
-        // 🟥 INVENTARIO ADMIN
-        composable("inventario") {
-            InventarioScreen(
-                productosViewModel = productosVM,
-                onAgregarClick = { navController.navigate("agregarProducto") },
-                onEditarClick = { id -> navController.navigate("editarProducto/$id") },
-                onNavigate = { destino -> navController.navigate(destino) },
-                onLogout = {
-                    navController.navigate("login") {
-                        popUpTo("productos") { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // 🟨 AGREGAR PRODUCTO
-        composable("agregarProducto") {
-            AddProductScreen(
-                productosViewModel = productosVM,
-                onSaved = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() }
-            )
-        }
-
-        // 🟧 EDITAR PRODUCTO
-        composable(
-            "editarProducto/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStack ->
-            val id = backStack.arguments?.getInt("id") ?: 0
-            EditProductoScreen(
-                productosViewModel = productosVM,
-                productId = id,
-                onSaved = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() }
-            )
-        }
-
-        // 🟫 DETALLE DE PRODUCTO
-        composable(
-            "producto/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStack ->
-            val id = backStack.arguments?.getInt("id") ?: 0
+        // 🔍 Detalle de producto
+        composable("producto/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
             ProductoScreen(
                 id = id,
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // ⚙️ Inventario
+        composable("inventario") {
+            InventarioScreen(
+                productosViewModel = productosViewModel,
+                onAgregarClick = { navController.navigate("add_producto") },
+                onEditarClick = { id -> navController.navigate("edit_producto/$id") }
+            )
+        }
+
+        composable("add_producto") {
+            AddProductScreen(
+                productosViewModel = productosViewModel,
+                onSaved = { navController.navigate("inventario") },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        composable("edit_producto/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+            EditProductoScreen(
+                productosViewModel = productosViewModel,
+                productId = id,
+                onSaved = { navController.navigate("inventario") },
+                onCancel = { navController.popBackStack() }
             )
         }
     }

@@ -29,13 +29,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController,onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
-                onLogout: () -> Unit = {}  ) {
+fun LoginScreen(navController: NavController) {
     val app = LocalContext.current.applicationContext as Application
-    val vm: UsuariosViewModel = viewModel(
-        factory = UsuariosViewModelFactoryApp(app)
-    )
-
+    val vm: UsuariosViewModel = viewModel(factory = UsuariosViewModelFactoryApp(app))
 
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
@@ -96,35 +92,104 @@ fun LoginScreen(navController: NavController,onNavigate: (String) -> Unit = {}, 
 
                 // Opciones del menú lateral
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    val opciones = listOf(
-                        "Inicio" to Icons.Default.Home,
-                        "Noticias" to Icons.Default.Star,
-                        "Consolas" to Icons.Default.VideogameAsset,
-                        "Accesorios" to Icons.Default.Gamepad,
-                        "Juegos de Mesa" to Icons.Default.Extension,
-                        "Carrito" to Icons.Default.ShoppingCart,
-                        "Contacto" to Icons.Default.Phone,
-                        "Mi cuenta" to Icons.Default.AccountCircle,
-                        "Puntos LevelUp" to Icons.Default.StarBorder
+
+                    NavigationDrawerItem(
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Carrito", color = Color.White)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    tonalElevation = 0.dp,
+                                    color = Color(0xFF39FF14)
+                                ) {
+                                    Text(
+                                        text = "0",
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Carrito seleccionado")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    opciones.forEach { (texto, icono) ->
-                        NavigationDrawerItem(
-                            label = { Text(texto, color = Color.White) },
-                            selected = false,
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    onNavigate("index")
-                                    snackbarHostState.showSnackbar("$texto seleccionado")
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.DarkGray
+                    )
 
 
-                                }
-                            },
-                            icon = { Icon(icono, contentDescription = null, tint = Color.White) },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
+                    NavigationDrawerItem(
+                        label = { Text("Inicio", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("PantallaPrincipal")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Productos", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Regístrate", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate("registro")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Mi cuenta", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                            }
+                        },
+
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Puntos LevelUp", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
                 }
             }
         }
