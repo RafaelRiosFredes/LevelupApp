@@ -239,12 +239,12 @@ fun RegistroScreen( navController: NavController,
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                     NavigationDrawerItem(
-                        label = { Text("Regístrate", color = Color.White) },
+                        label = { Text("Inicia sesion", color = Color.White) },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                navController.navigate("registro")
+                                navController.navigate("login")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -256,10 +256,10 @@ fun RegistroScreen( navController: NavController,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                                navController.navigate("login")
                             }
                         },
-
+                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
@@ -272,6 +272,7 @@ fun RegistroScreen( navController: NavController,
                                 snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
                             }
                         },
+                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 

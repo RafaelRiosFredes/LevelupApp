@@ -171,10 +171,10 @@ fun LoginScreen(navController: NavController) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                                navController.navigate("login")
                             }
                         },
-
+                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
@@ -187,6 +187,7 @@ fun LoginScreen(navController: NavController) {
                                 snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
                             }
                         },
+                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 

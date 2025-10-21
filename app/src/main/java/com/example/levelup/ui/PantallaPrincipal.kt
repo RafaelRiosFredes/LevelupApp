@@ -194,7 +194,7 @@ fun PantallaPrincipal(
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                                onNavigate("login")
                             }
                         },
                         icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
