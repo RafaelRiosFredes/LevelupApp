@@ -4,6 +4,10 @@ package com.example.levelup.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +38,7 @@ import kotlinx.coroutines.launch
 // -------------------------
 data class Categoria(
     val nombre: String,
-    val iconUrl: String
+    val icono: ImageVector
 )
 
 // -------------------------
@@ -42,8 +47,8 @@ data class Categoria(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaPrincipal(
-                      onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
-                      onLogout: () -> Unit = {}   ) {
+    onNavigate: (String) -> Unit = {},   // recibe rutas ("categorias", "usuarios", "inventario", ...)
+    onLogout: () -> Unit = {}   ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -252,6 +257,8 @@ fun PantallaPrincipal(
                     .background(Color.Black)
             ) {
                 BannerPrincipal()
+
+                CategoriasSection()
             }
         }
     }
@@ -299,7 +306,7 @@ fun SearchBar(
         .background(Color.Black),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically ) {
-    // Campo de texto para buscar contenido
+        // Campo de texto para buscar contenido
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
@@ -331,3 +338,90 @@ fun SearchBar(
         }
     }
 }
+@Composable
+fun CategoriasSection() {
+
+    // 🔹 Lista ESTÁTICA de categorías (agregada)
+    // Cada elemento tiene un nombre y un ícono de Material Icons.
+    val categorias = listOf(
+        Categoria("Juegos de Mesa", Icons.Default.Casino),
+        Categoria("Accesorios", Icons.Default.Headphones),
+        Categoria("Consolas", Icons.Default.VideogameAsset),
+        Categoria("Computadores Gamer", Icons.Default.Computer),
+        Categoria("Sillas Gamer", Icons.Default.AirlineSeatReclineExtra),
+        Categoria("Mouse", Icons.Default.Mouse),
+        Categoria("Mousepad", Icons.Default.TouchApp),
+        Categoria("Poleras Personalizadas", Icons.Default.Checkroom),
+        Categoria("Poleras Gamer Personalizadas", Icons.Default.CatchingPokemon)
+    )
+
+    // 🔹 Contenedor principal de la sección
+    // Tiene padding y título “CATEGORÍAS”
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // 🔸 Título principal de la sección
+        Text(
+            text = "CATEGORÍAS",
+            color = Color.White,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 12.dp)
+        )
+
+        // 🔹 Grilla vertical (2 columnas)
+        // LazyVerticalGrid permite mostrar un listado en cuadrícula.
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // 2 columnas fijas
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp), // separación entre filas
+            horizontalArrangement = Arrangement.spacedBy(12.dp), // separación entre columnas
+            content = {
+                // 🔸 Iteramos sobre la lista de categorías
+                items(categorias) { categoria ->
+                    CategoriaCard(categoria) // llamada al composable de tarjeta
+                }
+            }
+        )
+    }
+}
+@Composable
+fun CategoriaCard(categoria: Categoria) {
+    // 🔹 Card = contenedor con fondo oscuro y bordes redondeados
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp), // alto fijo
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF1A1A1A) // gris muy oscuro gamer
+        )
+    ) {
+        // 🔸 Contenido centrado dentro de la tarjeta
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // 🔸 Ícono verde gamer
+            Icon(
+                imageVector = categoria.icono,
+                contentDescription = categoria.nombre,
+                tint = GamerGreen,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 🔸 Texto del nombre de la categoría
+            Text(
+                text = categoria.nombre,
+                color = Color.White,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+

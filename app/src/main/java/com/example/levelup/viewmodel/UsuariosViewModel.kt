@@ -29,6 +29,8 @@ data class RegistroFormState(
 class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
 
     private val _mensaje = MutableStateFlow("")
+    val mensaje: StateFlow<String> = _mensaje.asStateFlow()
+
     private val _form = MutableStateFlow(RegistroFormState())
     val form: StateFlow<RegistroFormState> = _form.asStateFlow()
 
@@ -162,7 +164,7 @@ class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
                 )
             }
 
-            delay(2000)
+            delay(1000)
 
             limpiarFormulario()
             limpiarMensaje()
@@ -174,21 +176,21 @@ class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
         return repo.obtenerPorCorreo(_form.value.correo)
     }
 
-    fun login(correo: String, contrasena: String, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            if (correo.isBlank() || contrasena.isBlank()) {
-                _mensaje.value = "Completa todos los campos."
-                return@launch
-            }
-
-            val accesoValido = repo.login(correo, contrasena)
-            if (accesoValido !== null) {
-                _mensaje.value = "Bienvenido!!"
-                onSuccess()
-            } else {
-                _mensaje.value = "Correo o contraseña incorrectos"
-            }
+    suspend fun login(correo: String, contrasena: String): Boolean {
+        if (correo.isBlank() || contrasena.isBlank()) {
+            _mensaje.value = "Completa todos los campos."
+            return false
         }
+
+        val usuario = repo.login(correo, contrasena)
+        return if (usuario != null) {
+            _mensaje.value = "Inicio de sesión exitoso "
+            true
+        } else {
+            _mensaje.value = "Correo o contraseña incorrectos "
+            false
+        }
+
     }
 
     fun insertarUsuario(u: UsuarioEntity) {
@@ -204,4 +206,8 @@ class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
     }
 
     fun usuarioPorId(id: Int): Flow<UsuarioEntity?> = repo.obtenerPorId(id)
+
 }
+
+
+

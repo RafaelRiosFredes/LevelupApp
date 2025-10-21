@@ -17,6 +17,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -195,6 +197,15 @@ fun LoginScreen(navController: NavController) {
             }
         }
     ) {
+        val mensaje by vm.form.collectAsState()
+
+        LaunchedEffect(mensaje.mensaje) {
+            mensaje.mensaje?.let {
+                snackbarHostState.showSnackbar(it)
+                vm.limpiarMensaje()
+            }
+        }
+
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -256,11 +267,24 @@ fun LoginScreen(navController: NavController) {
 
                 Spacer(Modifier.height(12.dp))
 
+                var passwordVisible by remember { mutableStateOf(false) }
+
                 OutlinedTextField(
                     value = contrasena,
                     onValueChange = { contrasena = it },
                     label = { Text("Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                                tint = Color(0xFF39FF14)
+                            )
+                        }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF39FF14),
                         unfocusedBorderColor = Color.Gray,
@@ -271,13 +295,19 @@ fun LoginScreen(navController: NavController) {
                     )
                 )
 
+
                 Spacer(Modifier.height(20.dp))
 
                 Button(
                     onClick = {
-                        vm.login(correo, contrasena) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Inicio de sesión exitoso ✅")
+                        scope.launch {
+                            val exito = vm.login(correo, contrasena)
+                            snackbarHostState.showSnackbar(vm.mensaje.value)
+
+                            if (exito) {
+                                navController.navigate("PantallaPrincipal") {
+                                    popUpTo("login") { inclusive = true } // evita volver al login
+                                }
                             }
                         }
                     },
@@ -286,6 +316,7 @@ fun LoginScreen(navController: NavController) {
                 ) {
                     Text("Ingresar", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
+
 
                 Spacer(Modifier.height(12.dp))
 
