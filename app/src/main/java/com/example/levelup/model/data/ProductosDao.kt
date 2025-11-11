@@ -18,9 +18,10 @@ interface ProductosDao {
     @Query("SELECT * FROM productos")
     fun obtenerTodos(): Flow<List<ProductosEntity>>
 
-    @Query("SELECT * FROM productos WHERE id = :id")
+    @Query("SELECT * FROM productos WHERE id = :id LIMIT 1")
     fun obtenerPorId(id: Int): Flow<ProductosEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarProductos(productos: List<ProductosEntity>)
+
 }

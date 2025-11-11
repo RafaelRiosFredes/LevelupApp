@@ -24,7 +24,7 @@ import com.example.levelup.ui.theme.LevelUpTheme
 
 import androidx.navigation.compose.rememberNavController
 import com.example.levelup.viewmodel.ProductosViewModel
-import com.example.levelup.viewmodel.ProductosViewModelFactory
+import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
                 // ✅ ViewModels
                 val productosViewModel: ProductosViewModel = viewModel(
-                    factory = ProductosViewModelFactory(application)
+                    factory = ProductosViewModelFactoryApp(application)
                 )
 
                 val usuariosViewModel: UsuariosViewModel = viewModel(

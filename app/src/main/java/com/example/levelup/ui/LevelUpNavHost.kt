@@ -12,9 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.levelup.viewmodel.ProductosViewModel
-import com.example.levelup.viewmodel.ProductosViewModelFactory
 import com.example.levelup.viewmodel.UsuariosViewModel
-import com.example.levelup.viewmodel.UsuariosViewModelFactory
 import com.example.levelup_gamerapp.ui.LoginScreen
 
 @Composable
@@ -74,17 +72,23 @@ fun LevelUpNavHost(
 
         // 🛒 Catálogo de productos
         composable("productos") {
-            ProductosScreen(nav = navController, onNavigate = { route -> navController.navigate(route) },)
-
+            ProductosScreen(
+                productosViewModel = productosViewModel,
+                nav = navController,
+                onNavigate = { route -> navController.navigate(route) }
+            )
         }
+
 
         // 🔍 Detalle de producto
         composable("producto/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
             ProductoScreen(
+                productosViewModel = productosViewModel,
                 id = id,
                 onNavigateBack = { navController.popBackStack() }
             )
+
         }
 
         // ⚙️ Inventario

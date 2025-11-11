@@ -112,6 +112,15 @@ fun EditProductoScreen(
                 textStyle = TextStyle(color = PureWhite),
                 singleLine = true
             )
+            OutlinedTextField(
+                    value = descripcion,
+                onValueChange = { descripcion = it },
+                label = { Text("Descripción", color = PureWhite) },
+                placeholder = { Text("Ej: Detalles del producto", color = PureWhite.copy(alpha = 0.6f)) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = PureWhite),
+                maxLines = 4
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -41,7 +41,7 @@ import androidx.navigation.NavHostController
 import com.example.levelup.R
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.viewmodel.ProductosViewModel
-import com.example.levelup.viewmodel.ProductosViewModelFactory
+import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -49,21 +49,19 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosScreen(
+    productosViewModel: ProductosViewModel,
     onNavigate: (String) -> Unit = {},
-    nav: NavHostController,
-    onNavigateBack: () -> Unit = {}
-) {
-    val context = LocalContext.current
-    val application = context.applicationContext as Application
-    val factory = ProductosViewModelFactory(application)
-    val viewModel: ProductosViewModel = viewModel(factory = factory)
+    nav: NavHostController
+)
+ {
+     val context = LocalContext.current
+     val viewModel = productosViewModel
 
-    val productos by viewModel.productos.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+     val productos by viewModel.productos.collectAsState()
+     val snackbarHostState = remember { SnackbarHostState() }
+     val scope = rememberCoroutineScope()
+     val drawerState = rememberDrawerState(DrawerValue.Closed)
+     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

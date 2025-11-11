@@ -24,26 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.room.util.TableInfo
 import com.example.levelup.R
+import com.example.levelup.viewmodel.ProductosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(
+    productosViewModel: ProductosViewModel,
     id: Int,
     onNavigateBack: () -> Unit
 ) {
-    val context = LocalContext.current
-    val db = AppDatabase.getInstance(context)
-    val repo = ProductosRepository(db.productosDao())
 
-
-    var producto by remember { mutableStateOf<ProductosEntity?>(null) }
-
-    // 🔹 Cargar producto desde la base de datos
-    LaunchedEffect(id) {
-        repo.obtenerProductoPorId(id).collect { prod ->
-            producto = prod
-        }
-    }
+    val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
+    val producto by productoFlow.collectAsState(initial = null)
 
     Scaffold(
         topBar = {
@@ -80,18 +72,9 @@ fun ProductoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                LaunchedEffect(id) {
-                    repo.obtenerProductoPorId(id).collect { prod ->
-                        producto = prod
-                    }
-                }
-
-
-
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // 🏷 Nombre
                 Text(
                     text = prod.nombre,
                     fontSize = 26.sp,
@@ -102,7 +85,6 @@ fun ProductoScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // 📜 Descripción
                 Text(
                     text = prod.descripcion,
                     style = MaterialTheme.typography.bodyLarge,
@@ -112,7 +94,6 @@ fun ProductoScreen(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // 💸 Precio centrado visualmente
                 Text(
                     text = "Precio: $${prod.precio}",
                     fontSize = 22.sp,
@@ -121,11 +102,10 @@ fun ProductoScreen(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(80.dp)) // ✅ Baja el botón visualmente
+                Spacer(modifier = Modifier.height(80.dp))
 
-                // 🛒 Botón gamer grande y ovalado
                 Button(
-                    onClick = { /* TODO: Agregar al carrito */ },
+                    onClick = { /* TODO: carrito */ },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF39FF14),
                         contentColor = Color.Black
@@ -150,3 +130,4 @@ fun ProductoScreen(
         }
     }
 }
+
