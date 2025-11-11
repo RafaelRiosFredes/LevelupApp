@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.room.util.TableInfo
 import com.example.levelup.R
+import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(
     productosViewModel: ProductosViewModel,
+    carritoViewModel: CarritoViewModel,
     id: Int,
     onNavigateBack: () -> Unit
 ) {
@@ -105,7 +107,14 @@ fun ProductoScreen(
                 Spacer(modifier = Modifier.height(80.dp))
 
                 Button(
-                    onClick = { /* TODO: carrito */ },
+                    onClick = {
+                        carritoViewModel.agregarProducto(
+                            productoId = prod.id,
+                            nombre = prod.nombre,
+                            precio = prod.precio,
+                            imagenRes = R.drawable.ic_launcher_foreground // luego lo haremos dinámico
+                        )
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF39FF14),
                         contentColor = Color.Black
@@ -121,6 +130,7 @@ fun ProductoScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
             }
         } ?: Box(
             modifier = Modifier.fillMaxSize(),

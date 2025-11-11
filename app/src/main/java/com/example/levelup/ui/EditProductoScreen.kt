@@ -15,6 +15,7 @@ import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
+import com.example.levelup.R
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,25 +28,20 @@ fun EditProductoScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    // Obtener el producto desde el ViewModel (Flow)
     val productoFlow = remember(productId) { productosViewModel.obtenerProductoPorId(productId) }
     val producto by productoFlow.collectAsState(initial = null)
 
-
-
-    // Campos locales para edición
     var nombre by remember { mutableStateOf("") }
     var precioText by remember { mutableStateOf("") }
-    var imagenUrl by remember { mutableStateOf("") }
+    var imagenRes by remember { mutableStateOf(R.drawable.ic_launcher_foreground) }
     var descripcion by remember { mutableStateOf("") }
 
-    // Cuando cargue el producto, inicializar campos (solo una vez por carga)
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
             precioText = BigDecimal.valueOf(it.precio).setScale(2, RoundingMode.HALF_UP).toPlainString()
-            imagenUrl = it.imagenUrl
             descripcion = it.descripcion
+            imagenRes = it.imagenRes
         }
     }
 
@@ -68,9 +64,8 @@ fun EditProductoScreen(
                 value = nombre,
                 onValueChange = { nombre = it },
                 label = { Text("Nombre", color = PureWhite) },
-                placeholder = { Text("Ej: Teclado mecánico", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(color = PureWhite),
+                modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
@@ -78,53 +73,43 @@ fun EditProductoScreen(
 
             OutlinedTextField(
                 value = precioText,
-                onValueChange = { raw ->
-                    var puntoVisto = false
-                    val filtered = StringBuilder()
-                    for (ch in raw) {
-                        if (ch == '.') {
-                            if (!puntoVisto) {
-                                if (filtered.isEmpty()) filtered.append('0')
-                                filtered.append('.')
-                                puntoVisto = true
-                            }
-                        } else if (ch.isDigit()) {
-                            filtered.append(ch)
-                        }
-                    }
-                    precioText = filtered.toString()
-                },
-                label = { Text("Precio (ej: 9.99)", color = PureWhite) },
-                placeholder = { Text("9.99", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
+                onValueChange = { precioText = it },
+                label = { Text("Precio", color = PureWhite) },
                 textStyle = TextStyle(color = PureWhite),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // CAMPO TEMPORAL PARA DEFINIR IMAGEN
+            OutlinedTextField(
+                value = imagenRes.toString(),
+                onValueChange = { raw -> imagenRes = raw.toIntOrNull() ?: R.drawable.ic_launcher_foreground },
+                label = { Text("ID de imagen (temporal)", color = PureWhite) },
+                placeholder = { Text("Ej: 2131230897", color = PureWhite.copy(alpha = 0.6f)) },
+                textStyle = TextStyle(color = PureWhite),
+                modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = imagenUrl,
-                onValueChange = { imagenUrl = it },
-                label = { Text("URL imagen (opcional)", color = PureWhite) },
-                placeholder = { Text("https://...", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(color = PureWhite),
-                singleLine = true
-            )
-            OutlinedTextField(
-                    value = descripcion,
+                value = descripcion,
                 onValueChange = { descripcion = it },
                 label = { Text("Descripción", color = PureWhite) },
-                placeholder = { Text("Ej: Detalles del producto", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(color = PureWhite),
+                modifier = Modifier.fillMaxWidth(),
                 maxLines = 4
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
@@ -136,7 +121,7 @@ fun EditProductoScreen(
                             id = productId,
                             nombre = nombre.trim(),
                             precio = precio,
-                            imagenUrl = imagenUrl.trim(),
+                            imagenRes = imagenRes,
                             descripcion = descripcion
                         )
                         scope.launch {

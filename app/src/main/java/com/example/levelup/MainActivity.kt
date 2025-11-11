@@ -38,7 +38,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             LevelUpTheme {
 
-                // ✅ ViewModels
                 val productosViewModel: ProductosViewModel = viewModel(
                     factory = ProductosViewModelFactoryApp(application)
                 )
@@ -47,12 +46,15 @@ class MainActivity : ComponentActivity() {
                     factory = UsuariosViewModelFactoryApp(application)
                 )
 
-                // ✅ NavHost principal
+                // ✅ Este navController es EL navController global
+                val navController = rememberNavController()
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     LevelUpNavHost(
+                        navController = navController,
                         productosViewModel = productosViewModel,
                         usuariosViewModel = usuariosViewModel
                     )
@@ -61,4 +63,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 

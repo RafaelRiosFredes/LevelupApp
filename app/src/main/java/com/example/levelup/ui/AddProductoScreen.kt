@@ -12,6 +12,8 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
+import com.example.levelup.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,8 +119,8 @@ fun AddProductScreen(
                             id = 0,
                             nombre = nombre.trim(),
                             precio = precio,
-                            imagenUrl = imagenUrl.trim(),
                             descripcion =descripcion,
+                            imagenRes = R.drawable.ic_launcher_foreground
                         )
                         scope.launch {
                             productosViewModel.insertarProducto(nuevo)

@@ -5,9 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "productos")
 data class ProductosEntity (
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val nombre: String,
     val precio: Double,
-    val imagenUrl: String = "", // default para evitar errores al insertar
-    val descripcion: String = ""
+    val descripcion: String = "",
+    val imagenRes: Int
 )
