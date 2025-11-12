@@ -8,24 +8,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.levelup.model.data.ProductosEntity
-import com.example.levelup.model.data.AppDatabase
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import com.example.levelup.model.repository.ProductosRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.room.util.TableInfo
 import com.example.levelup.R
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
+import coil.compose.rememberAsyncImagePainter
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,6 +79,17 @@ fun ProductoScreen(
                     textAlign = TextAlign.Center
                 )
 
+                Image(
+                    painter = rememberAsyncImagePainter(prod.imagenUrl),
+                    contentDescription = prod.nombre,
+                    modifier = Modifier
+                        .size(250.dp)
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
@@ -112,8 +117,7 @@ fun ProductoScreen(
                             productoId = prod.id,
                             nombre = prod.nombre,
                             precio = prod.precio,
-                            imagenRes = R.drawable.ic_launcher_foreground // luego lo haremos dinámico
-                        )
+                            imagenUrl = prod.imagenUrl                        )
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF39FF14),

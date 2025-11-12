@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +28,10 @@ import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.ui.theme.GamerGreen
 import kotlinx.coroutines.launch
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,8 +214,6 @@ fun ProductosScreen(
                     )
 
 
-
-
                     NavigationDrawerItem(
                         label = { Text("Mi cuenta", color = Color.White) },
                         selected = false,
@@ -290,11 +290,11 @@ fun ProductosScreen(
                                     productoId = producto.id,
                                     nombre = producto.nombre,
                                     precio = producto.precio,
-                                    imagenRes = R.drawable.ic_launcher_foreground
+                                    imagenUrl = producto.imagenUrl
                                 )
 
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("✅ Producto agregado al carrito")
+                                    snackbarHostState.showSnackbar(" Producto agregado")
                                 }
                             }
                         )
@@ -332,6 +332,17 @@ fun ProductoItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Image(
+                painter = rememberAsyncImagePainter(producto.imagenUrl),
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .size(150.dp)
+                    .padding(8.dp),
+                contentScale = ContentScale.Fit
             )
 
             Spacer(Modifier.height(10.dp))

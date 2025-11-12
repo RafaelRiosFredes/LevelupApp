@@ -10,5 +10,5 @@ data class ProductosEntity (
     val nombre: String,
     val precio: Double,
     val descripcion: String = "",
-    val imagenRes: Int
+    val imagenUrl: String
 )

@@ -3,22 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.levelup">
 
+    <!-- 🌐 Permisos de red -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- ✅ Permisos de cámara y lectura de imágenes -->
+    <!-- 📸 Cámara (opcional, pero necesaria para tus apps nativas integradas) -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- 🖼️ Lectura de imágenes desde la galería -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- 📁 Compatibilidad con versiones antiguas de Android -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-
-    <!-- ✅ Si planeas guardar fotos en el almacenamiento (opcional) -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
-
 
     <application
         android:allowBackup="true"
@@ -29,6 +31,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
+
 
         android:theme="@style/Theme.LevelUp"
         tools:targetApi="31">

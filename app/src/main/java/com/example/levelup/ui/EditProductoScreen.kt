@@ -33,15 +33,16 @@ fun EditProductoScreen(
 
     var nombre by remember { mutableStateOf("") }
     var precioText by remember { mutableStateOf("") }
-    var imagenRes by remember { mutableStateOf(R.drawable.ic_launcher_foreground) }
     var descripcion by remember { mutableStateOf("") }
+    var imagenUrl by remember { mutableStateOf("") }
+
 
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
             precioText = BigDecimal.valueOf(it.precio).setScale(2, RoundingMode.HALF_UP).toPlainString()
             descripcion = it.descripcion
-            imagenRes = it.imagenRes
+            imagenUrl = it.imagenUrl
         }
     }
 
@@ -82,12 +83,12 @@ fun EditProductoScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // CAMPO TEMPORAL PARA DEFINIR IMAGEN
+            // 🔹 Campo URL de imagen (reemplaza el antiguo ID drawable)
             OutlinedTextField(
-                value = imagenRes.toString(),
-                onValueChange = { raw -> imagenRes = raw.toIntOrNull() ?: R.drawable.ic_launcher_foreground },
-                label = { Text("ID de imagen (temporal)", color = PureWhite) },
-                placeholder = { Text("Ej: 2131230897", color = PureWhite.copy(alpha = 0.6f)) },
+                value = imagenUrl,
+                onValueChange = { imagenUrl = it },
+                label = { Text("URL de imagen", color = PureWhite) },
+                placeholder = { Text("https://...", color = PureWhite.copy(alpha = 0.6f)) },
                 textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -121,8 +122,9 @@ fun EditProductoScreen(
                             id = productId,
                             nombre = nombre.trim(),
                             precio = precio,
-                            imagenRes = imagenRes,
-                            descripcion = descripcion
+                            descripcion = descripcion,
+                            imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
+                            else "https://via.placeholder.com/300x300.png?text=Producto+sin+imagen"
                         )
                         scope.launch {
                             productosViewModel.actualizarProducto(actualizado)

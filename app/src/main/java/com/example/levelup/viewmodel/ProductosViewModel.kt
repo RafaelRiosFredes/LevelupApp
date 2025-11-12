@@ -19,21 +19,6 @@ class ProductosViewModel(
     val productos = repository.obtenerProductos()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    init {
-        // Insertar productos de prueba solo si la tabla está vacía
-        viewModelScope.launch {
-            val lista = repository.obtenerProductos().first()
-            if (lista.isEmpty()) {
-                val productosDemo = listOf(
-                    ProductosEntity(nombre = "Teclado HyperX Alloy", precio = 49990.0, imagenRes = R.drawable.ic_launcher_foreground),
-                    ProductosEntity(nombre = "Mouse Logitech G502", precio = 39990.0, imagenRes = R.drawable.ic_launcher_foreground),
-                    ProductosEntity(nombre = "Audífonos Razer Kraken", precio = 59990.0, imagenRes = R.drawable.ic_launcher_foreground)
-                )
-                productosDemo.forEach { repository.insertarProducto(it) }
-            }
-        }
-    }
-
     fun insertarProducto(producto: ProductosEntity) = viewModelScope.launch {
         repository.insertarProducto(producto)
     }

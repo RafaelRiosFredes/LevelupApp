@@ -1,7 +1,6 @@
 package com.example.levelup.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +22,8 @@ import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,9 +121,10 @@ fun CarritoItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = item.imagenRes),
+                painter = rememberAsyncImagePainter(item.imagenUrl),
                 contentDescription = item.nombre,
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier.size(60.dp),
+                contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.width(12.dp))
 

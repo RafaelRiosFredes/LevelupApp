@@ -10,5 +10,5 @@ data class CarritoEntity(
     val nombre: String,
     val precio: Double,
     val cantidad: Int = 1,
-    val imagenRes: Int // luego lo reemplazamos por URL si quieres
+    val imagenUrl: String
 )

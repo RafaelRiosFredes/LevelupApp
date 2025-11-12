@@ -119,8 +119,9 @@ fun AddProductScreen(
                             id = 0,
                             nombre = nombre.trim(),
                             precio = precio,
-                            descripcion =descripcion,
-                            imagenRes = R.drawable.ic_launcher_foreground
+                            descripcion = descripcion,
+                            imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
+                            else "https://placehold.co/600x400/000000/FFFFFF/png"
                         )
                         scope.launch {
                             productosViewModel.insertarProducto(nuevo)

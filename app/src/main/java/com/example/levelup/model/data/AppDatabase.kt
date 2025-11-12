@@ -5,9 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.levelup.R
-import  com.example.levelup.model.data.CarritoEntity
-import com.example.levelup.model.data.CarritoDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +15,7 @@ import kotlinx.coroutines.launch
         UsuarioEntity::class,
         CarritoEntity::class
     ],
-    version = 3,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context): AppDatabase {
-            val instance = Room.databaseBuilder(
+            return Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
                 "levelup.db"
@@ -47,38 +44,36 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-
-                        // Inserción inicial en background
                         CoroutineScope(Dispatchers.IO).launch {
-                            // Espera a que INSTANCE esté asignado (ya que buildDatabase devuelve el instance y lo asignamos con also)
-                            val dao = INSTANCE?.productosDao() ?: return@launch
-                            val productosIniciales = listOf(
+                            val database = getInstance(context)
+                            val dao = database.productosDao()
 
+                            val productosIniciales = listOf(
                                 ProductosEntity(
                                     nombre = "Teclado Gamer",
                                     precio = 12990.0,
                                     descripcion = "Teclado ideal para gamers",
-                                    imagenRes = R.drawable.ic_launcher_foreground
+                                    imagenUrl = "https://mutant.cl/cdn/shop/files/Teclado-Gamer-Tecware-Phantom-L-Red-Switch-Mutant-27972418273349.png?v=1755035408"
                                 ),
                                 ProductosEntity(
                                     nombre = "Mouse Gamer",
                                     precio = 39990.0,
                                     descripcion = "Mouse cómodo ideal para tus juegos",
-                                    imagenRes = R.drawable.ic_launcher_foreground
+                                    imagenUrl = "https://s3.amazonaws.com/w3.assets/fotos/27719/1..webp?v=1883517885"
                                 ),
                                 ProductosEntity(
                                     nombre = "Camiseta personalizada",
                                     precio = 7990.0,
                                     descripcion = "Elige el diseño que quieras",
-                                    imagenRes = R.drawable.ic_launcher_foreground
+                                    imagenUrl = "https://iglboards.cl/cdn/shop/files/PoleraNegraIglNinoReverso.jpg?v=1722515395&width=1445"
                                 )
                             )
                             dao.insertarProductos(productosIniciales)
+                            println("✅ Productos iniciales insertados correctamente en Room")
                         }
                     }
                 })
                 .build()
-            return instance
         }
     }
 }
