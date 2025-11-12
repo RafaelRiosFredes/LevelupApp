@@ -1,5 +1,4 @@
 package com.example.levelup.ui
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.levelup.R
-import com.example.levelup.model.viewmodel.NoticiasViewModel
+import com.example.levelup.viewmodel.NoticiasViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

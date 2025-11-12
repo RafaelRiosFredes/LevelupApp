@@ -94,7 +94,7 @@ fun PantallaContacto(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
-                SearchBar(
+                CustomSearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = { /* TODO: handle search logic here */ }
