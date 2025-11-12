@@ -1,6 +1,12 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.levelup.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -297,31 +303,58 @@ fun PantallaPrincipal(
 // -------------------------
 @Composable
 fun BannerPrincipal() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp)
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                "https://www.azernews.az/media/2023/11/27/2023_rog_zephyrus_duo_16_gx650_scenario_photo_01.jpg?v=1701092248"
-            ),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        Text(
-            text = stringResource(R.string.slogan),
-            color = Color(0xFF00AAFF),
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
+    // 🔹 Lista de imágenes reales (de prueba)
+    val imagenes = listOf(
+        R.drawable.principal1, // imagen local
+        R.drawable.principal2,
+    )
+
+    // 🔹 Estado actual del índice
+    var currentIndex by remember { mutableStateOf(0) }
+
+    // 🔹 Cambio automático cada 4 segundos
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(4000L)
+            currentIndex = (currentIndex + 1) % imagenes.size
+        }
+    }
+
+    // 🔹 Animación de transición suave (deslizamiento + fade)
+    AnimatedContent(
+        targetState = currentIndex,
+        transitionSpec = {
+            slideInHorizontally { fullWidth -> fullWidth } + fadeIn() togetherWith
+                    slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut()
+        },
+        label = "banner_animation"
+    ) { index ->
+        Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 12.dp)
-        )
+                .fillMaxWidth()
+                .height(220.dp)
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(imagenes[index]),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = stringResource(R.string.slogan),
+                color = Color(0xFF00AAFF),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 12.dp)
+                    .background(Color(0xAA000000))
+            )
+        }
     }
 }
+
 
 @Composable
 fun SearchBar(
