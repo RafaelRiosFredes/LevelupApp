@@ -34,7 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 // Pantalla principal de contacto con formulario y navegación lateral
 @Composable
-fun PantallaContacto(
+fun ContactoScreen(
     onEnviar: (nombre: String, email: String, mensaje: String) -> Unit = { _, _, _ -> },
     onNavigate: (String) -> Unit ={}
 ) {
@@ -97,7 +97,7 @@ fun PantallaContacto(
                 CustomSearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO: handle search logic here */ }
+                    onSearch = {  }
                 )
 
                 // Items del drawer (idénticos)
@@ -158,6 +158,18 @@ fun PantallaContacto(
                             scope.launch {
                                 drawerState.close()
                                 onNavigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Noticias", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("Noticias")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -525,6 +537,6 @@ fun CustomSearchBar(
 // Vista previa del diseño en el editor
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
-fun PreviewPantallaContacto() {
-    PantallaContacto()
+fun PreviewContactoScreen() {
+    ContactoScreen()
 }

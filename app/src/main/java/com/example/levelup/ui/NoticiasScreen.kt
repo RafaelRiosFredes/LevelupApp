@@ -18,8 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,17 +27,18 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
+fun NoticiasScreen(vm: NoticiasViewModel = viewModel(),  onNavigate: (String) -> Unit = {}
+) {
     val noticias = vm.noticias.collectAsState().value
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     var searchQuery by rememberSaveable { mutableStateOf("") }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
+            // Contenido del menú lateral (idéntico a PantallaContacto)
             ModalDrawerSheet(
                 drawerContainerColor = Color.Black,
                 drawerContentColor = Color.White,
@@ -47,7 +46,7 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
                     .background(Color.Black)
                     .width(300.dp)
             ) {
-                // Botón cerrar
+                // Header: botón para cerrar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -64,7 +63,7 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
                     }
                 }
 
-                //  Título Drawer
+                // Título de la app en el drawer
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -81,44 +80,156 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Barra de búsqueda (decorativa)
-                /*SearchBar(
+                // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
+                SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { }
-                )*/
+                    onSearch = { /* TODO: handle search logic here */ }
+                )
 
-                // Ítems del drawer
+                // Items del drawer (idénticos)
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    val items = listOf(
-                        "Inicio" to Icons.Default.Home,
-                        "Juegos de Mesa" to Icons.Default.SportsEsports,
-                        "Accesorios" to Icons.Default.Headphones,
-                        "Consolas" to Icons.Default.VideogameAsset,
-                        "Contacto" to Icons.Default.Phone,
-                        "Noticias" to Icons.Default.Newspaper,
-                        "Carrito" to Icons.Default.ShoppingCart,
-                        "Inicia sesión" to Icons.Default.Login,
-                        "Regístrate" to Icons.Default.Person,
-                        "Mi cuenta" to Icons.Default.AccountCircle,
-                        "Puntos LevelUp" to Icons.Default.Star
+
+                    NavigationDrawerItem(
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Carrito", color = Color.White)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    tonalElevation = 0.dp,
+                                    color = Color(0xFF39FF14)
+                                ) {
+                                    Text(
+                                        text = "0",
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("carrito")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    items.forEach { (label, icon) ->
-                        NavigationDrawerItem(
-                            label = { Text(label, color = Color.White) },
-                            selected = label == "Noticias",
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    snackbarHostState.showSnackbar("$label seleccionado")
-                                }
-                            },
-                            icon = { Icon(icon, contentDescription = null, tint = Color.White) },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
-                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.DarkGray
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Inicio", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("PantallaPrincipal")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Productos", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Inicia sesión", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("login")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Regístrate", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("registro")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Noticias", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("Noticias")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Contacto", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("contacto")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Email, contentDescription = "Contacto", tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+
+
+
+                    NavigationDrawerItem(
+                        label = { Text("Mi cuenta", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("login")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Puntos LevelUp", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     ) {
@@ -211,3 +322,4 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
         }
     }
 }
+

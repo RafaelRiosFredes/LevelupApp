@@ -194,6 +194,18 @@ fun PantallaPrincipal(
                     )
 
                     NavigationDrawerItem(
+                        label = { Text("Noticias", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("Noticias")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
                         label = { Text("Contacto", color = Color.White) },
                         selected = false,
                         onClick = {

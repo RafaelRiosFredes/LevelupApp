@@ -93,7 +93,7 @@ fun ProductosScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
-                SearchBar(
+                CustomSearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = { /* TODO: handle search logic here */ }
@@ -157,6 +157,18 @@ fun ProductosScreen(
                             scope.launch {
                                 drawerState.close()
                                 onNavigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Noticias", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("Noticias")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)

@@ -58,10 +58,17 @@ fun LevelUpNavHost(
         }
 
         composable("contacto") {
-            PantallaContacto(
+            ContactoScreen(
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
+
+        composable("noticias") {
+            NoticiasScreen(
+                onNavigate = { route -> navController.navigate(route) }
+            )
+        }
+
 
         composable("producto/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
