@@ -82,11 +82,11 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Barra de búsqueda (decorativa)
-                SearchBar(
+                /*SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = { }
-                )
+                )*/
 
                 // Ítems del drawer
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -208,64 +208,6 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel()) {
                     }
                 }
             }
-        }
-    }
-}
-
-// Barra de búsqueda
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(Color.Black),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = onQueryChange,
-            placeholder = {
-                Text(
-                    "Buscar en LEVEL-UP GAMER",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF39FF14),
-                unfocusedBorderColor = Color(0xFF39FF14),
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black,
-                cursorColor = Color(0xFF39FF14),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            ),
-            modifier = Modifier
-                .weight(1f)
-                .height(50.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        IconButton(
-            onClick = onSearch,
-            modifier = Modifier
-                .size(50.dp)
-                .background(Color.Transparent)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Buscar",
-                tint = Color(0xFF39FF14)
-            )
         }
     }
 }
