@@ -35,7 +35,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 // Pantalla principal de contacto con formulario y navegación lateral
 @Composable
 fun PantallaContacto(
-    onEnviar: (nombre: String, email: String, mensaje: String) -> Unit = { _, _, _ -> }
+    onEnviar: (nombre: String, email: String, mensaje: String) -> Unit = { _, _, _ -> },
+    onNavigate: (String) -> Unit ={}
 ) {
     // Estado para manejar notificaciones tipo Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
@@ -47,11 +48,10 @@ fun PantallaContacto(
     // Estado del texto de búsqueda (recordado incluso tras rotar la pantalla)
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    // Contenedor principal con menú lateral y contenido central
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            // Contenido del menú lateral (Drawer)
+            // Contenido del menú lateral (idéntico a PantallaContacto)
             ModalDrawerSheet(
                 drawerContainerColor = Color.Black,
                 drawerContentColor = Color.White,
@@ -59,7 +59,7 @@ fun PantallaContacto(
                     .background(Color.Black)
                     .width(300.dp)
             ) {
-                // Encabezado (header) con botón para cerrar el menú
+                // Header: botón para cerrar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -75,7 +75,8 @@ fun PantallaContacto(
                         )
                     }
                 }
-                // Título de la aplicación en el menú
+
+                // Título de la app en el drawer
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -92,91 +93,16 @@ fun PantallaContacto(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Barra de búsqueda dentro del menú
+                // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { /* Lógica de búsqueda pendiente */ }
+                    onSearch = { /* TODO: handle search logic here */ }
                 )
 
-                // Elementos de navegación dentro del menú
+                // Items del drawer (idénticos)
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    // Cada NavigationDrawerItem representa una sección del menú
-                    NavigationDrawerItem(
-                        label = { Text("Inicio", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Inicio seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
 
-                    // Repetición del patrón para otras secciones del menú
-                    NavigationDrawerItem(
-                        label = { Text("Juegos de Mesa", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Juegos de Mesa seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Accesorios", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Accesorios seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Consolas", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Consolas seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Contacto", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Contacto seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Noticias", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Noticias seleccionado")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    // Sección con contador (Carrito)
                     NavigationDrawerItem(
                         label = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -200,23 +126,50 @@ fun PantallaContacto(
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Carrito seleccionado")
+                                onNavigate("carrito")
                             }
                         },
                         icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.DarkGray)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.DarkGray
+                    )
 
-                    // Opciones de cuenta de usuario
+                    NavigationDrawerItem(
+                        label = { Text("Inicio", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("PantallaPrincipal")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Productos", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("productos")
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
                     NavigationDrawerItem(
                         label = { Text("Inicia sesión", color = Color.White) },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Inicia sesión seleccionado")
+                                onNavigate("login")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -228,11 +181,27 @@ fun PantallaContacto(
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Regístrate seleccionado")
+                                onNavigate("registro")
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
+
+                    NavigationDrawerItem(
+                        label = { Text("Contacto", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("contacto")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Email, contentDescription = "Contacto", tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+
+
 
                     NavigationDrawerItem(
                         label = { Text("Mi cuenta", color = Color.White) },
@@ -240,7 +209,7 @@ fun PantallaContacto(
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Mi cuenta seleccionado")
+                                onNavigate("login")
                             }
                         },
                         icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
@@ -492,7 +461,7 @@ fun PantallaContacto(
 
 // Composable para la barra de búsqueda reutilizable
 @Composable
-fun SearchBar(
+fun CustomSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit

@@ -250,6 +250,7 @@ fun RegistroScreen( navController: NavController,
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
+
                     NavigationDrawerItem(
                         label = { Text("Mi cuenta", color = Color.White) },
                         selected = false,

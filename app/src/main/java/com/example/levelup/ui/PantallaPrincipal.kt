@@ -194,6 +194,22 @@ fun PantallaPrincipal(
                     )
 
                     NavigationDrawerItem(
+                        label = { Text("Contacto", color = Color.White) },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                onNavigate("contacto")
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Email, contentDescription = "Contacto", tint = Color.White) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+
+
+
+                    NavigationDrawerItem(
                         label = { Text("Mi cuenta", color = Color.White) },
                         selected = false,
                         onClick = {
