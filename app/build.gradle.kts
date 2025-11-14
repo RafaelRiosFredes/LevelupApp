@@ -70,4 +70,20 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.2")
 
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+
+// Para Room Testing
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+
+// Para coroutines test en androidTest
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+// Compose UI testing
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.3")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.3")
+
 }
