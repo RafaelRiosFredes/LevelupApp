@@ -16,12 +16,12 @@ import kotlinx.coroutines.launch
         CarritoEntity::class,
         BoletaEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun usuarioDao(): UsuarioDao
+    abstract fun usuarioDao(): UsuariosDao
     abstract fun productosDao(): ProductosDao
     abstract fun carritoDao(): CarritoDao
 

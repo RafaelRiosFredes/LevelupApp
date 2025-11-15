@@ -5,29 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.activity.viewModels
-import com.example.levelup.ui.LevelUpNavHost
-import com.example.levelup.ui.PantallaPrincipal
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.levelup.ui.LevelUpNavHost
+import androidx.navigation.compose.rememberNavController
+import com.example.levelup.core.UserSession
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
-
-import androidx.navigation.compose.rememberNavController
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import com.example.levelup.viewmodel.UsuariosViewModel
 import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
-
 
 class MainActivity : ComponentActivity() {
 
@@ -36,8 +25,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
             LevelUpTheme {
 
+                // -------------------------
+                // Crear ViewModels globales
+                // -------------------------
                 val productosViewModel: ProductosViewModel = viewModel(
                     factory = ProductosViewModelFactoryApp(application)
                 )
@@ -46,7 +39,14 @@ class MainActivity : ComponentActivity() {
                     factory = UsuariosViewModelFactoryApp(application)
                 )
 
-                // ✅ Este navController es EL navController global
+                // -------------------------
+                // Crear ADMIN si no existe
+                // -------------------------
+                usuariosViewModel.crearAdminPorDefecto()
+
+                // -------------------------
+                // NavController global
+                // -------------------------
                 val navController = rememberNavController()
 
                 Surface(
@@ -63,5 +63,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-

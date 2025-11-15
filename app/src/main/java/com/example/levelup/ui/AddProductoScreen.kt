@@ -12,34 +12,40 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
-import com.example.levelup.R
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductScreen(
     productosViewModel: ProductosViewModel,
+    currentUserRol: String,        //  admin
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
+    //   Admin
+    LaunchedEffect(Unit) {
+        if (currentUserRol != "admin") {
+            onCancel()  // vuelve atrás
+        }
+    }
+
     val scope = rememberCoroutineScope()
     var nombre by remember { mutableStateOf("") }
     var precioText by remember { mutableStateOf("") }
     var imagenUrl by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
 
-    // Regex que acepta números enteros o con un solo punto decimal
     val numeroRegex = Regex("""^\d+(\.\d+)?$""")
-
-    // isValid exige nombre y precio con formato numérico válido
     val isValid = nombre.isNotBlank() && numeroRegex.matches(precioText)
 
     Scaffold(
         containerColor = JetBlack,
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Agregar producto", color = GamerGreen) })
+            CenterAlignedTopAppBar(
+                title = { Text("Agregar producto", color = GamerGreen) }
+            )
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,77 +57,74 @@ fun AddProductScreen(
                 value = nombre,
                 onValueChange = { nombre = it },
                 label = { Text("Nombre", color = PureWhite) },
-                placeholder = { Text("Ej: Teclado mecánico", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(color = PureWhite),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // --- Campo Precio: filtra la entrada para aceptar solo dígitos y un punto máximo ---
             OutlinedTextField(
                 value = precioText,
-                onValueChange = { raw ->
-                    // Filtrado: sólo permite dígitos y un único punto decimal.
-                    var puntoVisto = false
-                    val filtered = StringBuilder()
-                    for (ch in raw) {
-                        if (ch == '.') {
-                            if (!puntoVisto) {
-                                // evitar punto al inicio
-                                if (filtered.isEmpty()) {
-                                    // si el primer carácter es '.', preasignamos '0' para que quede "0."
-                                    filtered.append('0')
-                                }
-                                filtered.append('.')
-                                puntoVisto = true
-                            }
-                        } else if (ch.isDigit()) {
-                            filtered.append(ch)
-                        }
-                        // cualquier otro carácter se ignora (letras, 'f', comas, etc.)
-                    }
-                    precioText = filtered.toString()
+                onValueChange = { input ->
+                    val clean = input.filter { it.isDigit() || it == '.' }
+                    precioText = clean
                 },
-                label = { Text("Precio (ej: 9.99)", color = PureWhite) },
-                placeholder = { Text("9.99", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Precio", color = PureWhite) },
                 textStyle = TextStyle(color = PureWhite),
-                singleLine = true
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            // -------------------------------------------------------------------------------
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = imagenUrl,
                 onValueChange = { imagenUrl = it },
-                label = { Text("URL imagen (opcional)", color = PureWhite) },
+                label = { Text("Imagen URL", color = PureWhite) },
                 placeholder = { Text("https://...", color = PureWhite.copy(alpha = 0.6f)) },
-                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
                 textStyle = TextStyle(color = PureWhite),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            OutlinedTextField(
+                value = descripcion,
+                onValueChange = { descripcion = it },
+                label = { Text("Descripción (opcional)", color = PureWhite) },
+                textStyle = TextStyle(color = PureWhite),
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 4
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+
+                Spacer(Modifier.width(12.dp))
+
                 Button(
                     onClick = {
                         val precio = precioText.toDoubleOrNull() ?: 0.0
+
                         val nuevo = ProductosEntity(
                             id = 0,
-                            backendId = null, // IMPORTANTE: backend lo genera
+                            backendId = null,
                             nombre = nombre.trim(),
                             precio = precio,
-                            descripcion = descripcion,
-                            imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
-                            else "https://placehold.co/600x400/000000/FFFFFF/png"
+                            descripcion = descripcion.trim(),
+                            imagenUrl = if (imagenUrl.isNotBlank())
+                                imagenUrl.trim()
+                            else
+                                "https://placehold.co/600x400/000000/FFFFFF/png"
                         )
 
                         scope.launch {
@@ -131,11 +134,13 @@ fun AddProductScreen(
                         }
                     },
                     enabled = isValid,
-                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen, contentColor = JetBlack)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamerGreen,
+                        contentColor = JetBlack
+                    )
                 ) {
-                    Text("Guardar en servidor")
+                    Text("Guardar")
                 }
-
             }
         }
     }

@@ -5,15 +5,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.levelup.model.data.AppDatabase
 import com.example.levelup.model.repository.UsuariosRepository
+import com.example.levelup.remote.RetrofitBuilder
 
 class UsuariosViewModelFactoryApp(private val app: Application) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
         val db = AppDatabase.getInstance(app)
-        val repo = UsuariosRepository(db.usuarioDao())
+        val dao = db.usuarioDao()
+        val api = RetrofitBuilder.usuariosApi
+
+        val repo = UsuariosRepository(dao, api)
+
         if (modelClass.isAssignableFrom(UsuariosViewModel::class.java)) {
-            return UsuariosViewModel(repo) as T
+            return UsuariosViewModel(app, repo) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

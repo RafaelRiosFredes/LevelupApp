@@ -1,9 +1,9 @@
 package com.example.levelup.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -14,52 +14,62 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
-import com.example.levelup.R
 
-@SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProductoScreen(
     productosViewModel: ProductosViewModel,
+    currentUserRol: String,
     productId: Int,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
+    // Seguridad
+    LaunchedEffect(Unit) {
+        if (currentUserRol != "admin") onCancel()
+    }
 
-    val productoFlow = remember(productId) { productosViewModel.obtenerProductoPorId(productId) }
+    val productoFlow = remember(productId) {
+        productosViewModel.obtenerProductoPorId(productId)
+    }
     val producto by productoFlow.collectAsState(initial = null)
 
     var nombre by remember { mutableStateOf("") }
-    var precioText by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
+    var precio by remember { mutableStateOf("") }
     var imagenUrl by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
 
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
-            precioText = BigDecimal.valueOf(it.precio).setScale(2, RoundingMode.HALF_UP).toPlainString()
-            descripcion = it.descripcion
+            precio = it.precio.toString()
             imagenUrl = it.imagenUrl
+            descripcion = it.descripcion
         }
     }
 
-    val numeroRegex = Regex("""^\d+(\.\d+)?$""")
-    val isValid = nombre.isNotBlank() && numeroRegex.matches(precioText)
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = JetBlack,
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Editar producto", color = GamerGreen) })
+            CenterAlignedTopAppBar(
+                title = { Text("Editar producto", color = GamerGreen) }
+            )
         }
     ) { padding ->
+
+        if (producto == null) {
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                CircularProgressIndicator(color = GamerGreen)
+            }
+            return@Scaffold
+        }
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            Modifier.fillMaxSize()
                 .padding(padding)
+                .padding(16.dp)
         ) {
 
             OutlinedTextField(
@@ -67,74 +77,58 @@ fun EditProductoScreen(
                 onValueChange = { nombre = it },
                 label = { Text("Nombre", color = PureWhite) },
                 textStyle = TextStyle(color = PureWhite),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = precioText,
-                onValueChange = { precioText = it },
+                value = precio,
+                onValueChange = { precio = it.filter { c -> c.isDigit() || c == '.' } },
                 label = { Text("Precio", color = PureWhite) },
-                textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                textStyle = TextStyle(color = PureWhite)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = imagenUrl,
                 onValueChange = { imagenUrl = it },
-                label = { Text("URL de imagen", color = PureWhite) },
-                placeholder = { Text("https://...", color = PureWhite.copy(alpha = 0.6f)) },
-                textStyle = TextStyle(color = PureWhite),
+                label = { Text("URL Imagen", color = PureWhite) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                textStyle = TextStyle(color = PureWhite)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
                 label = { Text("Descripción", color = PureWhite) },
-                textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 4
+                textStyle = TextStyle(color = PureWhite)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-
-            // ============================
-            // BOTONES DEL CRUD BACKEND
-            // ============================
+            Spacer(Modifier.height(20.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // ----------- ACTUALIZAR  -------------
+                Spacer(Modifier.width(12.dp))
                 Button(
                     onClick = {
-                        val precio = precioText.toDoubleOrNull() ?: 0.0
                         val actualizado = ProductosEntity(
                             id = productId,
-                            backendId = producto?.backendId,
-                            nombre = nombre.trim(),
-                            precio = precio,
+                            backendId = producto!!.backendId,
+                            nombre = nombre,
+                            precio = precio.toDoubleOrNull() ?: 0.0,
                             descripcion = descripcion,
-                            imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
-                            else "https://via.placeholder.com/300x300.png?text=Producto+sin+imagen"
+                            imagenUrl = imagenUrl
                         )
 
                         scope.launch {
@@ -143,48 +137,13 @@ fun EditProductoScreen(
                             onSaved()
                         }
                     },
-                    enabled = isValid,
-                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen, contentColor = JetBlack)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamerGreen,
+                        contentColor = JetBlack
+                    )
                 ) {
-                    Text("Guardar cambios")
+                    Text("Guardar")
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ----------- ELIMINAR  -------------
-            Button(
-                onClick = {
-                    scope.launch {
-                        producto?.let {
-                            productosViewModel.eliminarProductoBackend(it)
-                            productosViewModel.sincronizarProductos()
-                            onSaved()
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red, contentColor = PureWhite),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Eliminar producto")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // ----------- RECARGAR (obtener) -------------
-            Button(
-                onClick = {
-                    producto?.backendId?.let { backendId ->
-                        scope.launch {
-                            productosViewModel.obtenerProductoBackend(backendId)
-                            productosViewModel.sincronizarProductos()
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray, contentColor = PureWhite),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Recargar")
             }
         }
     }

@@ -4,28 +4,33 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface UsuarioDao {
+interface UsuariosDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertarUsuario(usuario: UsuarioEntity)
+    suspend fun insertar(usuario: UsuarioEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertarUsuarios(lista: List<UsuarioEntity>)
 
     @Update
-    suspend fun actualizarUsuario(usuario: UsuarioEntity)
+    suspend fun actualizar(usuario: UsuarioEntity)
 
     @Delete
-    suspend fun eliminarUsuario(usuario: UsuarioEntity)
+    suspend fun eliminar(usuario: UsuarioEntity)
 
-    @Query("SELECT * FROM usuarios")
-    fun obtenerTodos(): Flow<List<UsuarioEntity>>
+    @Query("SELECT * FROM usuarios ORDER BY id DESC")
+    fun obtenerUsuarios(): Flow<List<UsuarioEntity>>
 
-    @Query("SELECT * FROM usuarios WHERE id = :id")
-    fun obtenerPorId(id: Int): Flow<UsuarioEntity?>
+    @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
+    fun usuarioPorId(id: Int): Flow<UsuarioEntity?>
 
-    @Query("SELECT * FROM usuarios WHERE correo = :correo LIMIT 1")
-    suspend fun obtenerPorCorreo(correo: String): UsuarioEntity?
+    @Query("SELECT * FROM usuarios WHERE backendId = :backendId LIMIT 1")
+    suspend fun usuarioPorBackendId(backendId: Long): UsuarioEntity?
 
-    @Query("DELETE FROM usuarios WHERE correo = :correo")
-    suspend fun eliminarPorCorreo(correo: String)
+    @Query("DELETE FROM usuarios")
+    suspend fun eliminarTodos()
 
+    // 🔥 LOGIN
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena LIMIT 1")
-    suspend fun verificarLogin(correo: String, contrasena: String): UsuarioEntity?
+    suspend fun login(correo: String, contrasena: String): UsuarioEntity?
 }

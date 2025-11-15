@@ -1,46 +1,45 @@
 package com.example.levelup.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.text.style.TextOverflow
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.ui.theme.*
 import com.example.levelup.viewmodel.ProductosViewModel
-import com.example.levelup.ui.theme.DarkGray
-import com.example.levelup.ui.theme.GamerGreen
-import com.example.levelup.ui.theme.GamerBlue
-import com.example.levelup.ui.theme.JetBlack
-import com.example.levelup.ui.theme.PureWhite
-import java.text.NumberFormat
-import java.util.Locale
 import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Color
+import java.text.NumberFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventarioScreen(
     productosViewModel: ProductosViewModel,
+    currentUserRol: String,
     onAgregarClick: () -> Unit,
     onEditarClick: (Int) -> Unit,
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
+    //  Admin
+    LaunchedEffect(Unit) {
+        if (currentUserRol != "admin") {
+            onNavigate("PantallaPrincipal")
+        }
+    }
+
     val productos by productosViewModel.productos.collectAsState(initial = emptyList())
 
     var selectedProduct by remember { mutableStateOf<ProductosEntity?>(null) }
@@ -75,11 +74,6 @@ fun InventarioScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkGray)
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAgregarClick, containerColor = GamerGreen) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar")
-            }
         }
     ) { padding ->
         if (productos.isEmpty()) {
@@ -122,7 +116,6 @@ fun InventarioScreen(
     }
 }
 
-
 @Composable
 fun ProductoRow(
     producto: ProductosEntity,
@@ -156,16 +149,14 @@ fun ProductoRow(
             Text(
                 text = producto.nombre,
                 style = MaterialTheme.typography.titleMedium,
-                color = PureWhite,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                color = PureWhite
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Id: ${producto.id}", style = MaterialTheme.typography.bodyMedium, color = PureWhite)
-            Text(text = "Precio: $precioFormateado", style = MaterialTheme.typography.bodyMedium, color = PureWhite)
+            Text(text = "Id: ${producto.id}", color = PureWhite)
+            Text(text = "Precio: $precioFormateado", color = PureWhite)
             if (isSelected) {
                 Spacer(modifier = Modifier.height(6.dp))
-                Text(text = "Seleccionado", style = MaterialTheme.typography.labelSmall, color = GamerGreen)
+                Text(text = "Seleccionado", color = GamerGreen)
             }
         }
     }

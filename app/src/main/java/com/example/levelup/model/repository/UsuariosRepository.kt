@@ -1,25 +1,81 @@
 package com.example.levelup.model.repository
 
-import com.example.levelup.model.data.UsuarioDao
 import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.model.data.UsuariosDao
+import com.example.levelup.remote.UsuariosApiService
+import com.example.levelup.remote.mappers.toDTO
+import com.example.levelup.remote.mappers.toEntity
 import kotlinx.coroutines.flow.Flow
 
-class UsuariosRepository(private val dao: UsuarioDao) {
-    fun todosLosUsuarios(): Flow<List<UsuarioEntity>> = dao.obtenerTodos()
+class UsuariosRepository(
+    private val dao: UsuariosDao,
+    private val api: UsuariosApiService
+) {
 
-    fun obtenerPorId(id: Int): Flow<UsuarioEntity?> = dao.obtenerPorId(id)
+    // ROOM
+    fun obtenerUsuarios(): Flow<List<UsuarioEntity>> = dao.obtenerUsuarios()
+    fun usuarioPorId(id: Int) = dao.usuarioPorId(id)
 
-    suspend fun insertar(usuario: UsuarioEntity) = dao.insertarUsuario(usuario)
+    suspend fun insertar(usuario: UsuarioEntity) {
+        dao.insertar(usuario)
+    }
 
-    suspend fun actualizar(usuario: UsuarioEntity) = dao.actualizarUsuario(usuario)
+    suspend fun actualizar(usuario: UsuarioEntity) {
+        dao.actualizar(usuario)
+    }
 
-    suspend fun eliminar(usuario: UsuarioEntity) = dao.eliminarUsuario(usuario)
+    suspend fun eliminar(usuario: UsuarioEntity) {
+        dao.eliminar(usuario)
+    }
 
-    suspend fun eliminarPorCorreo(correo: String) = dao.eliminarPorCorreo(correo)
+    suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
+        return dao.login(correo, contrasena)
+    }
 
-    suspend fun obtenerPorCorreo(correo: String) = dao.obtenerPorCorreo(correo)
 
-    suspend fun login(correo: String,contrasena: String): UsuarioEntity?{
-        return dao.verificarLogin(correo,contrasena)
+    // ----------------------
+    // BACKEND
+    // ----------------------
+
+    suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? {
+        return try {
+            val dto = api.crearUsuario(usuario.toDTO())
+            val entity = dto.toEntity()
+            dao.insertar(entity)
+            entity
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) {
+        try {
+            if (usuario.backendId == null) return
+            val dto = api.actualizarUsuario(usuario.backendId, usuario.toDTO())
+            dao.actualizar(dto.toEntity())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) {
+        try {
+            usuario.backendId?.let { api.eliminarUsuario(it) }
+            dao.eliminar(usuario)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun sincronizarUsuarios() {
+        try {
+            val remotos = api.obtenerUsuarios()
+            val entidades = remotos.map { it.toEntity() }
+            dao.eliminarTodos()
+            dao.insertarUsuarios(entidades)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

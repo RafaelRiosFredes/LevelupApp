@@ -1,599 +1,238 @@
 package com.example.levelup.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Build
-import android.util.Size
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.levelup.ui.theme.GamerBlue
+import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.viewmodel.UsuariosViewModel
-import com.example.levelup.ui.theme.GamerGreen
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.graphics.Color
+import com.example.levelup.ui.theme.GamerBlue
+import com.example.levelup.ui.theme.GamerGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistroScreen( navController: NavController,
+fun RegistroScreen(
+    navController: NavController,
     vm: UsuariosViewModel,
-    onSaved: () -> Unit  // se ejecuta si el usuario apreta "Registrar"
+    onSaved: () -> Unit = {}        // callback opcional
 ) {
-    val form by vm.form.collectAsState()
-    val context = LocalContext.current //Da el acceso a android
-    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // muestra los mensajes
-    LaunchedEffect(form.mensaje) {
-        form.mensaje?.let { mensaje ->
-            snackbarHostState.showSnackbar(mensaje)
-            vm.limpiarMensaje()
-        }
-    }
+    // ---------- estados locales del formulario ----------
+    var nombres by remember { mutableStateOf("") }
+    var apellidos by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
+    var contrasena2 by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+    var fechaNacimiento by remember { mutableStateOf("") }
 
-    // carga la imagen desde la camara
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? -> bitmap?.let { vm.onChangeFoto(it) } } // guarda la fto en el viewModel
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Registro de usuario", color = GamerGreen) }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Black
+    ) { padding ->
 
-    // carga la imagen desde la galeria
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val thumb = context.contentResolver.loadThumbnail(it, Size(200, 200), null)
-            vm.onChangeFoto(thumb)
-        }
-    }
-
-    // permisos de camara
-    val requestCameraPermission =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) cameraLauncher.launch()
-        }
-
-    // permisos de galeria
-    val requestGalleryPermission =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                galleryLauncher.launch("image/*")
-            } else {
-                vm.onChangeCorreo("Permiso de galería denegado")
-            }
-        }
-
-    // fuerza permiso con galeria
-    fun abrirGaleriaConPermiso() {
-        val permiso =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                Manifest.permission.READ_MEDIA_IMAGES
-            else
-                Manifest.permission.READ_EXTERNAL_STORAGE
-
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(context, permiso) -> {
-                galleryLauncher.launch("image/*")
-            }
-
-            else -> {
-                requestGalleryPermission.launch(permiso)
-            }
-        }
-    }
-
-    // Colores dinámicos del botón Registrar
-
-    // --------------------------
-    // BARRA LATERAL
-    // --------------------------
-    val scope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
-                drawerContainerColor = Color.Black,
-                drawerContentColor = Color.White,
-                modifier = Modifier
-                    .background(Color.Black)
-                    .width(300.dp)
-            ) {
-                // Botón cerrar
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 1.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(onClick = { scope.launch { drawerState.close() } }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar menú",
-                            tint = GamerGreen
-                        )
-                    }
-                }
-
-                // Título app
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .padding(vertical = 18.dp, horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = "LevelUp Gamer",
-                        color = GamerGreen,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Barra de búsqueda gamer
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO búsqueda futura */ }
-                )
-
-                // Ítems del drawer
-                Column(modifier = Modifier.fillMaxWidth()) {
-
-
-                    NavigationDrawerItem(
-                        label = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Carrito", color = Color.White)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Surface(
-                                    shape = MaterialTheme.shapes.small,
-                                    tonalElevation = 0.dp,
-                                    color = Color(0xFF39FF14)
-                                ) {
-                                    Text(
-                                        text = "0",
-                                        color = Color.Black,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                        fontSize = 12.sp
-                                    )
-                                }
-                            }
-                        },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Carrito seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        thickness = DividerDefaults.Thickness,
-                        color = Color.DarkGray
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Inicio", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("PantallaPrincipal")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Productos", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("productos")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Inicia sesion", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("login")
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-
-                    NavigationDrawerItem(
-                        label = { Text("Mi cuenta", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                navController.navigate("login")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Puntos LevelUp", color = Color.White) },
-                        selected = false,
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-
-                }
-            }
-        }
-    ) {
-
-        // empieza la pagina
-
-        Surface(
-            color = Color.Black,
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu",
-                                    tint = GamerGreen
-                                )
-                            }
-                        },
-                        title = {
-                            Text(
-                                text = "Registro de Usuario",
-                                color = Color(0xFF39FF14),
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                            containerColor = Color.Black,
-                            titleContentColor = Color(0xFF39FF14),
+
+            // ====== NOMBRES ======
+            OutlinedTextField(
+                value = nombres,
+                onValueChange = { nombres = it },
+                label = { Text("Nombres", color = Color.White) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== APELLIDOS ======
+            OutlinedTextField(
+                value = apellidos,
+                onValueChange = { apellidos = it },
+                label = { Text("Apellidos", color = Color.White) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== CORREO ======
+            OutlinedTextField(
+                value = correo,
+                onValueChange = { correo = it },
+                label = { Text("Correo", color = Color.White) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== CONTRASEÑA ======
+            OutlinedTextField(
+                value = contrasena,
+                onValueChange = { contrasena = it },
+                label = { Text("Contraseña", color = Color.White) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== REPETIR CONTRASEÑA ======
+            OutlinedTextField(
+                value = contrasena2,
+                onValueChange = { contrasena2 = it },
+                label = { Text("Repite la contraseña", color = Color.White) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== TELÉFONO (OPCIONAL) ======
+            OutlinedTextField(
+                value = telefono,
+                onValueChange = { tel -> telefono = tel.filter { it.isDigit() } },
+                label = { Text("Teléfono (opcional)", color = Color.White) },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            // ====== FECHA NACIMIENTO (OPCIONAL TEXTO LIBRE) ======
+            OutlinedTextField(
+                value = fechaNacimiento,
+                onValueChange = { fechaNacimiento = it },
+                label = { Text("Fecha nacimiento (YYYY-MM-DD)", color = Color.White) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.White),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerBlue,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    cursorColor = GamerBlue
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ====== BOTÓN REGISTRAR ======
+            Button(
+                onClick = {
+                    scope.launch {
+                        // ---- Validaciones simples ----
+                        val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.[a-z]+".toRegex()
+
+                        val error = when {
+                            nombres.isBlank() -> "Ingresa tus nombres"
+                            apellidos.isBlank() -> "Ingresa tus apellidos"
+                            correo.isBlank() -> "Ingresa tu correo"
+                            !correo.matches(emailRegex) -> "Correo inválido"
+                            contrasena.length < 6 -> "Contraseña mínima 6 caracteres"
+                            contrasena != contrasena2 -> "Las contraseñas no coinciden"
+                            else -> null
+                        }
+
+                        if (error != null) {
+                            snackbarHostState.showSnackbar(error)
+                            return@launch
+                        }
+
+                        val telLong = telefono.toLongOrNull()
+
+                        val nuevo = UsuarioEntity(
+                            id = 0,
+                            nombres = nombres.trim(),
+                            apellidos = apellidos.trim(),
+                            correo = correo.trim(),
+                            contrasena = contrasena,
+                            telefono = telLong,
+                            fechaNacimiento = if (fechaNacimiento.isBlank()) null else fechaNacimiento.trim(),
+                            fotoPerfil = null,
+                            duoc = false,
+                            descApl = false,
+                            rol = "user",          // siempre user, nunca admin
+                            backendId = null
                         )
-                    )
-                },
 
-                // tipos de mensajes dinamicos
-                snackbarHost = {
-                    SnackbarHost(snackbarHostState) { data ->
-                        val isSuccess = data.visuals.message.contains("exitoso", true) ||
-                                data.visuals.message.contains("Completado", true) ||
-                                data.visuals.message.contains("Duoc", true)
+                        vm.insertarUsuario(nuevo)
+                        snackbarHostState.showSnackbar("Registro exitoso. Ahora puedes iniciar sesión.")
 
-                        Snackbar(
-                            containerColor = Color(0xFFEAEAEA),
-                            contentColor = Color.White,
-                            shape = RoundedCornerShape(20.dp),
-                            modifier = Modifier
-                                .padding(12.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                text = data.visuals.message,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold
-                            )
+                        onSaved()
+
+                        navController.navigate("login") {
+                            popUpTo("registro") { inclusive = true }
                         }
                     }
                 },
-                containerColor = Color.Black
-            ) { padding ->
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(scrollState),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    // circulo de foto de perfil
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 20.dp)
-                            .size(140.dp)
-                            .clip(CircleShape)
-                            .border(
-                                width = 3.dp,
-                                color = if (form.fotoPerfil != null) GamerGreen else Color.Gray,
-                                shape = CircleShape
-                            )
-                            .shadow(
-                                elevation = if (form.fotoPerfil != null) 12.dp else 4.dp,
-                                shape = CircleShape,
-                                ambientColor = GamerGreen.copy(alpha = 0.6f),
-                                spotColor = GamerGreen.copy(alpha = 0.8f)
-                            )
-                            .clickable { requestCameraPermission.launch(Manifest.permission.CAMERA) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (form.fotoPerfil != null) {
-                            Image(
-                                bitmap = form.fotoPerfil!!.asImageBitmap(),
-                                contentDescription = "Foto de perfil",
-                                modifier = Modifier.fillMaxSize(),
-                                alignment = Alignment.Center
-                            )
-                        } else {
-                            Text(
-                                text = "Agregar foto",
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // boton "tomar una foto"
-                        Button(
-                            onClick = { requestCameraPermission.launch(Manifest.permission.CAMERA) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                            border = BorderStroke(2.dp, GamerGreen),
-                            shape = RoundedCornerShape(20.dp)
-                        ) {
-                            Text("Toma una foto", color = Color.White)
-                        }
-
-                        // boton "Carga una foto"
-                        Button(
-                            onClick = { abrirGaleriaConPermiso() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                            border = BorderStroke(2.dp, GamerGreen),
-                            shape = RoundedCornerShape(20.dp)
-                        ) {
-                            Text("Carga una foto", color = Color.White)
-                        }
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de Nombre
-                    OutlinedTextField(
-                        value = form.nombres,
-                        onValueChange = vm::onChangeNombres,
-                        label = { Text("Ingresa tu nombre", color = Color.White) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de apellidos
-                    OutlinedTextField(
-                        value = form.apellidos,
-                        onValueChange = vm::onChangeApellidos,
-                        label = { Text("Ingresa tu apellido", color = Color.White) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de Correo
-                    OutlinedTextField(
-                        value = form.correo,
-                        onValueChange = vm::onChangeCorreo,
-                        label = { Text("Ingresa tu correo electrónico", color = Color.White) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de Contraseña
-                    OutlinedTextField(
-                        value = form.contrasena,
-                        onValueChange = vm::onChangeContrasena,
-                        label = { Text("Ingresa tu contraseña", color = Color.White) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de ContraeñaConfirmacion
-                    OutlinedTextField(
-                        value = form.contrasenaConfirmacion,
-                        onValueChange = vm::onChangeContrasenaConfirmacion,
-                        label = { Text("Vuelve a ingresar tu contraseña", color = Color.White) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de telefono
-                    OutlinedTextField(
-                        value = form.telefono,
-                        onValueChange = vm::onChangeTelefono,
-                        label = { Text("Teléfono (opcional)", color = Color.White) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // caja de texto de fecha de nacimiento
-                    OutlinedTextField(
-                        value = form.fechaNacimiento,
-                        onValueChange = vm::onChangeFechaNacimiento,
-                        label = { Text("Fecha de nacimiento (dd/MM/yyyy)", color = Color.White) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = GamerBlue,
-                            unfocusedBorderColor = Color.Gray,
-                            cursorColor = GamerBlue
-                        )
-                    )
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // boton registrar
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(
-                            onClick = {
-                                vm.registrarUsuario {
-                                    // Solo se ejecuta si pasa todas las validaciones
-                                    navController.navigate("login") {
-                                        popUpTo("registro") { inclusive = true }
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .width(200.dp)
-                                .height(45.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
-                        ) {
-                            Text("Registrar", color = Color.Black, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    Spacer(Modifier.height(30.dp))
-                }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GamerGreen,
+                    contentColor = Color.Black
+                )
+            ) {
+                Text("Registrar", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
         }
     }
 }
-
-

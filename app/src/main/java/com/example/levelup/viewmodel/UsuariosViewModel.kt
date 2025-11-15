@@ -1,213 +1,82 @@
 package com.example.levelup.viewmodel
 
-import android.graphics.Bitmap
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.levelup.model.data.AppDatabase
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.repository.UsuariosRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import com.example.levelup.remote.RetrofitBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
-import java.io.ByteArrayOutputStream
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeFormatter
 
-data class RegistroFormState(
-    val nombres: String = "",
-    val apellidos: String = "",
-    val correo: String = "",
-    val contrasena: String = "",
-    val telefono: String = "",
-    val fechaNacimiento: String = "",
-    val fotoPerfil: Bitmap? = null,
-    val mensaje: String? = null,
-    val contrasenaConfirmacion: String = ""
-)
+class UsuariosViewModel(
+    application: Application,
+    private val repository: UsuariosRepository
+) : AndroidViewModel(application) {
 
-class UsuariosViewModel(private val repo: UsuariosRepository): ViewModel() {
+    // 🔥 estado del login
+    private val _loginMensaje = MutableStateFlow<String?>(null)
+    val loginMensaje: StateFlow<String?> = _loginMensaje
 
-    private val _mensaje = MutableStateFlow("")
-    val mensaje: StateFlow<String> = _mensaje.asStateFlow()
-
-    private val _form = MutableStateFlow(RegistroFormState())
-    val form: StateFlow<RegistroFormState> = _form.asStateFlow()
-
-    fun onChangeNombres(v: String) = _form.update { it.copy(nombres = v) }
-    fun onChangeApellidos(v: String) = _form.update { it.copy(apellidos = v) }
-    fun onChangeCorreo(v: String) = _form.update { it.copy(correo = v) }
-    fun onChangeContrasena(v: String) = _form.update { it.copy(contrasena = v) }
-    fun onChangeTelefono(v: String) = _form.update { it.copy(telefono = v) }
-    fun onChangeFechaNacimiento(v: String) = _form.update { it.copy(fechaNacimiento = v) }
-    fun onChangeFoto(bitmap: Bitmap) = _form.update { it.copy(fotoPerfil = bitmap) }
-    fun onChangeContrasenaConfirmacion(v: String) = _form.update { it.copy(contrasenaConfirmacion = v) }
-
-    fun limpiarMensaje() {
-        _form.update { it.copy(mensaje = null) }
-    }
-    val usuarios: StateFlow<List<UsuarioEntity>> =
-        repo.todosLosUsuarios().stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-
-    fun limpiarFormulario() {
-        _form.value = RegistroFormState()
+    fun limpiarLoginMensaje() {
+        _loginMensaje.value = null
     }
 
-    fun registrarUsuario(onSuccess: () -> Unit = {}) {
-        viewModelScope.launch {
+    fun obtenerUsuarios() = repository.obtenerUsuarios()
+    fun usuarioPorId(id: Int) = repository.usuarioPorId(id)
 
-            limpiarMensaje()
-
-            val f = _form.value
-
-            //  Validar campos vacíos
-            if (f.nombres.isBlank() || f.apellidos.isBlank() ||
-                f.correo.isBlank() || f.contrasena.isBlank() ||
-                f.contrasenaConfirmacion.isBlank()
-            ) {
-                _form.update { it.copy(mensaje = "Completa todos los campos ") }
-                return@launch
-            }
-
-            //  Validar longitud mínima de contraseña
-            if (f.contrasena.length < 6) {
-                _form.update { it.copy(mensaje = "La contraseña debe tener al menos 6 caracteres") }
-                return@launch
-            }
-
-            //  Validar que contraseñas coincidan
-            if (f.contrasena != f.contrasenaConfirmacion) {
-                _form.update { it.copy(mensaje = "Las contraseñas no coinciden") }
-                return@launch
-            }
-
-            //  Validar fecha vacía
-            if (f.fechaNacimiento.isBlank()) {
-                _form.update { it.copy(mensaje = "Completa todos los campos") }
-                return@launch
-            }
-
-            //  Validar formato de fecha y edad
-            val edad: Int = try {
-                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val fechaNac = LocalDate.parse(f.fechaNacimiento.trim(), formatter)
-                Period.between(fechaNac, LocalDate.now()).years
-            } catch (e: Exception) {
-                _form.update { it.copy(mensaje = "Formato de fecha inválido (usa dd/MM/yyyy)") }
-                return@launch
-            }
-            // valida que sea +18
-            if (edad < 18) {
-                _form.update { it.copy(mensaje = "Solo mayores de 18 años pueden registrarse") }
-                return@launch
-            }
-
-            //elimina registros anteriores con el mismo correo (sirve siempre que el usuario escribe mal un dato)
-            repo.eliminarPorCorreo(f.correo)
-
-            //  Validar correo existente
-            val existente = repo.obtenerPorCorreo(f.correo)
-            if (existente != null) {
-                _form.update { it.copy(mensaje = "Ya existe un usuario con este correo") }
-                return@launch
-            }
-
-            //  Detectar correo DUOC y si es ADMIN
-            val duoc = f.correo.contains("@duocuc.cl", ignoreCase = true)
-            val esAdmin = f.correo.contains("admin@", ignoreCase = true) ||
-                    f.correo.endsWith("@admin.duocuc.cl", ignoreCase = true)
-
-            //  Convertir teléfono a Long
-            val telefonoLong = f.telefono.toLongOrNull()
-
-            //  Convertir imagen a bytes
-            val fotoBytes = f.fotoPerfil?.let {
-                val output = ByteArrayOutputStream()
-                it.compress(Bitmap.CompressFormat.PNG, 100, output)
-                output.toByteArray()
-            }
-
-            //  Crear entidad de usuario
-            val usuario = UsuarioEntity(
-                nombres = f.nombres,
-                apellidos = f.apellidos,
-                correo = f.correo,
-                contrasena = f.contrasena,
-                telefono = telefonoLong,
-                fechaNacimiento = f.fechaNacimiento,
-                fotoPerfil = fotoBytes,
-                duoc = duoc,
-                descApl = duoc,
-                rol = if (esAdmin) "admin" else "user"
-            )
-
-            //  insertar un usuario
-            runCatching {
-                repo.insertar(usuario)
-            }.onFailure { e ->
-                _form.update { it.copy(mensaje = "Error al guardar") }
-                return@launch
-            }
-
-            // muestra un mensaje según el  tipo de correo
-            _form.update {
-                it.copy(
-                    mensaje = when {
-                        duoc -> "Registro Completado 🎓 ¡Descuento Duoc aplicado!"
-                        esAdmin -> "Hola admin!"
-                        else -> "Registro exitoso ✅"
-                    }
-                )
-            }
-
-            delay(1000)
-
-            limpiarFormulario()
-            limpiarMensaje()
-
-            onSuccess()
-        }
-    }
-    suspend fun obtenerUltimoUsuarioRegistrado(): UsuarioEntity? {
-        return repo.obtenerPorCorreo(_form.value.correo)
+    fun insertarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
+        repository.insertar(usuario)
     }
 
-    suspend fun login(correo: String, contrasena: String): Boolean {
-        if (correo.isBlank() || contrasena.isBlank()) {
-            _mensaje.value = "Completa todos los campos."
-            return false
-        }
-
-        val usuario = repo.login(correo, contrasena)
-        return if (usuario != null) {
-            _mensaje.value = "Inicio de sesión exitoso "
-            true
-        } else {
-            _mensaje.value = "Correo o contraseña incorrectos "
-            false
-        }
-
+    fun actualizarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
+        repository.actualizar(usuario)
     }
 
-    fun insertarUsuario(u: UsuarioEntity) {
-        viewModelScope.launch { repo.insertar(u) }
+    fun eliminarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
+        repository.eliminar(usuario)
     }
 
-    fun actualizarUsuario(u: UsuarioEntity) {
-        viewModelScope.launch { repo.actualizar(u) }
+    suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? {
+        return repository.crearUsuarioBackend(usuario)
     }
 
-    fun eliminarUsuario(u: UsuarioEntity) {
-        viewModelScope.launch { repo.eliminar(u) }
+    suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) {
+        repository.actualizarUsuarioBackend(usuario)
     }
 
-    fun usuarioPorId(id: Int): Flow<UsuarioEntity?> = repo.obtenerPorId(id)
+    suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) {
+        repository.eliminarUsuarioBackend(usuario)
+    }
 
+    fun sincronizarUsuarios() = viewModelScope.launch {
+        repository.sincronizarUsuarios()
+    }
+
+    // 🔥 LOGIN
+    suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
+        val usuario = repository.login(correo, contrasena)
+        _loginMensaje.value = if (usuario != null) "Ingreso exitoso" else "Credenciales incorrectas"
+        return usuario
+    }
+
+            // ======================
+        // CREAR ADMIN SI NO EXISTE
+        // ======================
+            fun crearAdminPorDefecto() = viewModelScope.launch {
+                val admin = repository.login("admin@levelup.com", "admin123")
+                if (admin == null) {
+                    repository.insertar(
+                        UsuarioEntity(
+                            nombres = "Admin",
+                            apellidos = "LevelUp",
+                            correo = "admin@levelup.com",
+                            contrasena = "admin123",
+                            rol = "admin"
+                        )
+                    )
+                }
+            }
 }
-
-
-

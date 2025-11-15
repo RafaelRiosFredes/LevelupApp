@@ -1,10 +1,9 @@
-package com.example.levelup_gamerapp.ui
+@file:OptIn(ExperimentalMaterial3Api::class)
 
-import android.app.Application
+package com.example.levelup.ui
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,34 +12,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.levelup.viewmodel.UsuariosViewModel
-import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
+import com.example.levelup.core.UserSession
+import com.example.levelup.ui.theme.GamerGreen
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController) {
-    val app = LocalContext.current.applicationContext as Application
-    val vm: UsuariosViewModel = viewModel(factory = UsuariosViewModelFactoryApp(app))
-
-    var correo by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+    var correo by rememberSaveable { mutableStateOf("") }
+    var contrasena by rememberSaveable { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
     ModalNavigationDrawer(
@@ -53,7 +45,8 @@ fun LoginScreen(navController: NavController) {
                     .background(Color.Black)
                     .width(300.dp)
             ) {
-                // Header: botón cerrar
+
+                // HEADER - CERRAR MENU
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -65,12 +58,12 @@ fun LoginScreen(navController: NavController) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cerrar menú",
-                            tint = Color(0xFF39FF14)
+                            tint = GamerGreen
                         )
                     }
                 }
 
-                // Título de la app
+                // TITULO LEVELUP
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -78,21 +71,24 @@ fun LoginScreen(navController: NavController) {
                         .padding(vertical = 18.dp, horizontal = 16.dp)
                 ) {
                     Text(
-                        text = "LEVEL-UP GAMER",
-                        color = Color(0xFF39FF14),
+                        text = "LevelUp Gamer",
+                        color = GamerGreen,
                         fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.CenterStart)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // SEARCHBAR EXACTO
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = {}
                 )
 
-                // Opciones del menú lateral
+                // DRAWER ITEMS (COPIADOS DE PANTALLA PRINCIPAL)
                 Column(modifier = Modifier.fillMaxWidth()) {
 
                     NavigationDrawerItem(
@@ -103,7 +99,7 @@ fun LoginScreen(navController: NavController) {
                                 Surface(
                                     shape = MaterialTheme.shapes.small,
                                     tonalElevation = 0.dp,
-                                    color = Color(0xFF39FF14)
+                                    color = GamerGreen
                                 ) {
                                     Text(
                                         text = "0",
@@ -118,11 +114,10 @@ fun LoginScreen(navController: NavController) {
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Carrito seleccionado")
+                                navController.navigate("carrito")
                             }
                         },
-                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White) }
                     )
 
                     HorizontalDivider(
@@ -130,7 +125,6 @@ fun LoginScreen(navController: NavController) {
                         thickness = DividerDefaults.Thickness,
                         color = Color.DarkGray
                     )
-
 
                     NavigationDrawerItem(
                         label = { Text("Inicio", color = Color.White) },
@@ -140,8 +134,7 @@ fun LoginScreen(navController: NavController) {
                                 drawerState.close()
                                 navController.navigate("PantallaPrincipal")
                             }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        }
                     )
 
                     NavigationDrawerItem(
@@ -152,9 +145,9 @@ fun LoginScreen(navController: NavController) {
                                 drawerState.close()
                                 navController.navigate("productos")
                             }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        }
                     )
+
                     NavigationDrawerItem(
                         label = { Text("Regístrate", color = Color.White) },
                         selected = false,
@@ -163,48 +156,35 @@ fun LoginScreen(navController: NavController) {
                                 drawerState.close()
                                 navController.navigate("registro")
                             }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        }
                     )
 
                     NavigationDrawerItem(
-                        label = { Text("Mi cuenta", color = Color.White) },
+                        label = { Text("Noticias", color = Color.White) },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                navController.navigate("login")
+                                navController.navigate("noticias")
                             }
-                        },
-                        icon = { Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        }
                     )
 
                     NavigationDrawerItem(
-                        label = { Text("Puntos LevelUp", color = Color.White) },
+                        label = { Text("Contacto", color = Color.White) },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                snackbarHostState.showSnackbar("Puntos LevelUp seleccionado")
+                                navController.navigate("contacto")
                             }
                         },
-                        icon = { Icon(Icons.Default.Star, contentDescription = null, tint = Color.White) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        icon = { Icon(Icons.Default.Email, contentDescription = null, tint = Color.White) }
                     )
-
                 }
             }
         }
     ) {
-        val mensaje by vm.form.collectAsState()
-
-        LaunchedEffect(mensaje.mensaje) {
-            mensaje.mensaje?.let {
-                snackbarHostState.showSnackbar(it)
-                vm.limpiarMensaje()
-            }
-        }
 
         Scaffold(
             topBar = {
@@ -214,176 +194,98 @@ fun LoginScreen(navController: NavController) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Menu",
-                                tint = Color(0xFF39FF14)
+                                tint = GamerGreen
                             )
                         }
                     },
                     title = {
                         Text(
-                            text = "LEVEL-UP GAMER",
-                            color = Color(0xFF39FF14),
-                            fontWeight = FontWeight.Bold
+                            text = "Iniciar sesión",
+                            color = GamerGreen,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
                         )
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Black)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
                 )
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = Color.Black
-        ) { innerPadding ->
+        ) { padding ->
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 32.dp)
-                    .background(Color.Black),
+                    .padding(padding)
+                    .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    "Iniciar sesión",
-                    fontSize = 24.sp,
-                    color = Color(0xFF39FF14),
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(Modifier.height(20.dp))
 
                 OutlinedTextField(
                     value = correo,
                     onValueChange = { correo = it },
-                    label = { Text("Correo electrónico") },
-                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Correo", color = Color.White) },
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF39FF14),
+                        focusedBorderColor = GamerGreen,
                         unfocusedBorderColor = Color.Gray,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Color.Black,
-                        unfocusedContainerColor = Color.Black
-                    )
+                        cursorColor = GamerGreen
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(Modifier.height(12.dp))
-
-                var passwordVisible by remember { mutableStateOf(false) }
+                Spacer(Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = contrasena,
                     onValueChange = { contrasena = it },
-                    label = { Text("Contraseña") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                                tint = Color(0xFF39FF14)
-                            )
-                        }
-                    },
+                    label = { Text("Contraseña", color = Color.White) },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF39FF14),
+                        focusedBorderColor = GamerGreen,
                         unfocusedBorderColor = Color.Gray,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Color.Black,
-                        unfocusedContainerColor = Color.Black
-                    )
+                        cursorColor = GamerGreen
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(26.dp))
 
                 Button(
                     onClick = {
-                        scope.launch {
-                            val exito = vm.login(correo, contrasena)
-                            snackbarHostState.showSnackbar(vm.mensaje.value)
-
-                            if (exito) {
-                                navController.navigate("PantallaPrincipal") {
-                                    popUpTo("login") { inclusive = true } // evita volver al login
-                                }
+                        if (correo == "admin@levelup.com" && contrasena == "admin123") {
+                            UserSession.login(-1, correo, "admin")
+                            navController.navigate("PantallaPrincipal") {
+                                popUpTo("login") { inclusive = true }
                             }
+                        } else {
+                            error = "Credenciales incorrectas"
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF39FF14))
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                 ) {
                     Text("Ingresar", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
 
+                if (error.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = error,
+                        color = Color.Red,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                Spacer(Modifier.height(12.dp))
-
-                Text(
-                    text = "¿Aún sin cuenta? Regístrate",
-                    color = Color(0xFF39FF14),
-                    modifier = Modifier.clickable {
-                        navController.navigate("registro")
-                    }
-                )
-
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(20.dp))
             }
-        }
-    }
-}
-
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(Color.Black),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = onQueryChange,
-            placeholder = {
-                Text(
-                    "Buscar en LEVEL-UP GAMER",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF39FF14),
-                unfocusedBorderColor = Color(0xFF39FF14),
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black,
-                cursorColor = Color(0xFF39FF14),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            ),
-            modifier = Modifier
-                .weight(1f)
-                .height(50.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                capitalization = KeyboardCapitalization.None,
-                imeAction = ImeAction.Search
-            )
-
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        IconButton(onClick = onSearch, modifier = Modifier.size(50.dp)) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Buscar",
-                tint = Color(0xFF39FF14)
-            )
         }
     }
 }
