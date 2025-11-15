@@ -18,9 +18,14 @@ fun LevelUpNavHost(
     modifier: Modifier = Modifier
 ) {
 
-    // ✅ CarritoViewModel global (no se recrea, mantiene el carrito estable)
+    //  CarritoViewModel global
     val carritoViewModel: CarritoViewModel = viewModel(
         factory = CarritoViewModelFactory(navController.context.applicationContext as Application)
+    )
+
+    // BoletaViewModel global
+    val boletaViewModel: BoletaViewModel = viewModel(
+        factory = BoletaViewModelFactory(navController.context.applicationContext as Application)
     )
 
     NavHost(
@@ -69,7 +74,6 @@ fun LevelUpNavHost(
             )
         }
 
-
         composable("producto/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
             ProductoScreen(
@@ -83,7 +87,8 @@ fun LevelUpNavHost(
         composable("carrito") {
             CarritoScreen(
                 nav = navController,
-                carritoViewModel = carritoViewModel
+                carritoViewModel = carritoViewModel,
+                boletaViewModel = boletaViewModel
             )
         }
 
@@ -110,6 +115,17 @@ fun LevelUpNavHost(
                 productId = id,
                 onSaved = { navController.navigate("inventario") },
                 onCancel = { navController.popBackStack() }
+            )
+        }
+
+        // 🔥 Pantalla de detalle de boleta
+        composable("boleta_detalle/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: 0L
+
+            BoletaDetalleScreen(
+                boletaId = id,
+                boletaViewModel = boletaViewModel,
+                onVolver = { navController.navigate("PantallaPrincipal") }
             )
         }
     }

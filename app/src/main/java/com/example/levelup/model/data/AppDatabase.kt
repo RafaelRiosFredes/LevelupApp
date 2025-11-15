@@ -13,9 +13,10 @@ import kotlinx.coroutines.launch
     entities = [
         ProductosEntity::class,
         UsuarioEntity::class,
-        CarritoEntity::class
+        CarritoEntity::class,
+        BoletaEntity::class
     ],
-    version = 8,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -23,6 +24,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao
     abstract fun productosDao(): ProductosDao
     abstract fun carritoDao(): CarritoDao
+
+    abstract fun boletaDao(): BoletaDao
 
     companion object {
         @Volatile
@@ -69,7 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
                                 )
                             )
                             dao.insertarProductos(productosIniciales)
-                            println("✅ Productos iniciales insertados correctamente en Room")
+                            println(" Productos iniciales insertados correctamente en Room")
                         }
                     }
                 })

@@ -15,11 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import com.example.levelup.R
+import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
-import coil.compose.rememberAsyncImagePainter
-
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +31,10 @@ fun ProductoScreen(
 
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
     val producto by productoFlow.collectAsState(initial = null)
+
+    // 🔥 Snackbar para mensaje "agregado"
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -57,9 +60,12 @@ fun ProductoScreen(
                 )
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.Black
     ) { padding ->
+
         producto?.let { prod ->
+
             Column(
                 modifier = Modifier
                     .padding(padding)
@@ -90,8 +96,6 @@ fun ProductoScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(10.dp))
-
                 Text(
                     text = prod.descripcion,
                     style = MaterialTheme.typography.bodyLarge,
@@ -111,13 +115,19 @@ fun ProductoScreen(
 
                 Spacer(modifier = Modifier.height(80.dp))
 
+                // Botón para añadir al carrito + snackbar
                 Button(
                     onClick = {
                         carritoViewModel.agregarProducto(
                             productoId = prod.id,
                             nombre = prod.nombre,
                             precio = prod.precio,
-                            imagenUrl = prod.imagenUrl                        )
+                            imagenUrl = prod.imagenUrl
+                        )
+
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Producto agregado")
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF39FF14),
@@ -134,8 +144,8 @@ fun ProductoScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
             }
+
         } ?: Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -144,4 +154,3 @@ fun ProductoScreen(
         }
     }
 }
-
