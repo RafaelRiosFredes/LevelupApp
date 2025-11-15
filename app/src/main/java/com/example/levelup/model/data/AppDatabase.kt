@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
         UsuarioEntity::class,
         CarritoEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

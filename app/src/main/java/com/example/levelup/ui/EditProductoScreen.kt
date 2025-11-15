@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.levelup.model.data.ProductosEntity
@@ -36,7 +37,6 @@ fun EditProductoScreen(
     var descripcion by remember { mutableStateOf("") }
     var imagenUrl by remember { mutableStateOf("") }
 
-
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
@@ -61,6 +61,7 @@ fun EditProductoScreen(
                 .padding(16.dp)
                 .padding(padding)
         ) {
+
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -83,7 +84,6 @@ fun EditProductoScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 🔹 Campo URL de imagen (reemplaza el antiguo ID drawable)
             OutlinedTextField(
                 value = imagenUrl,
                 onValueChange = { imagenUrl = it },
@@ -107,6 +107,12 @@ fun EditProductoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+
+
+            // ============================
+            // BOTONES DEL CRUD BACKEND
+            // ============================
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -114,20 +120,26 @@ fun EditProductoScreen(
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
+
                 Spacer(modifier = Modifier.width(8.dp))
+
+                // ----------- ACTUALIZAR  -------------
                 Button(
                     onClick = {
                         val precio = precioText.toDoubleOrNull() ?: 0.0
                         val actualizado = ProductosEntity(
                             id = productId,
+                            backendId = producto?.backendId,
                             nombre = nombre.trim(),
                             precio = precio,
                             descripcion = descripcion,
                             imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
                             else "https://via.placeholder.com/300x300.png?text=Producto+sin+imagen"
                         )
+
                         scope.launch {
-                            productosViewModel.actualizarProducto(actualizado)
+                            productosViewModel.actualizarProductoBackend(actualizado)
+                            productosViewModel.sincronizarProductos()
                             onSaved()
                         }
                     },
@@ -136,6 +148,43 @@ fun EditProductoScreen(
                 ) {
                     Text("Guardar cambios")
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ----------- ELIMINAR  -------------
+            Button(
+                onClick = {
+                    scope.launch {
+                        producto?.let {
+                            productosViewModel.eliminarProductoBackend(it)
+                            productosViewModel.sincronizarProductos()
+                            onSaved()
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red, contentColor = PureWhite),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Eliminar producto")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ----------- RECARGAR (obtener) -------------
+            Button(
+                onClick = {
+                    producto?.backendId?.let { backendId ->
+                        scope.launch {
+                            productosViewModel.obtenerProductoBackend(backendId)
+                            productosViewModel.sincronizarProductos()
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray, contentColor = PureWhite),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Recargar")
             }
         }
     }

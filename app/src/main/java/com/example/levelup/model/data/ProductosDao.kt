@@ -24,4 +24,12 @@ interface ProductosDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarProductos(productos: List<ProductosEntity>)
 
+    // 🔹 Para buscar por ID del backend
+    @Query("SELECT * FROM productos WHERE backendId = :backendId LIMIT 1")
+    suspend fun obtenerPorBackendId(backendId: Long): ProductosEntity?
+
+    // 🔹 Para limpiar la tabla antes de sincronizar con el backend
+    @Query("DELETE FROM productos")
+    suspend fun eliminarTodos()
+
 }

@@ -30,6 +30,7 @@ import com.example.levelup.ui.theme.GamerGreen
 import kotlinx.coroutines.launch
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.ui.layout.ContentScale
 
 
@@ -52,7 +53,6 @@ fun ProductosScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            // Contenido del menú lateral (idéntico a PantallaContacto)
             ModalDrawerSheet(
                 drawerContainerColor = Color.Black,
                 drawerContentColor = Color.White,
@@ -60,7 +60,6 @@ fun ProductosScreen(
                     .background(Color.Black)
                     .width(300.dp)
             ) {
-                // Header: botón para cerrar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,7 +76,6 @@ fun ProductosScreen(
                     }
                 }
 
-                // Título de la app en el drawer
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -94,14 +92,12 @@ fun ProductosScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
                 CustomSearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    onSearch = { /* TODO: handle search logic here */ }
+                    onSearch = { }
                 )
 
-                // Items del drawer (idénticos)
                 Column(modifier = Modifier.fillMaxWidth()) {
 
                     NavigationDrawerItem(
@@ -213,7 +209,6 @@ fun ProductosScreen(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
-
                     NavigationDrawerItem(
                         label = { Text("Mi cuenta", color = Color.White) },
                         selected = false,
@@ -281,23 +276,43 @@ fun ProductosScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(8.dp)
                 ) {
-                    items(productos) { producto ->
-                        ProductoItem(
-                            producto = producto,
-                            onClick = { nav.navigate("producto/${producto.id}") },
-                            onAddToCart = {
-                                carritoViewModel.agregarProducto(
-                                    productoId = producto.id,
-                                    nombre = producto.nombre,
-                                    precio = producto.precio,
-                                    imagenUrl = producto.imagenUrl
-                                )
 
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(" Producto agregado")
-                                }
+                    // 🔥 Evita crash si aún no hay productos
+                    if (productos.isNullOrEmpty()) {
+                        item(span = { GridItemSpan(2) }) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = GamerGreen)
                             }
-                        )
+                        }
+                    } else {
+
+                        items(productos!!) { producto ->
+
+                            // 🔥 Evita crash por ID inválido
+                            val idSeguro = producto.id.takeIf { it > 0 } ?: return@items
+
+                            ProductoItem(
+                                producto = producto,
+                                onClick = { nav.navigate("producto/$idSeguro") },
+                                onAddToCart = {
+                                    carritoViewModel.agregarProducto(
+                                        productoId = producto.id,
+                                        nombre = producto.nombre,
+                                        precio = producto.precio,
+                                        imagenUrl = producto.imagenUrl
+                                    )
+
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Producto agregado")
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -312,6 +327,12 @@ fun ProductoItem(
     onClick: () -> Unit,
     onAddToCart: () -> Unit
 ) {
+
+    // 🔥 Imagen segura con placeholder
+    val imagen = producto.imagenUrl.ifBlank {
+        "https://placehold.co/300x300/000000/FFFFFF"
+    }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -337,7 +358,7 @@ fun ProductoItem(
             Spacer(Modifier.height(10.dp))
 
             Image(
-                painter = rememberAsyncImagePainter(producto.imagenUrl),
+                painter = rememberAsyncImagePainter(imagen),
                 contentDescription = producto.nombre,
                 modifier = Modifier
                     .size(150.dp)

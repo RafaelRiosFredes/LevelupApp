@@ -50,6 +50,13 @@ dependencies {
     val activityCompose = "1.9.3"
     val navCompose = "2.8.3"
 
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Convertidor JSON
+        implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp (opcional pero recomendado)
+        implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
     implementation("androidx.activity:activity-compose:$activityCompose")
     implementation("androidx.navigation:navigation-compose:$navCompose")
 

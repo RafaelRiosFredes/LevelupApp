@@ -113,26 +113,29 @@ fun AddProductScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = {
-                        // aquí parseamos sabiendo que el formato fue controlado por el filtro
                         val precio = precioText.toDoubleOrNull() ?: 0.0
                         val nuevo = ProductosEntity(
                             id = 0,
+                            backendId = null, // IMPORTANTE: backend lo genera
                             nombre = nombre.trim(),
                             precio = precio,
                             descripcion = descripcion,
                             imagenUrl = if (imagenUrl.isNotBlank()) imagenUrl.trim()
                             else "https://placehold.co/600x400/000000/FFFFFF/png"
                         )
+
                         scope.launch {
-                            productosViewModel.insertarProducto(nuevo)
+                            productosViewModel.crearProductoBackend(nuevo)
+                            productosViewModel.sincronizarProductos()
                             onSaved()
                         }
                     },
                     enabled = isValid,
                     colors = ButtonDefaults.buttonColors(containerColor = GamerGreen, contentColor = JetBlack)
                 ) {
-                    Text("Guardar")
+                    Text("Guardar en servidor")
                 }
+
             }
         }
     }
