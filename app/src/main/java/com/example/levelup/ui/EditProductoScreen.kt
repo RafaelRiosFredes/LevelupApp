@@ -5,29 +5,56 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProductoScreen(
+    navController: NavController,        // ← AGREGADO
     productosViewModel: ProductosViewModel,
     currentUserRol: String,
     productId: Int,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
-    // Seguridad
+
+    // Seguridad admin
     LaunchedEffect(Unit) {
         if (currentUserRol != "admin") onCancel()
     }
+
+    // ==== ENVOLVER TODO EN EL DRAWER GLOBAL ====
+    DrawerGlobal({
+
+        EditProductoContent(
+            productosViewModel = productosViewModel,
+            productId = productId,
+            onSaved = onSaved,
+            onCancel = onCancel
+        )
+    })
+}
+
+// ===================================================================
+//                   CONTENIDO ORIGINAL (NO MODIFICADO)
+// ===================================================================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditProductoContent(
+    productosViewModel: ProductosViewModel,
+    productId: Int,
+    onSaved: () -> Unit,
+    onCancel: () -> Unit
+) {
 
     val productoFlow = remember(productId) {
         productosViewModel.obtenerProductoPorId(productId)
@@ -60,14 +87,18 @@ fun EditProductoScreen(
     ) { padding ->
 
         if (producto == null) {
-            Box(Modifier.fillMaxSize(), Alignment.Center) {
+            Box(
+                Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(color = GamerGreen)
             }
             return@Scaffold
         }
 
         Column(
-            Modifier.fillMaxSize()
+            Modifier
+                .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
@@ -119,7 +150,9 @@ fun EditProductoScreen(
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
+
                 Spacer(Modifier.width(12.dp))
+
                 Button(
                     onClick = {
                         val actualizado = ProductosEntity(

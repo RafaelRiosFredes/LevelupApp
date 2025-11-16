@@ -63,4 +63,9 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     fun total(): StateFlow<Double> =
         carrito.map { lista -> lista.sumOf { it.precio * it.cantidad } }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    fun vaciarCarrito() = viewModelScope.launch {
+        repository.eliminarTodo()
+    }
+
 }

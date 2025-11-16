@@ -20,23 +20,43 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
+import com.example.levelup.ui.components.DrawerGlobal   // ← IMPORTANTE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddUsuarioScreen(
+    navController: NavController,           // ← AHORA TAMBIÉN RECIBE NAV
     usuariosViewModel: UsuariosViewModel,
     currentUserRol: String,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
-    if (currentUserRol != "admin") {
-        onCancel()
-        return
+    LaunchedEffect(Unit) {
+        if (currentUserRol != "admin") {
+            onCancel()
+        }
     }
 
+    DrawerGlobal({
+        AddUsuarioContent(
+            usuariosViewModel = usuariosViewModel,
+            onSaved = onSaved,
+            onCancel = onCancel
+        )
+    })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddUsuarioContent(
+    usuariosViewModel: UsuariosViewModel,
+    onSaved: () -> Unit,
+    onCancel: () -> Unit
+) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -118,7 +138,6 @@ fun AddUsuarioScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // rol
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
                 OutlinedTextField(
@@ -126,7 +145,9 @@ fun AddUsuarioScreen(
                     onValueChange = {},
                     label = { Text("Rol") },
                     readOnly = true,
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
 
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -150,8 +171,7 @@ fun AddUsuarioScreen(
                 Button(onClick = {
 
                     if (nombres.isBlank() || correo.isBlank() || contrasena.isBlank()) {
-                        Toast.makeText(ctx, "Completa todos los campos", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(ctx, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 

@@ -1,19 +1,29 @@
 package com.example.levelup.model.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface BoletaDao {
+interface BoletasDao {
 
-    @Insert
-    suspend fun insertarBoleta(boleta: BoletaEntity): Long
+    // ----------- CRUD LOCAL -------------
 
-    @Query("SELECT * FROM boletas ORDER BY fecha DESC")
-    fun obtenerTodas(): Flow<List<BoletaEntity>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertar(boleta: BoletaEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertarBoletas(lista: List<BoletaEntity>)
+
+    @Query("SELECT * FROM boletas ORDER BY id DESC")
+    fun obtenerBoletas(): Flow<List<BoletaEntity>>
 
     @Query("SELECT * FROM boletas WHERE id = :id LIMIT 1")
-    fun obtenerPorId(id: Long): Flow<BoletaEntity?>
+    fun boletaPorIdLocal(id: Int): Flow<BoletaEntity?>
+
+    @Query("SELECT * FROM boletas WHERE backendId = :backendId LIMIT 1")
+    fun boletaPorBackendId(backendId: Long): Flow<BoletaEntity?>
+
+    @Query("DELETE FROM boletas")
+    suspend fun eliminarTodas()
 }
+

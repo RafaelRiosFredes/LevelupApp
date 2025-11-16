@@ -13,10 +13,8 @@ class ProductosViewModel(
     private val repository: ProductosRepository
 ) : ViewModel() {
 
-    // =============================
-    //   LISTA DE PRODUCTOS (ROOM)
-    // =============================
 
+    //   LISTA DE PRODUCTOS (ROOM)
     val productos = repository.obtenerProductos()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 

@@ -31,10 +31,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.R
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.navigation.NavController
 
 // Pantalla principal de contacto con formulario y navegación lateral
 @Composable
 fun ContactoScreen(
+    navController: NavController,
     onEnviar: (nombre: String, email: String, mensaje: String) -> Unit = { _, _, _ -> },
     onNavigate: (String) -> Unit ={}
 ) {
@@ -534,9 +536,3 @@ fun CustomSearchBar(
     }
 }
 
-// Vista previa del diseño en el editor
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun PreviewContactoScreen() {
-    ContactoScreen()
-}

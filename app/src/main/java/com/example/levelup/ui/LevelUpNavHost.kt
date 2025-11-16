@@ -2,205 +2,162 @@ package com.example.levelup.ui
 
 import android.app.Application
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.levelup.viewmodel.*
-import com.example.levelup.ui.LoginScreen
 import com.example.levelup.core.UserSession
-
-fun requireAdmin(): Boolean {
-    return UserSession.rol.lowercase() == "admin"
-}
+import com.example.levelup.viewmodel.ProductosViewModel
+import com.example.levelup.viewmodel.UsuariosViewModel
+import com.example.levelup.viewmodel.CarritoViewModel
+import com.example.levelup.viewmodel.BoletaViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import com.example.levelup.viewmodel.BoletaViewModelFactoryApp
+import com.example.levelup.viewmodel.CarritoViewModelFactory
 
 @Composable
 fun LevelUpNavHost(
     navController: NavHostController,
     productosViewModel: ProductosViewModel,
-    usuariosViewModel: UsuariosViewModel,
-    modifier: Modifier = Modifier
+    usuariosViewModel: UsuariosViewModel
 ) {
 
-    // ViewModels globales
-    val carritoViewModel: CarritoViewModel = viewModel(
-        factory = CarritoViewModelFactory(navController.context.applicationContext as Application)
-    )
+    val context = LocalContext.current
 
-    val boletaViewModel: BoletaViewModel = viewModel(
-        factory = BoletaViewModelFactory(navController.context.applicationContext as Application)
-    )
-
+    val carritoViewModel: CarritoViewModel = viewModel(factory = CarritoViewModelFactory(context.applicationContext as Application))
+    val boletaViewModel: BoletaViewModel = viewModel(factory = BoletaViewModelFactoryApp(context.applicationContext as Application))
 
     NavHost(
         navController = navController,
-        startDestination = "login",
-        modifier = modifier
+        startDestination = "PantallaPrincipal"
     ) {
 
-        // =====================================================
-        // ===============  PANTALLAS PÚBLICAS  =================
-        // =====================================================
-
-        composable("login") {
-            LoginScreen(navController = navController)
-        }
+        // -------------------------------
+        // PANTALLAS DEL USUARIO NORMAL
+        // -------------------------------
 
         composable("PantallaPrincipal") {
             PantallaPrincipal(
-                onNavigate = { route -> navController.navigate(route) },
-                onLogout = {
-                    UserSession.logout()
-                    navController.navigate("login") {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable("registro") {
-            RegistroScreen(
-                vm = usuariosViewModel,
                 navController = navController,
-                onSaved = { navController.navigate("PantallaPrincipal") }
+                onNavigate = { navController.navigate(it) },
+                onLogout = {
+                    UserSession.clear()
+                    navController.navigate("login") { popUpTo(0) }
+                }
             )
         }
 
         composable("productos") {
             ProductosScreen(
-                productosViewModel = productosViewModel,
-                nav = navController,
-                carritoViewModel = carritoViewModel,
-                onNavigate = { route -> navController.navigate(route) }
-            )
-        }
-
-        composable("contacto") {
-            ContactoScreen(onNavigate = { navController.navigate(it) })
-        }
-
-        composable("noticias") {
-            NoticiasScreen(onNavigate = { navController.navigate(it) })
-        }
-
-        composable("producto/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-            ProductoScreen(
-                productosViewModel = productosViewModel,
-                carritoViewModel = carritoViewModel,
-                id = id,
-                onNavigateBack = { navController.popBackStack() }
+                navController = navController,
+                productosViewModel = productosViewModel
             )
         }
 
         composable("carrito") {
             CarritoScreen(
-                nav = navController,
+                navController = navController,
                 carritoViewModel = carritoViewModel,
-                boletaViewModel = boletaViewModel
-            )
-        }
-
-        composable("boleta_detalle/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: 0L
-            BoletaDetalleScreen(
-                boletaId = id,
                 boletaViewModel = boletaViewModel,
-                onVolver = { navController.navigate("PantallaPrincipal") }
+                usuariosViewModel = usuariosViewModel
             )
         }
 
+        composable("login") {
+            LoginScreen(
+                navController = navController,
+                usuariosViewModel = usuariosViewModel
+            )
+        }
 
-        // ======================================================
-        // ===================  ZONA ADMIN  ======================
-        // ======================================================
+        composable("registro") {
+            RegistroScreen(
+                navController = navController,
+                usuariosViewModel = usuariosViewModel
+            )
+        }
+
+        composable("noticias") {
+            NoticiasScreen(navController = navController)
+        }
+
+        composable("contacto") {
+            ContactoScreen(navController = navController)
+        }
+
+
+
+        // -------------------------------------
+        // ADMIN: INVENTARIO DE PRODUCTOS
+        // -------------------------------------
 
         composable("inventario") {
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                InventarioScreen(
-                    productosViewModel = productosViewModel,
-                    currentUserRol = UserSession.rol,
-                    onAgregarClick = { navController.navigate("add_producto") },
-                    onEditarClick = { id -> navController.navigate("edit_producto/$id") }
-                )
-            }
+            InventarioScreen(
+                productosViewModel = productosViewModel,
+                currentUserRol = UserSession.rol ?: "user",
+                onAgregarClick = { navController.navigate("add_producto") },
+                onEditarClick = { id -> navController.navigate("edit_producto/$id") }
+            )
         }
 
         composable("add_producto") {
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                AddProductScreen(
-                    productosViewModel = productosViewModel,
-                    currentUserRol = UserSession.rol,
-                    onSaved = { navController.navigate("inventario") },
-                    onCancel = { navController.popBackStack() }
-                )
-            }
+            AddProductScreen(
+                navController = navController,
+                productosViewModel = productosViewModel
+            )
         }
 
-        composable("edit_producto/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                EditProductoScreen(
-                    productosViewModel = productosViewModel,
-                    currentUserRol = UserSession.rol,
-                    productId = id,
-                    onSaved = { navController.navigate("inventario") },
-                    onCancel = { navController.popBackStack() }
-                )
-            }
+        composable("edit_producto/{id}") { backStack ->
+            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            EditProductoScreen(
+                navController = navController,
+                productosViewModel = productosViewModel,
+                productoId = id
+            )
         }
 
-        // === CRUD USUARIOS SOLO ADMIN ===
+        // -------------------------------------
+        // ADMIN: GESTIÓN DE USUARIOS
+        // -------------------------------------
 
-        composable("usuarios") {
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                UsuariosScreen(
-                    usuariosViewModel = usuariosViewModel,
-                    currentUserRol = UserSession.rol,
-                    onNavigate = { navController.navigate(it) },
-                    onAgregarClick = { navController.navigate("add_usuario") },
-                    onEditarClick = { id -> navController.navigate("edit_usuario/$id") }
-                )
-            }
+        composable("admin_usuarios") {
+            UsuariosAdminScreen(
+                navController = navController,
+                usuariosViewModel = usuariosViewModel,
+                onAgregarClick = { navController.navigate("add_usuario") },
+                onEditarClick = { id -> navController.navigate("edit_usuario/$id") }
+            )
         }
 
         composable("add_usuario") {
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                AddUsuarioScreen(
-                    usuariosViewModel = usuariosViewModel,
-                    currentUserRol = UserSession.rol,
-                    onSaved = { navController.popBackStack() },
-                    onCancel = { navController.popBackStack() }
-                )
-            }
+            AddUsuarioScreen(
+                navController = navController,
+                usuariosViewModel = usuariosViewModel
+            )
         }
 
-        composable("edit_usuario/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+        composable("edit_usuario/{id}") { backStack ->
+            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            EditUsuarioScreen(
+                usuariosViewModel = usuariosViewModel,
+                currentUserRol = UserSession.rol ?: "user",
+                userId = id,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
 
-            if (!requireAdmin()) {
-                navController.navigate("PantallaPrincipal")
-            } else {
-                EditUsuarioScreen(
-                    usuariosViewModel = usuariosViewModel,
-                    currentUserRol = UserSession.rol,
-                    userId = id,
-                    onSaved = { navController.popBackStack() },
-                    onCancel = { navController.popBackStack() }
-                )
-            }
+        // -------------------------------------
+        // DETALLE DE BOLETA
+        // -------------------------------------
+        composable("boleta_detalle/{id}") { backStack ->
+            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+
+            BoletaDetalleScreen(
+                navController = navController,
+                boletaViewModel = boletaViewModel,
+                boletaId = id
+            )
         }
     }
 }

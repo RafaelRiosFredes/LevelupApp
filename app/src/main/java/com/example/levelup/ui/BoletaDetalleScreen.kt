@@ -1,162 +1,157 @@
 package com.example.levelup.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoletaDetalleScreen(
+    navController: NavController,    // ← AGREGADO
     boletaId: Long,
     boletaViewModel: BoletaViewModel,
     onVolver: () -> Unit
 ) {
+    DrawerGlobal({   // ← ENVUELTO EN DRAWER
 
-    val boleta by boletaViewModel.obtenerBoleta(boletaId).collectAsState(initial = null)
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Detalle Boleta", color = GamerGreen, fontSize = 22.sp) },
-                navigationIcon = {
-                    IconButton(onClick = onVolver) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = GamerGreen
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = JetBlack)
-            )
-        },
-        containerColor = JetBlack
-    ) { padding ->
+        val boleta by boletaViewModel.obtenerBoleta(boletaId.toInt())
+            .collectAsState(initial = null)
 
         if (boleta == null) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(JetBlack),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = GamerGreen)
             }
-            return@Scaffold
+            return@DrawerGlobal
         }
 
-        val fechaFormateada = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-            .format(Date(boleta!!.fecha))
+        val detalles = boleta!!.detalleTexto.split("\n")
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Scaffold(
+            containerColor = JetBlack,
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Boleta #${boleta!!.backendId ?: boleta!!.id}",
+                            color = GamerGreen,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = JetBlack
+                    )
+                )
+            }
+        ) { padding ->
 
-            // 🌟 TARJETA ELEGANTE
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(12.dp, RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
-                shape = RoundedCornerShape(16.dp)
+                    .padding(padding)
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
 
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp)
+                // ---------- Datos del cliente ----------
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
-                    // ====== ENCABEZADO DE LA BOLETA ======
-                    Text(
-                        text = "Boleta #${boleta!!.id}",
-                        color = GamerGreen,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Divider(color = GamerGreen.copy(alpha = 0.4f), thickness = 1.dp)
-
-                    Spacer(Modifier.height(12.dp))
-
-
-                    // ====== FECHA ======
-                    Text("📅 Fecha", color = GamerGreen, fontWeight = FontWeight.SemiBold)
-                    Text(fechaFormateada, color = PureWhite, fontSize = 15.sp)
-
-                    Spacer(Modifier.height(16.dp))
-
-                    // ====== TOTAL ======
-                    Text("💵 Total", color = GamerGreen, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        "$${boleta!!.total}",
-                        color = PureWhite,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(Modifier.height(16.dp))
-
-
-                    // ====== PRODUCTOS ======
-                    Text("🛒 Productos comprados", color = GamerGreen, fontWeight = FontWeight.SemiBold)
-
-                    Spacer(Modifier.height(6.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF1A1A1A), RoundedCornerShape(10.dp))
-                            .border(1.dp, GamerGreen.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
-                            .padding(12.dp)
-                    ) {
                         Text(
-                            text = boleta!!.detalle.replace("\n", "\n• "),
-                            color = PureWhite,
-                            fontSize = 15.sp,
-                            lineHeight = 20.sp
+                            "Datos del Cliente",
+                            color = GamerGreen,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
                         )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Text("Fecha: ${boleta!!.fechaEmision}", color = PureWhite)
+                        Text("Cliente: ${boleta!!.usuarioNombre} ${boleta!!.usuarioApellidos}", color = PureWhite)
+                        Text("Correo: ${boleta!!.usuarioCorreo}", color = PureWhite)
                     }
                 }
-            }
 
-            Spacer(Modifier.height(30.dp))
+                // ---------- Detalle ----------
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
-            // BOTÓN VOLVER ELEGANTE
-            Button(
-                onClick = onVolver,
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(55.dp),
-                shape = RoundedCornerShape(30.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = GamerGreen,
-                    contentColor = JetBlack
+                        Text(
+                            "Productos",
+                            color = GamerGreen,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        detalles.forEach {
+                            if (it.isNotBlank()) {
+                                val p = it.split("|")
+                                if (p.size >= 4) {
+                                    Text(
+                                        "- ${p[1]} x${p[2]} = $${p[3]}",
+                                        color = PureWhite,
+                                        fontSize = 15.sp
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ---------- Total ----------
+                Text(
+                    "TOTAL: $${boleta!!.total}",
+                    color = GamerGreen,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold
                 )
-            ) {
-                Text("Volver", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
+                Spacer(Modifier.height(20.dp))
+
+                // ---------- Volver ----------
+                Button(
+                    onClick = onVolver,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamerGreen,
+                        contentColor = JetBlack
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .height(48.dp)
+                ) {
+                    Text("Volver", fontWeight = FontWeight.Bold)
+                }
             }
         }
-    }
+    })
 }

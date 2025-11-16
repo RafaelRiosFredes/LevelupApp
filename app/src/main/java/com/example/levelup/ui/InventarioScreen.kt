@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.border
@@ -9,23 +11,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.navigation.NavController
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.*
 import com.example.levelup.viewmodel.ProductosViewModel
-import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventarioScreen(
+    navController: NavController,
     productosViewModel: ProductosViewModel,
     currentUserRol: String,
     onAgregarClick: () -> Unit,
@@ -33,31 +33,44 @@ fun InventarioScreen(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-    //  Admin
+
+    // 🔐 Protección admin
     LaunchedEffect(Unit) {
         if (currentUserRol != "admin") {
             onNavigate("PantallaPrincipal")
         }
     }
 
-    val productos by productosViewModel.productos.collectAsState(initial = emptyList())
+    // ============================
+    //     DRAWER GLOBAL
+    // ============================
+    DrawerGlobal({
 
+        InventarioContent(
+            productosViewModel = productosViewModel,
+            onAgregarClick = onAgregarClick,
+            onEditarClick = onEditarClick
+        )
+    })
+}
+
+@Composable
+private fun InventarioContent(
+    productosViewModel: ProductosViewModel,
+    onAgregarClick: () -> Unit,
+    onEditarClick: (Int) -> Unit
+) {
+
+    val productos by productosViewModel.productos.collectAsState(initial = emptyList())
     var selectedProduct by remember { mutableStateOf<ProductosEntity?>(null) }
     var showConfirmDelete by remember { mutableStateOf(false) }
-
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = JetBlack,
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Inventario", color = GamerGreen) },
-                navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Open drawer", tint = PureWhite)
-                    }
-                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = DarkGray),
                 actions = {
                     if (selectedProduct != null) {
                         IconButton(onClick = { onEditarClick(selectedProduct!!.id) }) {
@@ -71,32 +84,49 @@ fun InventarioScreen(
                             Icon(Icons.Default.Add, contentDescription = "Agregar", tint = GamerGreen)
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkGray)
+                }
             )
         }
     ) { padding ->
+
         if (productos.isEmpty()) {
+
             Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 Text("No hay productos. Pulsa + para agregar uno.", color = PureWhite)
             }
+
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
                 items(productos) { p ->
+
                     ProductoRow(
                         producto = p,
                         isSelected = selectedProduct?.id == p.id,
-                        onClick = { clicked -> selectedProduct = if (selectedProduct?.id == clicked.id) null else clicked }
+                        onClick = { clicked ->
+                            selectedProduct =
+                                if (selectedProduct?.id == clicked.id) null else clicked
+                        }
                     )
                 }
             }
         }
     }
 
+    // ============================
+    //  CONFIRMACIÓN ELIMINAR
+    // ============================
     if (showConfirmDelete && selectedProduct != null) {
+
         AlertDialog(
             onDismissRequest = { showConfirmDelete = false },
             title = { Text("Eliminar producto", color = PureWhite) },
@@ -106,10 +136,14 @@ fun InventarioScreen(
                     productosViewModel.eliminarProducto(selectedProduct!!)
                     showConfirmDelete = false
                     selectedProduct = null
-                }) { Text("Eliminar", color = GamerGreen) }
+                }) {
+                    Text("Eliminar", color = GamerGreen)
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirmDelete = false }) { Text("Cancelar", color = PureWhite) }
+                TextButton(onClick = { showConfirmDelete = false }) {
+                    Text("Cancelar", color = PureWhite)
+                }
             },
             containerColor = DarkGray
         )
@@ -122,15 +156,6 @@ fun ProductoRow(
     isSelected: Boolean = false,
     onClick: (ProductosEntity) -> Unit
 ) {
-    val formatter = remember {
-        NumberFormat.getNumberInstance(Locale.getDefault()).apply {
-            minimumFractionDigits = 2
-            maximumFractionDigits = 2
-            isGroupingUsed = true
-        }
-    }
-    val precioFormateado = formatter.format(producto.precio)
-
     val shape = RoundedCornerShape(8.dp)
 
     Card(
@@ -146,14 +171,18 @@ fun ProductoRow(
         shape = shape
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
+
             Text(
                 text = producto.nombre,
                 style = MaterialTheme.typography.titleMedium,
                 color = PureWhite
             )
+
             Spacer(modifier = Modifier.height(4.dp))
+
             Text(text = "Id: ${producto.id}", color = PureWhite)
-            Text(text = "Precio: $precioFormateado", color = PureWhite)
+            Text(text = "Precio: ${producto.precio}", color = PureWhite)
+
             if (isSelected) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(text = "Seleccionado", color = GamerGreen)

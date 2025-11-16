@@ -6,9 +6,15 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "boletas")
 data class BoletaEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val fecha: Long,
-    val total: Double,
-    val cantidadProductos: Int,
-    val detalle: String
+    val id: Int = 0,                 // id local (room)
+
+    val backendId: Long? = null,     // id real del backend (idBoleta)
+    val total: Long,
+    val descuento: Int? = null,
+    val fechaEmision: String,
+    val usuarioIdBackend: Int,
+    val usuarioNombre: String?,
+    val usuarioApellidos: String?,
+    val usuarioCorreo: String?,
+    val detalleTexto: String
 )

@@ -17,6 +17,9 @@ class UsuariosViewModel(
     private val _loginMensaje = MutableStateFlow<String?>(null)
     val loginMensaje: StateFlow<String?> = _loginMensaje
 
+    private val _usuarioActual = MutableStateFlow<UsuarioEntity?>(null)
+    val usuarioActual: StateFlow<UsuarioEntity?> = _usuarioActual
+
     fun limpiarLoginMensaje() {
         _loginMensaje.value = null
     }
@@ -36,12 +39,15 @@ class UsuariosViewModel(
         repository.eliminar(usuario)
     }
 
+    // BACKEND: crear
     suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? =
         repository.crearUsuarioBackend(usuario)
 
+    // BACKEND: actualizar
     suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) =
         repository.actualizarUsuarioBackend(usuario)
 
+    // BACKEND: eliminar
     suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) =
         repository.eliminarUsuarioBackend(usuario)
 
@@ -52,13 +58,22 @@ class UsuariosViewModel(
     // LOGIN
     suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
         val usuario = repository.login(correo, contrasena)
+
         _loginMensaje.value =
             if (usuario != null) "Ingreso exitoso"
             else "Credenciales incorrectas"
+
+        _usuarioActual.value = usuario
+
         return usuario
     }
 
-    // CREA un ADMIN
+    // LOGOUT
+    fun logout() {
+        _usuarioActual.value = null
+    }
+
+    // ADMIN POR DEFECTO
     fun crearAdminPorDefecto() = viewModelScope.launch {
         val admin = repository.login("admin@levelup.com", "admin123")
         if (admin == null) {

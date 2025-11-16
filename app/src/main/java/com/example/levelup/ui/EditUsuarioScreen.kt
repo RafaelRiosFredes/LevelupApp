@@ -12,23 +12,56 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
+import com.example.levelup.ui.components.DrawerGlobal   // ← IMPORTANTE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUsuarioScreen(
+    navController: NavController,
     usuariosViewModel: UsuariosViewModel,
     currentUserRol: String,
     userId: Int,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
-    if (currentUserRol != "admin") {
-        onCancel()
-        return
+
+    // --- Seguridad admin ---
+    LaunchedEffect(Unit) {
+        if (currentUserRol != "admin") {
+            onCancel()
+        }
     }
+
+    // ============================
+    //     ENVOLVER EN DRAWER
+    // ============================
+    DrawerGlobal() {
+        EditUsuarioContent(
+            usuariosViewModel = usuariosViewModel,
+            userId = userId,
+            onSaved = onSaved,
+            onCancel = onCancel
+        )
+    }
+}
+
+
+// ======================================================
+//     CONTENIDO REAL DE LA PANTALLA (NO SE ROMPE NADA)
+// ======================================================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditUsuarioContent(
+    usuariosViewModel: UsuariosViewModel,
+    userId: Int,
+    onSaved: () -> Unit,
+    onCancel: () -> Unit
+) {
 
     val usuarioFlow = remember(userId) {
         usuariosViewModel.usuarioPorId(userId)
@@ -52,7 +85,9 @@ fun EditUsuarioScreen(
             contrasena = it.contrasena ?: ""
             rol = it.rol
             fotoBytes = it.fotoPerfil
-            fotoBitmap = it.fotoPerfil?.let { b -> BitmapFactory.decodeByteArray(b, 0, b.size) }
+            fotoBitmap = it.fotoPerfil?.let { b ->
+                BitmapFactory.decodeByteArray(b, 0, b.size)
+            }
         }
     }
 
@@ -70,7 +105,8 @@ fun EditUsuarioScreen(
         }
 
         Column(
-            Modifier.padding(padding)
+            Modifier
+                .padding(padding)
                 .padding(16.dp)
         ) {
 
@@ -122,15 +158,22 @@ fun EditUsuarioScreen(
 
             // Rol dropdown
             var expanded by remember { mutableStateOf(false) }
+
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
                 OutlinedTextField(
                     value = rol,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Rol") },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
                     listOf("user", "admin").forEach {
                         DropdownMenuItem(
                             text = { Text(it) },
@@ -151,6 +194,7 @@ fun EditUsuarioScreen(
             ) {
                 TextButton(onClick = onCancel) { Text("Cancelar") }
                 Spacer(Modifier.width(12.dp))
+
                 Button(onClick = {
                     val actualizado = UsuarioEntity(
                         id = userId,

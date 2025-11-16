@@ -8,8 +8,8 @@ interface BoletaApiService {
     suspend fun crearBoleta(@Body boleta: BoletaDTO): BoletaDTO
 
     @GET("boletas")
-    suspend fun obtenerTodasLasBoletas(): List<BoletaDTO>
+    suspend fun obtenerBoletas(): List<BoletaDTO>
 
     @GET("boletas/{id}")
-    suspend fun obtenerBoleta(@Path("id") id: Long): BoletaDTO
+    suspend fun obtenerBoletaId(@Path("id") id: Long): BoletaDTO
 }

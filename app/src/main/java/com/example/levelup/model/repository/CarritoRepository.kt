@@ -4,23 +4,15 @@ import com.example.levelup.model.data.CarritoDao
 import com.example.levelup.model.data.CarritoEntity
 import kotlinx.coroutines.flow.Flow
 
-class CarritoRepository(private val carritoDao: CarritoDao) {
+class CarritoRepository(private val dao: CarritoDao) {
 
-    val carrito: Flow<List<CarritoEntity>> = carritoDao.obtenerCarrito()
+    val carrito: Flow<List<CarritoEntity>> = dao.obtenerCarrito()
 
-    suspend fun agregar(producto: CarritoEntity) {
-        carritoDao.insertar(producto)
-    }
+    suspend fun agregar(item: CarritoEntity) = dao.insertar(item)
 
-    suspend fun eliminar(producto: CarritoEntity) {
-        carritoDao.eliminar(producto)
-    }
+    suspend fun actualizar(item: CarritoEntity) = dao.actualizar(item)
 
-    suspend fun actualizar(producto: CarritoEntity) {
-        carritoDao.actualizar(producto)
-    }
+    suspend fun eliminar(item: CarritoEntity) = dao.eliminar(item)
 
-    suspend fun vaciar() {
-        carritoDao.limpiarCarrito()
-    }
+    suspend fun eliminarTodo() = dao.eliminarTodo()
 }

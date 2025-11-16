@@ -1,41 +1,35 @@
 package com.example.levelup.model.repository
 
-import com.example.levelup.model.data.BoletaDao
 import com.example.levelup.model.data.BoletaEntity
+import com.example.levelup.model.data.BoletasDao
 import com.example.levelup.remote.BoletaApiService
 import com.example.levelup.remote.mappers.toDTO
 import com.example.levelup.remote.mappers.toEntity
 import kotlinx.coroutines.flow.Flow
 
 class BoletaRepository(
-    private val dao: BoletaDao,
+    private val dao: BoletasDao,
     private val api: BoletaApiService
 ) {
 
-    // ------- ROOM -------
-    suspend fun crearBoletaLocal(boleta: BoletaEntity): Long {
-        return dao.insertarBoleta(boleta)
-    }
+    // -------- ROOM --------
+    fun obtenerBoletas(): Flow<List<BoletaEntity>> = dao.obtenerBoletas()
 
-    fun obtenerBoletasLocal(): Flow<List<BoletaEntity>> = dao.obtenerTodas()
+    fun obtenerBoletaLocal(id: Int) = dao.boletaPorIdLocal(id)
 
-    fun obtenerBoletaLocalPorId(id: Long): Flow<BoletaEntity?> = dao.obtenerPorId(id)
+    suspend fun insertarLocal(boleta: BoletaEntity): Long =
+        dao.insertar(boleta)
+
+    suspend fun insertarBoletasLocal(lista: List<BoletaEntity>) =
+        dao.insertarBoletas(lista)
 
 
-    // ------- BACKEND -------
-    suspend fun enviarBoletaBackend(boleta: BoletaEntity) {
-        try {
-            api.crearBoleta(boleta.toDTO())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    suspend fun obtenerBoletaDesdeBackend(id: Long): BoletaEntity? {
+    // -------- BACKEND --------
+    suspend fun crearBoletaBackend(boleta: BoletaEntity): BoletaEntity? {
         return try {
-            val dto = api.obtenerBoleta(id)
-            val entity = dto.toEntity()
-            dao.insertarBoleta(entity)
+            val dtoRespuesta = api.crearBoleta(boleta.toDTO())
+            val entity = dtoRespuesta.toEntity()
+            dao.insertar(entity)
             entity
         } catch (e: Exception) {
             e.printStackTrace()
@@ -43,14 +37,26 @@ class BoletaRepository(
         }
     }
 
-    suspend fun obtenerTodasDesdeBackend(): List<BoletaEntity> {
-        return try {
-            api.obtenerTodasLasBoletas()
-                .map { it.toEntity() }
+    suspend fun obtenerBoletasBackend() {
+        try {
+            val remotas = api.obtenerBoletas()
+            val entidades = remotas.map { it.toEntity() }
+            dao.eliminarTodas()
+            dao.insertarBoletas(entidades)
         } catch (e: Exception) {
             e.printStackTrace()
-            emptyList()
+        }
+    }
+
+    suspend fun obtenerBoletaBackendPorId(id: Long): BoletaEntity? {
+        return try {
+            val dto = api.obtenerBoletaId(id)
+            val entity = dto.toEntity()
+            dao.insertar(entity)
+            entity
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
-

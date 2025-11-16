@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.Image
@@ -8,19 +10,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(
     productosViewModel: ProductosViewModel,
@@ -28,11 +29,24 @@ fun ProductoScreen(
     id: Int,
     onNavigateBack: () -> Unit
 ) {
+    DrawerGlobal({
+        // NOTA: para esta pantalla normalmente se usa fuera del drawer,
+        // pero si la quieres dentro, cambia la firma para recibir NavController.
+    })
+}
 
+// Si prefieres, usa la versión sin drawer (como tenías antes):
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductoScreenSimple(
+    productosViewModel: ProductosViewModel,
+    carritoViewModel: CarritoViewModel,
+    id: Int,
+    onNavigateBack: () -> Unit
+) {
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
     val producto by productoFlow.collectAsState(initial = null)
 
-    // 🔥 Snackbar para mensaje "agregado"
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -115,7 +129,6 @@ fun ProductoScreen(
 
                 Spacer(modifier = Modifier.height(80.dp))
 
-                // Botón para añadir al carrito + snackbar
                 Button(
                     onClick = {
                         carritoViewModel.agregarProducto(
@@ -133,7 +146,7 @@ fun ProductoScreen(
                         containerColor = Color(0xFF39FF14),
                         contentColor = Color.Black
                     ),
-                    shape = RoundedCornerShape(50),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(60.dp)

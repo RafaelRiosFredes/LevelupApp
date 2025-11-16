@@ -20,5 +20,6 @@ interface CarritoDao {
     suspend fun eliminar(item: CarritoEntity)
 
     @Query("DELETE FROM carrito")
-    suspend fun limpiarCarrito()
+    suspend fun eliminarTodo()
+
 }

@@ -32,7 +32,7 @@ object RetrofitBuilder {
     }
 
     // ============================
-    //   API DE USUARIOS (NUEVA)
+    //   API DE USUARIOS
     // ============================
     val usuariosApi: UsuariosApiService by lazy {
         retrofit.create(UsuariosApiService::class.java)
