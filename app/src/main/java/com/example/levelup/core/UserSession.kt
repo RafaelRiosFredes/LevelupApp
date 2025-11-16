@@ -6,7 +6,6 @@ object UserSession {
     var id: Int? = null
     var correo: String? = null
     var rol: String = "user"
-
     var nombre: String? = null
     var apellidos: String? = null
 
