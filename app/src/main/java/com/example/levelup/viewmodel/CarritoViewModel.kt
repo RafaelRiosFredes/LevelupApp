@@ -8,10 +8,9 @@ import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.model.repository.CarritoRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
 class CarritoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: CarritoRepository
+    internal var repository: CarritoRepository
     val carrito: StateFlow<List<CarritoEntity>>
 
     init {
@@ -23,6 +22,11 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+    }
+
+
+    constructor(repositoryTest: CarritoRepository) : this(Application()) {
+        repository = repositoryTest
     }
 
     fun agregarProducto(productoId: Int, nombre: String, precio: Double, imagenUrl: String) {
@@ -55,9 +59,7 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun eliminar(item: CarritoEntity) {
-        viewModelScope.launch {
-            repository.eliminar(item)
-        }
+        viewModelScope.launch { repository.eliminar(item) }
     }
 
     fun total(): StateFlow<Double> =
@@ -67,5 +69,4 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     fun vaciarCarrito() = viewModelScope.launch {
         repository.eliminarTodo()
     }
-
 }
