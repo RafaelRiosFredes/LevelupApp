@@ -145,7 +145,7 @@ fun LoginScreen(
                             }
 
                         } else {
-                            error = "Credenciales incorrectas"
+                            error = "Datos incorrectos"
                         }
                     }
                 },

@@ -183,6 +183,18 @@ fun LevelUpNavHost(
         }
 
         // ----------------------------------------------------
+        //                    Hisorial de boleta
+        // ----------------------------------------------------
+
+        composable("historial_boletas") {
+            HistorialBoletasScreen(
+                navController = navController,
+                boletaViewModel = boletaViewModel
+            )
+        }
+
+
+        // ----------------------------------------------------
         //                    DETALLE BOLETA
         // ----------------------------------------------------
         composable("boleta_detalle/{id}") { backStack ->

@@ -47,6 +47,18 @@ fun BoletaDetalleScreen(
 
         val detalles = boleta!!.detalleTexto.split("\n")
 
+        // ----------- Calcular Subtotal -----------
+        val subtotal = detalles.sumOf { linea ->
+            val p = linea.split("|")
+            if (p.size >= 4) p[3].toDouble() else 0.0
+        }
+
+        // Descuento en porcentaje (0 o 20)
+        val descuento = boleta!!.descuento ?: 0
+
+        // Total ya viene descontado desde Room
+        val totalFinal = boleta!!.total
+
         Scaffold(
             containerColor = JetBlack,
             topBar = {
@@ -94,19 +106,30 @@ fun BoletaDetalleScreen(
                         Text("Fecha: ${boleta!!.fechaEmision}", color = PureWhite)
 
                         Text(
-                            "Cliente: ${boleta!!.usuarioNombre ?: "Sin nombre"} ${boleta!!.usuarioApellidos ?: ""}",
+                            "Cliente: ${boleta!!.usuarioNombre ?: ""} ${boleta!!.usuarioApellidos ?: ""}",
                             color = PureWhite
                         )
 
                         Text(
-                            "Correo: ${boleta!!.usuarioCorreo ?: "Sin correo"}",
+                            "Correo: ${boleta!!.usuarioCorreo ?: ""}",
                             color = PureWhite
+                        )
+
+                        Spacer(Modifier.height(12.dp))
+
+                        // ----- Subtotal -----
+                        Text("Subtotal: $${"%.0f".format(subtotal)}", color = PureWhite)
+
+                        // ----- Descuento -----
+                        Text(
+                            "Descuento aplicado: $descuento%",
+                            color = if (descuento > 0) GamerGreen else PureWhite
                         )
                     }
                 }
 
 
-                // ---------- Detalle ----------
+                // ---------- Detalle productos ----------
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
@@ -127,11 +150,6 @@ fun BoletaDetalleScreen(
                             if (linea.isNotBlank()) {
                                 val p = linea.split("|")
 
-                                // p[0] = ID
-                                // p[1] = Nombre
-                                // p[2] = Cantidad
-                                // p[3] = Total línea
-
                                 if (p.size >= 4) {
                                     Text(
                                         "- ${p[1]} x${p[2]} = $${p[3]}",
@@ -145,9 +163,9 @@ fun BoletaDetalleScreen(
                     }
                 }
 
-                // ---------- Total ----------
+                // ---------- Total Final ----------
                 Text(
-                    "TOTAL: $${boleta!!.total}",
+                    "TOTAL FINAL: $${totalFinal}",
                     color = GamerGreen,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.ExtraBold

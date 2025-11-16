@@ -136,9 +136,20 @@ fun CarritoScreen(
                                 Locale.getDefault()
                             ).format(Date())
 
+                            // Obtener correo real desde UserSession
+                            val correoUsuario = UserSession.correo ?: ""
+
+                            // Aplicar 20% si es @duocuc.cl
+                            val descuentoAplicado = if (correoUsuario.endsWith("duocuc.cl")) 20 else 0
+
+                            // Total con descuento
+                            val totalFinal = if (descuentoAplicado > 0) {
+                                (total * 0.8).toLong()
+                            } else total.toLong()
+
                             val boleta = BoletaEntity(
-                                total = total.toLong(),
-                                descuento = 0,
+                                total = totalFinal,
+                                descuento = descuentoAplicado,
                                 fechaEmision = fecha,
                                 usuarioIdBackend = usuarioActual,
                                 usuarioNombre = UserSession.nombre,

@@ -150,6 +150,16 @@ fun DrawerGlobal(
                     )
                 }
 
+                DrawerItem(
+                    label = "Historial de Boletas",
+                    icon = Icons.Default.List,
+                    onClick = {
+                        navController.navigate("historial_boletas")
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
+
                 // -----------------------
                 // CERRAR SESIÓN (solo si está logueado)
                 // -----------------------
