@@ -1,31 +1,46 @@
 package com.example.levelup
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.test.onNodeWithText
+import androidx.navigation.compose.ComposeNavigator
+import androidx.navigation.testing.TestNavHostController
 import com.example.levelup.ui.PantallaPrincipal
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class PantallaPrincipalTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeRule = createComposeRule()
 
     @Test
     fun pantallaPrincipal_muestraCategorias() {
-        composeTestRule.setContent {
-            PantallaPrincipal()
+
+        lateinit var navController: TestNavHostController
+
+        composeRule.setContent {
+
+            val context = LocalContext.current
+
+            navController = TestNavHostController(context).apply {
+                navigatorProvider.addNavigator(ComposeNavigator())
+            }
+
+            PantallaPrincipal(
+                navController = navController,
+                onLogout = {},      // 👉 callback vacío para test
+                onNavigate = {}     // 👉 callback vacío para test
+            )
         }
 
-        // Verificar título de la sección
-        composeTestRule.onNodeWithText("CATEGORÍAS").assertIsDisplayed()
+        // Verificar título
+        composeRule.onNodeWithText("CATEGORÍAS").assertIsDisplayed()
 
-        // Verificar algunas categorías
-        composeTestRule.onNodeWithText("Juegos de Mesa").assertExists()
-        composeTestRule.onNodeWithText("Consolas").assertExists()
-        composeTestRule.onNodeWithText("Mouse").assertExists()
+        // Verificar categorías
+        composeRule.onNodeWithText("Juegos de Mesa").assertExists()
+        composeRule.onNodeWithText("Consolas").assertExists()
+        composeRule.onNodeWithText("Mouse").assertExists()
     }
 }

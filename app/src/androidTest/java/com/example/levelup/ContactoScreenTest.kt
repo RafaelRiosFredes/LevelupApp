@@ -1,7 +1,9 @@
 package com.example.levelup
 
-import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.*
+import androidx.navigation.testing.TestNavHostController
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.levelup.ui.ContactoScreen
 import org.junit.Rule
@@ -14,58 +16,48 @@ class ContactoScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    // Crea navController de prueba (obligatorio porque tu pantalla lo pide)
+    private fun navController() = TestNavHostController(
+        ApplicationProvider.getApplicationContext()
+    )
+
     @Test
-    fun enviarMensaje_conDatosCorrectos_llamaOnEnviar() {
-
-        var enviado = false
-        var enviadoNombre = ""
-        var enviadoEmail = ""
-        var enviadoMensaje = ""
-
+    fun enviarFormulario_correcto_muestraSnackbarExito() {
         composeTestRule.setContent {
-            ContactoScreen(
-                onEnviar = { nombre, email, mensaje ->
-                    enviado = true
-                    enviadoNombre = nombre
-                    enviadoEmail = email
-                    enviadoMensaje = mensaje
-                }
-            )
+            ContactoScreen(navController = navController())
         }
 
-        // Completar formulario
-        composeTestRule.onNodeWithText("Nombre Completo")
+        // Completar campos correctamente
+        composeTestRule.onNodeWithText("Nombre completo")
             .performTextInput("Savka Test")
 
-        composeTestRule.onNodeWithText("Correo Electrónico")
-            .performTextInput("test@mail.com")
+        composeTestRule.onNodeWithText("Correo electrónico")
+            .performTextInput("savka@mail.com")
 
-        composeTestRule.onNodeWithText("Contenido")
-            .performTextInput("Hola, este es un mensaje de prueba.")
+        composeTestRule.onNodeWithText("Mensaje")
+            .performTextInput("Hola soy un mensaje válido.")
 
-        // Enviar formulario
-        composeTestRule.onNodeWithText("Enviar Mensaje").performClick()
+        // Click en Enviar
+        composeTestRule.onNodeWithText("Enviar mensaje").performClick()
 
-        // Validar que se llamó a onEnviar()
-        assert(enviado)
-        assert(enviadoNombre == "Savka Test")
-        assert(enviadoEmail == "test@mail.com")
-        assert(enviadoMensaje == "Hola, este es un mensaje de prueba.")
+        // Verificar snackbar
+        composeTestRule
+            .onNodeWithText("Mensaje enviado exitosamente")
+            .assertExists()
     }
 
     @Test
-    fun enviarMensaje_conCamposVacios_muestraError() {
-
+    fun enviarFormulario_vacio_muestraSnackbarError() {
         composeTestRule.setContent {
-            ContactoScreen()
+            ContactoScreen(navController = navController())
         }
 
-        // Click sin llenar nada
-        composeTestRule.onNodeWithText("Enviar Mensaje").performClick()
+        // Clic sin llenar nada
+        composeTestRule.onNodeWithText("Enviar mensaje").performClick()
 
-        // Verifica que aparece snackbar de error
+        // Verificar snackbar de error
         composeTestRule
-            .onNodeWithText("Corrige los errores antes de enviar")
+            .onNodeWithText("Corrige los campos marcados")
             .assertExists()
     }
 }
