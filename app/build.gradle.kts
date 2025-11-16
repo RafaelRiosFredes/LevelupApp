@@ -44,6 +44,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.6.3"
     }
+
 }
 
 dependencies {
@@ -96,6 +97,15 @@ dependencies {
 
     // Room para tests (BD in-memory real)
     androidTestImplementation("androidx.room:room-testing:$roomVersion")
+
+    // MOCKK (Para tests unitarios con Kotlin)
+    testImplementation("io.mockk:mockk:1.13.11")
+
+// Truth (opcional pero recomendado para asserts más claros)
+    testImplementation("com.google.truth:truth:1.1.5")
+
+// Turbine (para probar Flows si lo necesitas)
+    testImplementation("app.cash.turbine:turbine:1.0.0")
 
     // --------------------------
     // COROUTINES

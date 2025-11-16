@@ -80,6 +80,40 @@ fun NoticiasScreen(vm: NoticiasViewModel = viewModel(),  onNavigate: (String) ->
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+
+                @OptIn(ExperimentalMaterial3Api::class)
+                @Composable
+                fun SearchBar(
+                    query: String,
+                    onQueryChange: (String) -> Unit,
+                    onSearch: () -> Unit
+                ) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { onQueryChange(it) },
+                        placeholder = { Text("Buscar...", color = Color.LightGray) },
+                        trailingIcon = {
+                            IconButton(onClick = { onSearch() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Buscar",
+                                    tint = Color(0xFF39FF14)
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF39FF14),
+                            unfocusedBorderColor = Color.DarkGray,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+                }
                 // SearchBar (mismo componente reutilizable que tienes en PantallaContacto)
                 SearchBar(
                     query = searchQuery,
