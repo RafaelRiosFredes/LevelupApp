@@ -8,6 +8,7 @@ data class UsuarioDTO(
     val contrasena: String,
     val telefono: Long?,
     val fechaNacimiento: String?,
+    val fotoPerfil: String?, // base64
     val duoc: Boolean,
     val descApl: Boolean,
     val rol: String

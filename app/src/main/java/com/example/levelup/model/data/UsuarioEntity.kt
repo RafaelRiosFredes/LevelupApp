@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "usuarios")
 data class UsuarioEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Int = 0, // ID local
+
     val nombres: String,
     val apellidos: String,
     val correo: String,
@@ -17,7 +18,5 @@ data class UsuarioEntity(
     val duoc: Boolean = false,
     val descApl: Boolean = false,
     val rol: String = "user",
-
-    // 🔥 integrando backend: ID generado en servidor
-    val backendId: Long? = null
+    val backendId: Long? = null // ID del backend
 )

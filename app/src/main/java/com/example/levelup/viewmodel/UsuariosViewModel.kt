@@ -3,10 +3,8 @@ package com.example.levelup.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.model.data.AppDatabase
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.repository.UsuariosRepository
-import com.example.levelup.remote.RetrofitBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +14,6 @@ class UsuariosViewModel(
     private val repository: UsuariosRepository
 ) : AndroidViewModel(application) {
 
-    // 🔥 estado del login
     private val _loginMensaje = MutableStateFlow<String?>(null)
     val loginMensaje: StateFlow<String?> = _loginMensaje
 
@@ -39,44 +36,41 @@ class UsuariosViewModel(
         repository.eliminar(usuario)
     }
 
-    suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? {
-        return repository.crearUsuarioBackend(usuario)
-    }
+    suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? =
+        repository.crearUsuarioBackend(usuario)
 
-    suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) {
+    suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) =
         repository.actualizarUsuarioBackend(usuario)
-    }
 
-    suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) {
+    suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) =
         repository.eliminarUsuarioBackend(usuario)
-    }
 
     fun sincronizarUsuarios() = viewModelScope.launch {
         repository.sincronizarUsuarios()
     }
 
-    // 🔥 LOGIN
+    // LOGIN
     suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
         val usuario = repository.login(correo, contrasena)
-        _loginMensaje.value = if (usuario != null) "Ingreso exitoso" else "Credenciales incorrectas"
+        _loginMensaje.value =
+            if (usuario != null) "Ingreso exitoso"
+            else "Credenciales incorrectas"
         return usuario
     }
 
-            // ======================
-        // CREAR ADMIN SI NO EXISTE
-        // ======================
-            fun crearAdminPorDefecto() = viewModelScope.launch {
-                val admin = repository.login("admin@levelup.com", "admin123")
-                if (admin == null) {
-                    repository.insertar(
-                        UsuarioEntity(
-                            nombres = "Admin",
-                            apellidos = "LevelUp",
-                            correo = "admin@levelup.com",
-                            contrasena = "admin123",
-                            rol = "admin"
-                        )
-                    )
-                }
-            }
+    // CREA un ADMIN
+    fun crearAdminPorDefecto() = viewModelScope.launch {
+        val admin = repository.login("admin@levelup.com", "admin123")
+        if (admin == null) {
+            repository.insertar(
+                UsuarioEntity(
+                    nombres = "Admin",
+                    apellidos = "LevelUp",
+                    correo = "admin@levelup.com",
+                    contrasena = "admin123",
+                    rol = "admin"
+                )
+            )
+        }
+    }
 }

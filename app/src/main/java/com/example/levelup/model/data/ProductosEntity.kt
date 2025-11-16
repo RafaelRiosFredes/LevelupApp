@@ -12,10 +12,8 @@ import androidx.room.PrimaryKey
 )
 data class ProductosEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0, // ID interno (Room)
-
-    val backendId: Long? = null, // ID real del backend
-
+    val id: Int = 0, // ID local
+    val backendId: Long? = null, // ID del backend
     val nombre: String,
     val precio: Double,
     val descripcion: String,

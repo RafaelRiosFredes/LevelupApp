@@ -16,27 +16,15 @@ class UsuariosRepository(
     fun obtenerUsuarios(): Flow<List<UsuarioEntity>> = dao.obtenerUsuarios()
     fun usuarioPorId(id: Int) = dao.usuarioPorId(id)
 
-    suspend fun insertar(usuario: UsuarioEntity) {
-        dao.insertar(usuario)
-    }
+    suspend fun insertar(usuario: UsuarioEntity) = dao.insertar(usuario)
+    suspend fun actualizar(usuario: UsuarioEntity) = dao.actualizar(usuario)
+    suspend fun eliminar(usuario: UsuarioEntity) = dao.eliminar(usuario)
 
-    suspend fun actualizar(usuario: UsuarioEntity) {
-        dao.actualizar(usuario)
-    }
-
-    suspend fun eliminar(usuario: UsuarioEntity) {
-        dao.eliminar(usuario)
-    }
-
-    suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
-        return dao.login(correo, contrasena)
-    }
+    suspend fun login(correo: String, contrasena: String): UsuarioEntity? =
+        dao.login(correo, contrasena)
 
 
-    // ----------------------
     // BACKEND
-    // ----------------------
-
     suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? {
         return try {
             val dto = api.crearUsuario(usuario.toDTO())
@@ -44,28 +32,24 @@ class UsuariosRepository(
             dao.insertar(entity)
             entity
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }
 
     suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) {
         try {
-            if (usuario.backendId == null) return
-            val dto = api.actualizarUsuario(usuario.backendId, usuario.toDTO())
-            dao.actualizar(dto.toEntity())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+            usuario.backendId?.let {
+                val dto = api.actualizarUsuario(it, usuario.toDTO())
+                dao.actualizar(dto.toEntity())
+            }
+        } catch (_: Exception) {}
     }
 
     suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) {
         try {
             usuario.backendId?.let { api.eliminarUsuario(it) }
             dao.eliminar(usuario)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        } catch (_: Exception) {}
     }
 
     suspend fun sincronizarUsuarios() {
@@ -74,8 +58,6 @@ class UsuariosRepository(
             val entidades = remotos.map { it.toEntity() }
             dao.eliminarTodos()
             dao.insertarUsuarios(entidades)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        } catch (_: Exception) {}
     }
 }

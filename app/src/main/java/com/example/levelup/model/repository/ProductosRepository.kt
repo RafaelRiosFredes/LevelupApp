@@ -12,9 +12,9 @@ class ProductosRepository(
     private val api: ProductosApiService
 ) {
 
-    // ==========================================
+
     //   CRUD LOCAL (ROOM)
-    // ==========================================
+
 
     fun obtenerProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
@@ -27,15 +27,15 @@ class ProductosRepository(
     suspend fun eliminarProducto(producto: ProductosEntity) = dao.eliminar(producto)
 
 
-    // ==========================================
+
     //   CRUD BACKEND
-    // ==========================================
+
 
     suspend fun obtenerProductoDesdeBackend(backendId: Long): ProductosEntity? {
         return try {
             val dto = api.obtenerProductoPorId(backendId)
             val entity = dto.toEntity()
-            dao.insertar(entity) // Cache local actualizado
+            dao.insertar(entity)
             entity
         } catch (e: Exception) {
             e.printStackTrace()
@@ -55,7 +55,7 @@ class ProductosRepository(
     suspend fun actualizarProductoBackend(producto: ProductosEntity) {
         try {
             if (producto.backendId == null) {
-                println("⚠️ Error: backendId es null, no se puede actualizar en backend.")
+                println(" Error: backendId es null, no se puede actualizar .")
                 return
             }
 
@@ -70,7 +70,7 @@ class ProductosRepository(
     suspend fun eliminarProductoBackend(producto: ProductosEntity) {
         try {
             if (producto.backendId == null) {
-                println("⚠️ Error: backendId es null, no se puede eliminar en backend.")
+                println("Error: backendId es null, no se puede eliminar .")
                 return
             }
 
@@ -83,9 +83,9 @@ class ProductosRepository(
     }
 
 
-    // ==========================================
-    //   SINCRONIZACIÓN (SEGURO)
-    // ==========================================
+
+    //   SINCRONIZACIÓN
+
 
     suspend fun sincronizarProductosDesdeBackend() {
         try {

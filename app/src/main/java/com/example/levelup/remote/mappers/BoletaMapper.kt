@@ -3,7 +3,8 @@ package com.example.levelup.remote.mappers
 import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.remote.BoletaDTO
 
-// entity -> dto
+
+// ENTITY → DTO
 fun BoletaEntity.toDTO(): BoletaDTO =
     BoletaDTO(
         id = id,
@@ -13,7 +14,7 @@ fun BoletaEntity.toDTO(): BoletaDTO =
         detalle = detalle
     )
 
-// dto -> entity
+// DTO → ENTITY
 fun BoletaDTO.toEntity(): BoletaEntity =
     BoletaEntity(
         id = id ?: 0,

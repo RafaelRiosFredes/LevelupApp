@@ -15,7 +15,7 @@ fun ProductosDTO.toEntity(): ProductosEntity {
     )
 }
 
-// ENTITY → DTO (Necesario para CRUD CON BACKEND)
+// ENTITY → DTO
 fun ProductosEntity.toDTO(): ProductosDTO {
     return ProductosDTO(
         id = this.backendId ?: 0,  // si el backend no ha asignado id

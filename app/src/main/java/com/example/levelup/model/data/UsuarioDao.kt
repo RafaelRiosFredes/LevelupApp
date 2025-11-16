@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UsuariosDao {
 
+    // ========== CRUD LOCAL  ===============
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(usuario: UsuarioEntity)
 
@@ -24,13 +27,21 @@ interface UsuariosDao {
     @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
     fun usuarioPorId(id: Int): Flow<UsuarioEntity?>
 
-    @Query("SELECT * FROM usuarios WHERE backendId = :backendId LIMIT 1")
-    suspend fun usuarioPorBackendId(backendId: Long): UsuarioEntity?
-
     @Query("DELETE FROM usuarios")
     suspend fun eliminarTodos()
 
-    // 🔥 LOGIN
+
+
+    // ========== INTEGRACIÓN BACKEND =============
+
+    // Buscar usuario guardado en Room por ID DEL BACKEND
+    @Query("SELECT * FROM usuarios WHERE backendId = :backendId LIMIT 1")
+    suspend fun usuarioPorBackendId(backendId: Long): UsuarioEntity?
+
+
+    // =============== LOGIN LOCAL ================
+
+
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena LIMIT 1")
     suspend fun login(correo: String, contrasena: String): UsuarioEntity?
 }
