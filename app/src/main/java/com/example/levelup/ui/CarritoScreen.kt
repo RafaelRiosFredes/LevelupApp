@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.Image
@@ -31,7 +33,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarritoScreen(
     navController: NavController,
@@ -40,20 +41,18 @@ fun CarritoScreen(
     usuariosViewModel: UsuariosViewModel
 ) {
 
-    DrawerGlobal({
+    DrawerGlobal(navController = navController) {
 
         val carrito by carritoViewModel.carrito.collectAsState()
         val total = carrito.sumOf { it.precio * it.cantidad }
-        val usuarioActual = UserSession.id   // ← CORRECTO
+        val usuarioActual = UserSession.id
         val scope = rememberCoroutineScope()
 
         Scaffold(
             containerColor = JetBlack,
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = {
-                        Text("Tu Carrito", color = GamerGreen, fontSize = 20.sp)
-                    },
+                    title = { Text("Tu Carrito", color = GamerGreen, fontSize = 20.sp) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
@@ -78,12 +77,14 @@ fun CarritoScreen(
             ) {
 
                 if (carrito.isEmpty()) {
+
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("El carrito está vacío", color = PureWhite)
                     }
+
                 } else {
 
                     LazyColumn(
@@ -115,7 +116,7 @@ fun CarritoScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // BOTÓN FINALIZAR COMPRA
+                    // -------- Botón Finalizar Compra --------
                     Button(
                         onClick = {
 
@@ -147,11 +148,8 @@ fun CarritoScreen(
                             )
 
                             scope.launch {
-
                                 val idLocal = boletaViewModel.crearBoletaRoom(boleta).toInt()
-
                                 carritoViewModel.vaciarCarrito()
-
                                 navController.navigate("boleta_detalle/$idLocal")
                             }
                         },
@@ -166,7 +164,7 @@ fun CarritoScreen(
                 }
             }
         }
-    })
+    }
 }
 
 @Composable
@@ -176,12 +174,14 @@ fun CarritoItem(
     onAumentar: () -> Unit,
     onDisminuir: () -> Unit
 ) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
     ) {
+
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically

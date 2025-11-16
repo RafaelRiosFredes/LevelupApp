@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.layout.*
@@ -5,9 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
@@ -16,9 +20,13 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
+// =========================================================
+//             PANTALLA PRINCIPAL (CON DRAWER)
+// =========================================================
+
 @Composable
 fun EditProductoScreen(
-    navController: NavController,        // ← AGREGADO
+    navController: NavController,
     productosViewModel: ProductosViewModel,
     currentUserRol: String,
     productId: Int,
@@ -26,13 +34,16 @@ fun EditProductoScreen(
     onCancel: () -> Unit
 ) {
 
-    // Seguridad admin
+    // Permiso admin
     LaunchedEffect(Unit) {
-        if (currentUserRol != "admin") onCancel()
+        if (currentUserRol != "admin") {
+            navController.navigate("PantallaPrincipal") {
+                popUpTo("PantallaPrincipal") { inclusive = true }
+            }
+        }
     }
 
-    // ==== ENVOLVER TODO EN EL DRAWER GLOBAL ====
-    DrawerGlobal({
+    DrawerGlobal(navController = navController) {
 
         EditProductoContent(
             productosViewModel = productosViewModel,
@@ -40,12 +51,12 @@ fun EditProductoScreen(
             onSaved = onSaved,
             onCancel = onCancel
         )
-    })
+    }
 }
 
-// ===================================================================
-//                   CONTENIDO ORIGINAL (NO MODIFICADO)
-// ===================================================================
+// =========================================================
+//                 CONTENIDO EDITABLE
+// =========================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +70,7 @@ private fun EditProductoContent(
     val productoFlow = remember(productId) {
         productosViewModel.obtenerProductoPorId(productId)
     }
+
     val producto by productoFlow.collectAsState(initial = null)
 
     var nombre by remember { mutableStateOf("") }
@@ -66,6 +78,7 @@ private fun EditProductoContent(
     var imagenUrl by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
 
+    // Cuando cargue el producto, rellenar campos
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
@@ -81,7 +94,10 @@ private fun EditProductoContent(
         containerColor = JetBlack,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Editar producto", color = GamerGreen) }
+                title = { Text("Editar producto", color = GamerGreen) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = JetBlack
+                )
             )
         }
     ) { padding ->
@@ -100,45 +116,77 @@ private fun EditProductoContent(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
 
+            // ========= NOMBRE =========
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
                 label = { Text("Nombre", color = PureWhite) },
                 textStyle = TextStyle(color = PureWhite),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerGreen,
+                    unfocusedBorderColor = Color.DarkGray,
+                    cursorColor = GamerGreen,
+                    focusedTextColor = PureWhite,
+                    unfocusedTextColor = PureWhite
+                )
             )
 
             Spacer(Modifier.height(12.dp))
 
+            // ========= PRECIO =========
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it.filter { c -> c.isDigit() || c == '.' } },
                 label = { Text("Precio", color = PureWhite) },
+                textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(color = PureWhite)
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerGreen,
+                    unfocusedBorderColor = Color.DarkGray,
+                    cursorColor = GamerGreen,
+                    focusedTextColor = PureWhite,
+                    unfocusedTextColor = PureWhite
+                )
             )
 
             Spacer(Modifier.height(12.dp))
 
+            // ========= URL IMAGEN =========
             OutlinedTextField(
                 value = imagenUrl,
                 onValueChange = { imagenUrl = it },
-                label = { Text("URL Imagen", color = PureWhite) },
+                label = { Text("URL de imagen", color = PureWhite) },
+                textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(color = PureWhite)
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerGreen,
+                    unfocusedBorderColor = Color.DarkGray,
+                    cursorColor = GamerGreen,
+                    focusedTextColor = PureWhite,
+                    unfocusedTextColor = PureWhite
+                )
             )
 
             Spacer(Modifier.height(12.dp))
 
+            // ========= DESCRIPCIÓN =========
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
                 label = { Text("Descripción", color = PureWhite) },
+                textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(color = PureWhite)
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = GamerGreen,
+                    unfocusedBorderColor = Color.DarkGray,
+                    cursorColor = GamerGreen,
+                    focusedTextColor = PureWhite,
+                    unfocusedTextColor = PureWhite
+                )
             )
 
             Spacer(Modifier.height(20.dp))

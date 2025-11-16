@@ -49,7 +49,7 @@ fun RegistroScreen(
     onSaved: () -> Unit = {}
 ) {
 
-    DrawerGlobal() {   // ------------------ 🔥 INICIO DEL DRAWER GLOBAL -------------------
+    DrawerGlobal(navController = navController) {   // ← 🔥 DRAWER GLOBAL CORRECTO
 
         val contexto = LocalContext.current
         val scope = rememberCoroutineScope()
@@ -113,9 +113,7 @@ fun RegistroScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // -----------------------
                 // FOTO PERFIL
-                // -----------------------
                 Box(
                     modifier = Modifier
                         .size(140.dp)
@@ -128,7 +126,9 @@ fun RegistroScreen(
                         Image(
                             bitmap = fotoBitmap!!.asImageBitmap(),
                             contentDescription = "Foto perfil",
-                            modifier = Modifier.size(140.dp).clip(CircleShape)
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
                         )
                     } else {
                         Text("Sin foto", color = PureWhite)
@@ -171,14 +171,12 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(26.dp))
 
-                // -----------------------
                 // BOTÓN REGISTRAR
-                // -----------------------
                 Button(
                     onClick = {
                         scope.launch {
 
-                            val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.[a-z]+".toRegex()
+                            val emailRegex = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.[a-zA-Z]+".toRegex()
 
                             val error = when {
                                 nombres.isBlank() -> "Ingresa nombre"
@@ -235,13 +233,14 @@ fun RegistroScreen(
                 }
             }
         }
-    }   // ------------------ 🔥 CIERRE DEL DRAWER GLOBAL -------------------
+    }
 }
 
 
-// -------------------------------------
+// ---------------------------------------------------------------------------------
 // CAMPOS
-// -------------------------------------
+// ---------------------------------------------------------------------------------
+
 @Composable
 fun RegistroCampo(
     titulo: String,

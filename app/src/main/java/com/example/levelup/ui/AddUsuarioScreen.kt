@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import android.graphics.BitmapFactory
@@ -16,40 +18,51 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.ui.components.DrawerGlobal
+import com.example.levelup.ui.theme.GamerGreen
+import com.example.levelup.ui.theme.JetBlack
+import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
-import com.example.levelup.ui.components.DrawerGlobal   // ← IMPORTANTE
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ----------------------------------------------------------
+//              PANTALLA PRINCIPAL (ADMIN)
+// ----------------------------------------------------------
 @Composable
 fun AddUsuarioScreen(
-    navController: NavController,           // ← AHORA TAMBIÉN RECIBE NAV
-    usuariosViewModel: UsuariosViewModel,
-    currentUserRol: String,
-    onSaved: () -> Unit,
-    onCancel: () -> Unit
+    navController: NavController,
+    usuariosViewModel: UsuariosViewModel
 ) {
+
+    // 🔐 Protección admin
     LaunchedEffect(Unit) {
-        if (currentUserRol != "admin") {
-            onCancel()
+        if (UserSession.rol != "admin") {
+            navController.navigate("PantallaPrincipal") {
+                popUpTo("PantallaPrincipal") { inclusive = true }
+            }
         }
     }
 
-    DrawerGlobal({
+    DrawerGlobal(navController = navController) {
         AddUsuarioContent(
             usuariosViewModel = usuariosViewModel,
-            onSaved = onSaved,
-            onCancel = onCancel
+            onSaved = { navController.popBackStack() },
+            onCancel = { navController.popBackStack() }
         )
-    })
+    }
 }
 
+// ----------------------------------------------------------
+//                  CONTENIDO DE LA VISTA
+// ----------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddUsuarioContent(
@@ -72,27 +85,35 @@ private fun AddUsuarioContent(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) {
-            val bytes = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        uri?.let {
+            val bytes = ctx.contentResolver.openInputStream(it)?.use { stream -> stream.readBytes() }
             fotoBytes = bytes
-            fotoBitmap = bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+            fotoBitmap = bytes?.let { b -> BitmapFactory.decodeByteArray(b, 0, b.size) }
         }
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Agregar usuario") }) }
+        containerColor = JetBlack,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Agregar Usuario", color = GamerGreen) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = JetBlack)
+            )
+        }
     ) { padding ->
 
         Column(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // FOTO PERFIL
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(100.dp)
                     .clip(CircleShape)
                     .clickable { launcher.launch("image/*") },
                 contentAlignment = Alignment.Center
@@ -103,98 +124,154 @@ private fun AddUsuarioContent(
                         contentDescription = "",
                         modifier = Modifier.fillMaxSize()
                     )
-                } else Text("Foto")
+                } else Text("Foto", color = PureWhite)
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = nombres, onValueChange = { nombres = it },
-                label = { Text("Nombres") }, modifier = Modifier.fillMaxWidth()
-            )
+            // CAMPOS
+            CampoTexto("Nombres", nombres) { nombres = it }
+            CampoTexto("Apellidos", apellidos) { apellidos = it }
+            CampoTexto("Correo", correo) { correo = it }
+            CampoTextoPassword("Contraseña", contrasena) { contrasena = it }
 
-            Spacer(Modifier.height(12.dp))
+            // ROL
+            Spacer(Modifier.height(16.dp))
+            RolSelector(rol) { rol = it }
 
-            OutlinedTextField(
-                value = apellidos, onValueChange = { apellidos = it },
-                label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth()
-            )
+            Spacer(Modifier.height(25.dp))
 
-            Spacer(Modifier.height(12.dp))
+            // BOTONES
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onCancel) {
+                    Text("Cancelar", color = PureWhite)
+                }
+                Spacer(Modifier.width(12.dp))
+                Button(
+                    onClick = {
+                        if (nombres.isBlank() || correo.isBlank() || contrasena.isBlank()) {
+                            Toast.makeText(ctx, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
 
-            OutlinedTextField(
-                value = correo, onValueChange = { correo = it },
-                label = { Text("Correo") }, modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = contrasena, onValueChange = { contrasena = it },
-                label = { Text("Contraseña") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            var expanded by remember { mutableStateOf(false) }
-            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                OutlinedTextField(
-                    value = rol,
-                    onValueChange = {},
-                    label = { Text("Rol") },
-                    readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    listOf("user", "admin").forEach {
-                        DropdownMenuItem(
-                            text = { Text(it) },
-                            onClick = {
-                                rol = it
-                                expanded = false
-                            }
+                        val nuevo = UsuarioEntity(
+                            id = 0,
+                            nombres = nombres,
+                            apellidos = apellidos,
+                            correo = correo,
+                            contrasena = contrasena,
+                            telefono = null,
+                            fechaNacimiento = null,
+                            fotoPerfil = fotoBytes,
+                            duoc = false,
+                            descApl = false,
+                            rol = rol
                         )
-                    }
+
+                        scope.launch {
+                            usuariosViewModel.insertarUsuario(nuevo)
+                            onSaved()
+                        }
+
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
+                ) {
+                    Text("Guardar", color = Color.Black)
                 }
             }
+        }
+    }
+}
 
-            Spacer(Modifier.height(20.dp))
+// ----------------------------------------------------------
+//                   CAMPOS REUTILIZABLES
+// ----------------------------------------------------------
+@Composable
+fun CampoTexto(
+    titulo: String,
+    valor: String,
+    onChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onChange,
+        label = { Text(titulo, color = PureWhite) },
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = GamerGreen,
+            unfocusedBorderColor = Color.DarkGray,
+            focusedTextColor = PureWhite,
+            unfocusedTextColor = PureWhite,
+            cursorColor = GamerGreen
+        )
+    )
+}
 
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = onCancel) { Text("Cancelar") }
-                Spacer(Modifier.width(12.dp))
-                Button(onClick = {
+@Composable
+fun CampoTextoPassword(
+    titulo: String,
+    valor: String,
+    onChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onChange,
+        label = { Text(titulo, color = PureWhite) },
+        visualTransformation = PasswordVisualTransformation(),
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = GamerGreen,
+            unfocusedBorderColor = Color.DarkGray,
+            focusedTextColor = PureWhite,
+            unfocusedTextColor = PureWhite,
+            cursorColor = GamerGreen
+        )
+    )
+}
 
-                    if (nombres.isBlank() || correo.isBlank() || contrasena.isBlank()) {
-                        Toast.makeText(ctx, "Completa todos los campos", Toast.LENGTH_SHORT).show()
-                        return@Button
+// ----------------------------------------------------------
+//                   SELECTOR DE ROL
+// ----------------------------------------------------------
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RolSelector(rolActual: String, onChange: (String) -> Unit) {
+
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+
+        OutlinedTextField(
+            value = rolActual,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Rol", color = PureWhite) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = GamerGreen,
+                unfocusedBorderColor = Color.DarkGray,
+                focusedTextColor = PureWhite,
+                unfocusedTextColor = PureWhite,
+                cursorColor = GamerGreen
+            )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            listOf("user", "admin").forEach {
+                DropdownMenuItem(
+                    text = { Text(it) },
+                    onClick = {
+                        onChange(it)
+                        expanded = false
                     }
-
-                    val nuevo = UsuarioEntity(
-                        id = 0,
-                        nombres = nombres,
-                        apellidos = apellidos,
-                        correo = correo,
-                        contrasena = contrasena,
-                        telefono = null,
-                        fechaNacimiento = null,
-                        fotoPerfil = fotoBytes,
-                        duoc = false,
-                        descApl = false,
-                        rol = rol
-                    )
-
-                    scope.launch {
-                        usuariosViewModel.insertarUsuario(nuevo)
-                        onSaved()
-                    }
-
-                }) { Text("Guardar") }
+                )
             }
         }
     }

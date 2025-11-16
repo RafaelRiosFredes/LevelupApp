@@ -19,18 +19,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.levelup.ui.components.DrawerGlobal   // ← IMPORTANTE
+import com.example.levelup.ui.components.DrawerGlobal
+import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.viewmodel.NoticiasViewModel
 
 @Composable
 fun NoticiasScreen(
     navController: NavController,
     vm: NoticiasViewModel = viewModel(),
-)
- {
-    val noticias = vm.noticias.collectAsState().value
+) {
 
-    DrawerGlobal() {   // ← DRAWER GLOBAL EN TODA LA APP
+    val noticias by vm.noticias.collectAsState()
+
+    // ========================================
+    //        DRAWER GLOBAL CONSISTENTE
+    // ========================================
+    DrawerGlobal(navController = navController) {
 
         Scaffold(
             topBar = {
@@ -38,7 +42,7 @@ fun NoticiasScreen(
                     title = {
                         Text(
                             "Noticias Gamer",
-                            color = Color(0xFF39FF14),
+                            color = GamerGreen,
                             fontSize = 20.sp
                         )
                     },
@@ -56,7 +60,7 @@ fun NoticiasScreen(
                     .background(Color.Black)
                     .padding(padding)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 items(noticias) { noticia ->
@@ -66,32 +70,23 @@ fun NoticiasScreen(
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(250.dp)
+                            .height(260.dp)
                     ) {
+
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(10.dp)
+                                .padding(12.dp)
                         ) {
 
-                            // IMAGEN LOCAL
-                            Image(
-                                painter = painterResource(id = noticia.imagen.toInt()),
-                                contentDescription = noticia.titulo,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(130.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-
-                            Spacer(Modifier.height(8.dp))
 
                             Text(
                                 text = noticia.titulo,
                                 color = Color.White,
-                                fontSize = 16.sp
+                                fontSize = 17.sp
                             )
+
+                            Spacer(Modifier.height(4.dp))
 
                             Text(
                                 text = noticia.descripcion,
@@ -100,10 +95,10 @@ fun NoticiasScreen(
                                 maxLines = 2
                             )
 
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(6.dp))
 
                             Text(
-                                text = noticia.fuente,
+                                text = "Fuente: ${noticia.fuente}",
                                 color = Color(0xFF00AAFF),
                                 fontSize = 12.sp
                             )

@@ -24,36 +24,55 @@ fun LevelUpNavHost(
 
     val context = LocalContext.current
 
-    val carritoViewModel: CarritoViewModel = viewModel(factory = CarritoViewModelFactory(context.applicationContext as Application))
-    val boletaViewModel: BoletaViewModel = viewModel(factory = BoletaViewModelFactoryApp(context.applicationContext as Application))
+    val carritoViewModel: CarritoViewModel =
+        viewModel(factory = CarritoViewModelFactory(context.applicationContext as Application))
+
+    val boletaViewModel: BoletaViewModel =
+        viewModel(factory = BoletaViewModelFactoryApp(context.applicationContext as Application))
 
     NavHost(
         navController = navController,
         startDestination = "PantallaPrincipal"
     ) {
 
-        // -------------------------------
-        // PANTALLAS DEL USUARIO NORMAL
-        // -------------------------------
-
+        // ----------------------------------------------------
+        //                      PRINCIPAL
+        // ----------------------------------------------------
         composable("PantallaPrincipal") {
             PantallaPrincipal(
                 navController = navController,
                 onNavigate = { navController.navigate(it) },
                 onLogout = {
-                    UserSession.clear()
+                    UserSession.logout()
                     navController.navigate("login") { popUpTo(0) }
                 }
             )
         }
 
+        // ----------------------------------------------------
+        //                       PRODUCTOS
+        // ----------------------------------------------------
         composable("productos") {
             ProductosScreen(
                 navController = navController,
-                productosViewModel = productosViewModel
+                productosViewModel = productosViewModel,
+                carritoViewModel = carritoViewModel
             )
         }
 
+        composable("producto/{id}") { backStack ->
+            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            ProductoScreen(
+                navController = navController,
+                productosViewModel = productosViewModel,
+                carritoViewModel = carritoViewModel,
+                id = id
+            )
+        }
+
+        // ----------------------------------------------------
+        //                         CARRITO
+        // ----------------------------------------------------
         composable("carrito") {
             CarritoScreen(
                 navController = navController,
@@ -63,6 +82,9 @@ fun LevelUpNavHost(
             )
         }
 
+        // ----------------------------------------------------
+        //                         LOGIN
+        // ----------------------------------------------------
         composable("login") {
             LoginScreen(
                 navController = navController,
@@ -70,33 +92,40 @@ fun LevelUpNavHost(
             )
         }
 
+        // ----------------------------------------------------
+        //                      REGISTRO
+        // ----------------------------------------------------
         composable("registro") {
             RegistroScreen(
                 navController = navController,
-                usuariosViewModel = usuariosViewModel
+                vm = usuariosViewModel
             )
         }
 
+        // ----------------------------------------------------
+        //                       NOTICIAS
+        // ----------------------------------------------------
         composable("noticias") {
-            NoticiasScreen(navController = navController)
+            NoticiasScreen(
+                navController = navController
+            )
         }
 
+        // ----------------------------------------------------
+        //                       CONTACTO
+        // ----------------------------------------------------
         composable("contacto") {
             ContactoScreen(navController = navController)
         }
 
-
-
-        // -------------------------------------
-        // ADMIN: INVENTARIO DE PRODUCTOS
-        // -------------------------------------
-
+        // ----------------------------------------------------
+        //                       INVENTARIO (ADMIN)
+        // ----------------------------------------------------
         composable("inventario") {
             InventarioScreen(
+                navController = navController,
                 productosViewModel = productosViewModel,
-                currentUserRol = UserSession.rol ?: "user",
-                onAgregarClick = { navController.navigate("add_producto") },
-                onEditarClick = { id -> navController.navigate("edit_producto/$id") }
+                currentUserRol = UserSession.rol ?: "user"
             )
         }
 
@@ -109,21 +138,25 @@ fun LevelUpNavHost(
 
         composable("edit_producto/{id}") { backStack ->
             val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+
             EditProductoScreen(
                 navController = navController,
                 productosViewModel = productosViewModel,
-                productoId = id
+                currentUserRol = UserSession.rol ?: "user",
+                productId = id,
+                onSaved = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
             )
         }
 
-        // -------------------------------------
-        // ADMIN: GESTIÓN DE USUARIOS
-        // -------------------------------------
-
+        // ----------------------------------------------------
+        //                    ADMIN: USUARIOS
+        // ----------------------------------------------------
         composable("admin_usuarios") {
-            UsuariosAdminScreen(
-                navController = navController,
+            UsuariosScreen(
                 usuariosViewModel = usuariosViewModel,
+                currentUserRol = UserSession.rol ?: "user",
+                navController = navController,
                 onAgregarClick = { navController.navigate("add_usuario") },
                 onEditarClick = { id -> navController.navigate("edit_usuario/$id") }
             )
@@ -138,7 +171,9 @@ fun LevelUpNavHost(
 
         composable("edit_usuario/{id}") { backStack ->
             val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+
             EditUsuarioScreen(
+                navController = navController,
                 usuariosViewModel = usuariosViewModel,
                 currentUserRol = UserSession.rol ?: "user",
                 userId = id,
@@ -147,16 +182,16 @@ fun LevelUpNavHost(
             )
         }
 
-        // -------------------------------------
-        // DETALLE DE BOLETA
-        // -------------------------------------
+        // ----------------------------------------------------
+        //                    DETALLE BOLETA
+        // ----------------------------------------------------
         composable("boleta_detalle/{id}") { backStack ->
-            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0L
 
             BoletaDetalleScreen(
                 navController = navController,
-                boletaViewModel = boletaViewModel,
-                boletaId = id
+                boletaId = id,
+                boletaViewModel = boletaViewModel
             )
         }
     }

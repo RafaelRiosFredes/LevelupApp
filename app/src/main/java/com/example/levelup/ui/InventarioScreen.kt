@@ -22,48 +22,52 @@ import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.*
 import com.example.levelup.viewmodel.ProductosViewModel
+import kotlinx.coroutines.launch
+
+// ======================================================
+//              PANTALLA PRINCIPAL
+// ======================================================
 
 @Composable
 fun InventarioScreen(
     navController: NavController,
     productosViewModel: ProductosViewModel,
-    currentUserRol: String,
-    onAgregarClick: () -> Unit,
-    onEditarClick: (Int) -> Unit,
-    onNavigate: (String) -> Unit = {},
-    onLogout: () -> Unit = {}
+    currentUserRol: String
 ) {
 
-    // 🔐 Protección admin
+    // Protección admin
     LaunchedEffect(Unit) {
         if (currentUserRol != "admin") {
-            onNavigate("PantallaPrincipal")
+            navController.navigate("PantallaPrincipal") {
+                popUpTo("PantallaPrincipal") { inclusive = true }
+            }
         }
     }
 
-    // ============================
-    //     DRAWER GLOBAL
-    // ============================
-    DrawerGlobal({
+    // Drawer corregido
+    DrawerGlobal(navController = navController) {
 
         InventarioContent(
             productosViewModel = productosViewModel,
-            onAgregarClick = onAgregarClick,
-            onEditarClick = onEditarClick
+            navController = navController
         )
-    })
+    }
 }
+
+// ======================================================
+//              CONTENIDO DEL INVENTARIO
+// ======================================================
 
 @Composable
 private fun InventarioContent(
     productosViewModel: ProductosViewModel,
-    onAgregarClick: () -> Unit,
-    onEditarClick: (Int) -> Unit
+    navController: NavController
 ) {
 
     val productos by productosViewModel.productos.collectAsState(initial = emptyList())
     var selectedProduct by remember { mutableStateOf<ProductosEntity?>(null) }
     var showConfirmDelete by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = JetBlack,
@@ -72,15 +76,25 @@ private fun InventarioContent(
                 title = { Text("Inventario", color = GamerGreen) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = DarkGray),
                 actions = {
+
+                    // Si hay un producto seleccionado → mostrar acciones
                     if (selectedProduct != null) {
-                        IconButton(onClick = { onEditarClick(selectedProduct!!.id) }) {
+
+                        IconButton(onClick = {
+                            navController.navigate("edit_producto/${selectedProduct!!.id}")
+                        }) {
                             Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PureWhite)
                         }
+
                         IconButton(onClick = { showConfirmDelete = true }) {
                             Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = PureWhite)
                         }
+
                     } else {
-                        IconButton(onClick = onAgregarClick) {
+                        // Ninguno seleccionado → mostrar botón agregar
+                        IconButton(onClick = {
+                            navController.navigate("add_producto")
+                        }) {
                             Icon(Icons.Default.Add, contentDescription = "Agregar", tint = GamerGreen)
                         }
                     }
@@ -107,6 +121,7 @@ private fun InventarioContent(
                     .fillMaxSize()
                     .padding(padding)
             ) {
+
                 items(productos) { p ->
 
                     ProductoRow(
@@ -122,9 +137,10 @@ private fun InventarioContent(
         }
     }
 
-    // ============================
-    //  CONFIRMACIÓN ELIMINAR
-    // ============================
+    // ======================================================
+    //        CONFIRMACIÓN DE ELIMINACIÓN (GAMER)
+    // ======================================================
+
     if (showConfirmDelete && selectedProduct != null) {
 
         AlertDialog(
@@ -133,7 +149,10 @@ private fun InventarioContent(
             text = { Text("¿Eliminar ${selectedProduct!!.nombre}?", color = PureWhite) },
             confirmButton = {
                 TextButton(onClick = {
-                    productosViewModel.eliminarProducto(selectedProduct!!)
+                    scope.launch {
+                        productosViewModel.eliminarProducto(selectedProduct!!)
+                        productosViewModel.sincronizarProductos()
+                    }
                     showConfirmDelete = false
                     selectedProduct = null
                 }) {
@@ -149,6 +168,10 @@ private fun InventarioContent(
         )
     }
 }
+
+// ======================================================
+//              TARJETA DE PRODUCTO
+// ======================================================
 
 @Composable
 fun ProductoRow(
@@ -170,6 +193,7 @@ fun ProductoRow(
         colors = CardDefaults.cardColors(containerColor = DarkGray),
         shape = shape
     ) {
+
         Column(modifier = Modifier.padding(12.dp)) {
 
             Text(
@@ -180,8 +204,8 @@ fun ProductoRow(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(text = "Id: ${producto.id}", color = PureWhite)
-            Text(text = "Precio: ${producto.precio}", color = PureWhite)
+            Text(text = "ID: ${producto.id}", color = PureWhite)
+            Text(text = "Precio: $${producto.precio}", color = PureWhite)
 
             if (isSelected) {
                 Spacer(modifier = Modifier.height(6.dp))

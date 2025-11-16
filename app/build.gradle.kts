@@ -48,6 +48,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.navigation.testing)
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.3")
     // --------------------------
     // VERSIONES

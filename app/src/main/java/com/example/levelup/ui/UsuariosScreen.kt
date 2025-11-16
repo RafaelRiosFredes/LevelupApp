@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.background
@@ -14,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.navigation.NavController
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.ui.components.DrawerGlobal
@@ -24,7 +25,6 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.UsuariosViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuariosScreen(
     usuariosViewModel: UsuariosViewModel,
@@ -35,24 +35,22 @@ fun UsuariosScreen(
     onLogout: () -> Unit = {}
 ) {
 
-    // 🔐 Seguridad: solo admin puede ver esta pantalla
+    // 🔐 Seguridad: solo admin
     LaunchedEffect(Unit) {
         if (currentUserRol != "admin") {
-            navController.navigate("PantallaPrincipal")
+            navController.navigate("PantallaPrincipal") {
+                popUpTo("PantallaPrincipal") { inclusive = true }
+            }
         }
     }
 
-    // Datos
-    val usuarios by usuariosViewModel.obtenerUsuarios().collectAsState(initial = emptyList())
+    val usuarios by usuariosViewModel.obtenerUsuarios()
+        .collectAsState(initial = emptyList())
 
-    // Selección y eliminación
     var selectedUser by remember { mutableStateOf<UsuarioEntity?>(null) }
     var showConfirmDelete by remember { mutableStateOf(false) }
 
-    // ===============================
-    // 🚀 ENVUELTA EN DRAWERGLOBAL
-    // ===============================
-    DrawerGlobal({
+    DrawerGlobal(navController = navController) {
 
         Column(
             modifier = Modifier
@@ -62,14 +60,13 @@ fun UsuariosScreen(
         ) {
 
             Text(
-                text = "Usuarios",
+                text = "Gestión de Usuarios",
                 color = GamerGreen,
                 style = MaterialTheme.typography.headlineSmall
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Si no hay usuarios
             if (usuarios.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -79,9 +76,8 @@ fun UsuariosScreen(
                 }
             } else {
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+
                     items(usuarios) { u ->
 
                         Card(
@@ -92,13 +88,10 @@ fun UsuariosScreen(
                                     selectedUser =
                                         if (selectedUser?.id == u.id) null else u
                                 },
-                            colors = CardDefaults.cardColors(containerColor = DarkGray),
-                            shape = RoundedCornerShape(12.dp)
+                            colors = CardDefaults.cardColors(containerColor = DarkGray)
                         ) {
 
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
 
                                 Text(
                                     "${u.nombres} ${u.apellidos}",
@@ -106,21 +99,17 @@ fun UsuariosScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                Text(
-                                    u.correo,
-                                    color = Color.LightGray
-                                )
-
+                                Text(u.correo, color = Color.LightGray)
                                 Text(
                                     "Rol: ${u.rol}",
                                     color = if (u.rol == "admin") GamerGreen else Color.Gray
                                 )
 
-                                // ACCIONES SOLO SI ESTÁ SELECCIONADO
                                 if (selectedUser?.id == u.id) {
+
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        modifier = Modifier.padding(top = 10.dp)
+                                        modifier = Modifier.padding(top = 10.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
 
                                         IconButton(onClick = { onEditarClick(u.id) }) {
@@ -132,6 +121,7 @@ fun UsuariosScreen(
                                         }
 
                                         IconButton(onClick = {
+                                            selectedUser = u
                                             showConfirmDelete = true
                                         }) {
                                             Icon(
@@ -149,9 +139,7 @@ fun UsuariosScreen(
             }
         }
 
-        // ===============================
-        // ALERTA DE CONFIRMAR ELIMINADO
-        // ===============================
+        // CONFIRMAR ELIMINACION
         if (showConfirmDelete && selectedUser != null) {
 
             AlertDialog(
@@ -159,7 +147,7 @@ fun UsuariosScreen(
                 title = { Text("Eliminar usuario", color = PureWhite) },
                 text = {
                     Text(
-                        "¿Deseas eliminar a ${selectedUser!!.nombres} ${selectedUser!!.apellidos}?",
+                        "¿Seguro que deseas eliminar a ${selectedUser!!.nombres} ${selectedUser!!.apellidos}?",
                         color = PureWhite
                     )
                 },
@@ -180,5 +168,5 @@ fun UsuariosScreen(
                 containerColor = DarkGray
             )
         }
-    })
+    }
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
@@ -20,14 +21,20 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddProductScreen(
-    productosViewModel: ProductosViewModel,
-    onSaved: () -> Unit,
-    onCancel: () -> Unit,
     navController: NavHostController,
-    currentUserRol: String
+    productosViewModel: ProductosViewModel
 ) {
 
-    DrawerGlobal() {
+    // 🔐 Protección: solo admin puede entrar
+    LaunchedEffect(Unit) {
+        if (UserSession.rol != "admin") {
+            navController.navigate("PantallaPrincipal") {
+                popUpTo("PantallaPrincipal") { inclusive = true }
+            }
+        }
+    }
+
+    DrawerGlobal(navController = navController) {
 
         var nombre by remember { mutableStateOf("") }
         var descripcion by remember { mutableStateOf("") }
@@ -42,7 +49,9 @@ fun AddProductScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Agregar Producto", color = GamerGreen) },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = JetBlack)
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = JetBlack
+                    )
                 )
             },
             snackbarHost = { SnackbarHost(snackbar) }
@@ -64,10 +73,12 @@ fun AddProductScreen(
 
                 Spacer(Modifier.height(25.dp))
 
-                // BOTONES
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
 
-                    TextButton(onClick = onCancel) {
+                    TextButton(onClick = { navController.popBackStack() }) {
                         Text("Cancelar", color = Color.Gray)
                     }
 
@@ -78,7 +89,7 @@ fun AddProductScreen(
                                 return@Button
                             }
 
-                            val p = ProductosEntity(
+                            val nuevoProducto = ProductosEntity(
                                 id = 0,
                                 nombre = nombre.trim(),
                                 descripcion = descripcion.trim(),
@@ -86,8 +97,8 @@ fun AddProductScreen(
                                 imagenUrl = imagenUrl.trim()
                             )
 
-                            productosViewModel.insertarProducto(p)
-                            onSaved()
+                            productosViewModel.insertarProducto(nuevoProducto)
+                            navController.popBackStack()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                     ) {
@@ -99,6 +110,9 @@ fun AddProductScreen(
     }
 }
 
+// ========================================================
+//                 ✨ CAMPO TEXTO REUTILIZABLE
+// ========================================================
 @Composable
 fun CampoTexto(
     titulo: String,
@@ -109,14 +123,17 @@ fun CampoTexto(
     OutlinedTextField(
         value = valor,
         onValueChange = onChange,
-        label = { Text(titulo, color = Color.White) },
+        label = { Text(titulo) },
         modifier = Modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GamerGreen,
-            unfocusedBorderColor = Color.Gray,
-            focusedTextColor = Color.White,
-            cursorColor = GamerGreen
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+            keyboardType = tipo
         ),
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = tipo)
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF39FF14),
+            unfocusedBorderColor = Color.DarkGray,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            cursorColor = Color(0xFF39FF14)
+        )
     )
 }

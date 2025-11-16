@@ -1,21 +1,23 @@
 package com.example.levelup.ui.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.navigation.NavController
 import com.example.levelup.core.UserSession
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerGlobal(
+    navController: NavController,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -28,155 +30,129 @@ fun DrawerGlobal(
                 drawerContainerColor = Color.Black,
                 drawerContentColor = Color.White
             ) {
+
                 Text(
-                    text = "LEVEL UP GAMER",
+                    "LEVEL UP GAMER",
                     color = Color(0xFF39FF14),
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = androidx.compose.ui.Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp)
                 )
 
-                Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
-
-                // --------- CLIENTE ----------
-                NavigationDrawerItem(
-                    label = { Text("Inicio") },
-                    selected = false,
+                // -----------------------
+                // CLIENTE NORMAL
+                // -----------------------
+                DrawerItem(
+                    label = "Inicio",
+                    icon = Icons.Default.Home,
                     onClick = {
-                        scope.launch { drawerState.close() }
                         navController.navigate("PantallaPrincipal") {
                             popUpTo("PantallaPrincipal") { inclusive = false }
                         }
-                    },
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        scope.launch { drawerState.close() }
+                    }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Productos") },
-                    selected = false,
+                DrawerItem(
+                    label = "Productos",
+                    icon = Icons.Default.ShoppingCart,
                     onClick = {
-                        scope.launch { drawerState.close() }
                         navController.navigate("productos")
-                    },
-                    icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        scope.launch { drawerState.close() }
+                    }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Carrito") },
-                    selected = false,
+                DrawerItem(
+                    label = "Carrito",
+                    icon = Icons.Default.ShoppingBag,
                     onClick = {
-                        scope.launch { drawerState.close() }
                         navController.navigate("carrito")
-                    },
-                    icon = { Icon(Icons.Default.ShoppingBasket, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        scope.launch { drawerState.close() }
+                    }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Noticias") },
-                    selected = false,
+                DrawerItem(
+                    label = "Noticias Gamer",
+                    icon = Icons.Default.Article,
                     onClick = {
+                        navController.navigate("noticias")
                         scope.launch { drawerState.close() }
-                        navController.navigate("Noticias")
-                    },
-                    icon = { Icon(Icons.Default.Article, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Contacto") },
-                    selected = false,
+                DrawerItem(
+                    label = "Contáctanos",
+                    icon = Icons.Default.Email,
                     onClick = {
-                        scope.launch { drawerState.close() }
                         navController.navigate("contacto")
-                    },
-                    icon = { Icon(Icons.Default.Email, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    label = { Text("Inicia sesión") },
-                    selected = false,
-                    onClick = {
                         scope.launch { drawerState.close() }
-                        navController.navigate("login")
-                    },
-                    icon = { Icon(Icons.Default.Login, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Regístrate") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        navController.navigate("registro")
-                    },
-                    icon = { Icon(Icons.Default.AppRegistration, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    label = { Text("Perfil") },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        navController.navigate("perfil")
-                    },
-                    icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                // --------- ADMIN ----------
-                if (UserSession.rol.lowercase() == "admin") {
-                    Spacer(modifier = androidx.compose.ui.Modifier.height(12.dp))
+                // -----------------------
+                // ADMIN EXTRAS
+                // -----------------------
+                if (UserSession.rol == "admin") {
                     Divider(color = Color.DarkGray)
 
-                    NavigationDrawerItem(
-                        label = { Text("Inventario") },
-                        selected = false,
+                    DrawerItem(
+                        label = "Inventario",
+                        icon = Icons.Default.Warehouse,
                         onClick = {
-                            scope.launch { drawerState.close() }
                             navController.navigate("inventario")
-                        },
-                        icon = { Icon(Icons.Default.Inventory, contentDescription = null) },
-                        modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            scope.launch { drawerState.close() }
+                        }
                     )
 
-                    NavigationDrawerItem(
-                        label = { Text("Gestión de usuarios") },
-                        selected = false,
+                    DrawerItem(
+                        label = "Gestión de Usuarios",
+                        icon = Icons.Default.Person,
                         onClick = {
+                            navController.navigate("admin_usuarios")
                             scope.launch { drawerState.close() }
-                            navController.navigate("usuarios")
-                        },
-                        icon = { Icon(Icons.Default.Groups, contentDescription = null) },
-                        modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        }
+                    )
+
+                    DrawerItem(
+                        label = "Agregar Usuario",
+                        icon = Icons.Default.PersonAdd,
+                        onClick = {
+                            navController.navigate("add_usuario")
+                            scope.launch { drawerState.close() }
+                        }
                     )
                 }
 
-                Spacer(modifier = androidx.compose.ui.Modifier.height(12.dp))
-                Divider(color = Color.DarkGray)
-
-                // --------- CERRAR SESIÓN ----------
-                NavigationDrawerItem(
-                    label = { Text("Cerrar sesión") },
-                    selected = false,
+                // -----------------------
+                // CERRAR SESIÓN
+                // -----------------------
+                DrawerItem(
+                    label = "Cerrar sesión",
+                    icon = Icons.Default.ExitToApp,
                     onClick = {
-                        scope.launch { drawerState.close() }
                         UserSession.logout()
                         navController.navigate("login") {
-                            popUpTo(0) { inclusive = true }
+                            popUpTo("login") { inclusive = true }
                         }
-                    },
-                    icon = { Icon(Icons.Default.Logout, contentDescription = null) },
-                    modifier = androidx.compose.ui.Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        scope.launch { drawerState.close() }
+                    }
                 )
             }
         }
     ) {
-        // El contenido real de la pantalla (cada Screen trae su propio Scaffold)
-        content()
+        Box { content() }
     }
+}
+
+@Composable
+private fun DrawerItem(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    NavigationDrawerItem(
+        label = { Text(label) },
+        selected = false,
+        onClick = onClick,
+        icon = { Icon(icon, contentDescription = null) }
+    )
 }

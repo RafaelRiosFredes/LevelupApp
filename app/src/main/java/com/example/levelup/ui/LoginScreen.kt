@@ -32,7 +32,10 @@ fun LoginScreen(
     var error by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
 
-    DrawerGlobal({
+    // ===========================
+    //       DRAWER GLOBAL
+    // ===========================
+    DrawerGlobal(navController = navController) {
 
         Scaffold(
             topBar = {
@@ -62,6 +65,9 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                // ===========================
+                //        CORREO
+                // ===========================
                 OutlinedTextField(
                     value = correo,
                     onValueChange = { correo = it },
@@ -78,6 +84,9 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                // ===========================
+                //     CONTRASEÑA
+                // ===========================
                 OutlinedTextField(
                     value = contrasena,
                     onValueChange = { contrasena = it },
@@ -95,11 +104,14 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(26.dp))
 
+                // ===========================
+                //       BOTÓN LOGIN
+                // ===========================
                 Button(
                     onClick = {
                         scope.launch {
 
-                            // admin fijo
+                            // LOGIN ADMIN FIJO
                             if (correo.trim() == "admin@levelup.com" &&
                                 contrasena.trim() == "admin123"
                             ) {
@@ -115,6 +127,7 @@ fun LoginScreen(
                                 return@launch
                             }
 
+                            // LOGIN NORMAL
                             val usuario = usuariosViewModel.login(
                                 correo.trim(),
                                 contrasena.trim()
@@ -141,9 +154,16 @@ fun LoginScreen(
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                 ) {
-                    Text("Ingresar", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Ingresar",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
+                // ===========================
+                //       ERROR LOGIN
+                // ===========================
                 if (error.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Text(
@@ -157,5 +177,5 @@ fun LoginScreen(
                 Spacer(Modifier.height(20.dp))
             }
         }
-    })
+    }
 }

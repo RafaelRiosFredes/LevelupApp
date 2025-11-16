@@ -30,15 +30,15 @@ import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun ProductosScreen(
+    navController: NavHostController,
     productosViewModel: ProductosViewModel,
-    nav: NavHostController,
-    carritoViewModel: CarritoViewModel,
-    onNavigate: (String) -> Unit,
-    navController: NavHostController
+    carritoViewModel: CarritoViewModel
 ) {
-    DrawerGlobal({
+
+    DrawerGlobal(navController = navController) {  // ← USO CORRECTO DEL DRAWER
 
         val productos by productosViewModel.productos.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -60,7 +60,7 @@ fun ProductosScreen(
                     )
                 )
             },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Black
         ) { innerPadding ->
 
@@ -85,7 +85,8 @@ fun ProductosScreen(
                     contentPadding = PaddingValues(8.dp)
                 ) {
 
-                    if (productos.isNullOrEmpty()) {
+                    if (productos.isEmpty()) {
+
                         item(span = { GridItemSpan(2) }) {
                             Box(
                                 modifier = Modifier
@@ -96,14 +97,16 @@ fun ProductosScreen(
                                 CircularProgressIndicator(color = GamerGreen)
                             }
                         }
+
                     } else {
-                        items(productos!!) { producto ->
+
+                        items(productos) { producto ->
 
                             val idSeguro = producto.id.takeIf { it > 0 } ?: return@items
 
                             ProductoItem(
                                 producto = producto,
-                                onClick = { nav.navigate("producto/$idSeguro") },
+                                onClick = { navController.navigate("producto/$idSeguro") },
                                 onAddToCart = {
                                     carritoViewModel.agregarProducto(
                                         productoId = producto.id,
@@ -122,8 +125,9 @@ fun ProductosScreen(
                 }
             }
         }
-    })
+    }
 }
+
 
 @Composable
 fun ProductoItem(
@@ -132,7 +136,7 @@ fun ProductoItem(
     onAddToCart: () -> Unit
 ) {
 
-    val imagen = producto.imagenUrl.ifBlank {
+    val imagenSegura = producto.imagenUrl.ifBlank {
         "https://placehold.co/300x300/000000/FFFFFF"
     }
 
@@ -161,7 +165,7 @@ fun ProductoItem(
             Spacer(Modifier.height(10.dp))
 
             Image(
-                painter = rememberAsyncImagePainter(imagen),
+                painter = rememberAsyncImagePainter(imagenSegura),
                 contentDescription = producto.nombre,
                 modifier = Modifier
                     .size(150.dp)

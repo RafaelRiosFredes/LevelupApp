@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import androidx.compose.foundation.background
@@ -18,19 +20,19 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoletaDetalleScreen(
-    navController: NavController,    // ← AGREGADO
+    navController: NavController,
     boletaId: Long,
-    boletaViewModel: BoletaViewModel,
-    onVolver: () -> Unit
+    boletaViewModel: BoletaViewModel
 ) {
-    DrawerGlobal({   // ← ENVUELTO EN DRAWER
+
+    DrawerGlobal(navController = navController) {
 
         val boleta by boletaViewModel.obtenerBoleta(boletaId.toInt())
             .collectAsState(initial = null)
 
+        // ----------- Cargando -----------
         if (boleta == null) {
             Box(
                 modifier = Modifier
@@ -112,9 +114,15 @@ fun BoletaDetalleScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        detalles.forEach {
-                            if (it.isNotBlank()) {
-                                val p = it.split("|")
+                        detalles.forEach { linea ->
+                            if (linea.isNotBlank()) {
+                                val p = linea.split("|")
+
+                                // p[0] = ID
+                                // p[1] = Nombre
+                                // p[2] = Cantidad
+                                // p[3] = Total línea
+
                                 if (p.size >= 4) {
                                     Text(
                                         "- ${p[1]} x${p[2]} = $${p[3]}",
@@ -138,9 +146,9 @@ fun BoletaDetalleScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // ---------- Volver ----------
+                // ---------- Botón volver ----------
                 Button(
-                    onClick = onVolver,
+                    onClick = { navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GamerGreen,
                         contentColor = JetBlack
@@ -153,5 +161,5 @@ fun BoletaDetalleScreen(
                 }
             }
         }
-    })
+    }
 }

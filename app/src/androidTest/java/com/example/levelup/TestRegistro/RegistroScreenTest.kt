@@ -29,7 +29,7 @@ class RegistroScreenTest {
             .allowMainThreadQueries()
             .build()
 
-        val repo = UsuariosRepository(db.usuarioDao())
+        val repo = UsuariosRepository(db.usuarioDao()
 
         return UsuariosViewModel(repo)
     }

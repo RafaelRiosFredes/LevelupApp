@@ -4,6 +4,7 @@ package com.example.levelup.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -16,34 +17,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun ProductoScreen(
+    navController: NavController,
     productosViewModel: ProductosViewModel,
     carritoViewModel: CarritoViewModel,
-    id: Int,
-    onNavigateBack: () -> Unit
+    id: Int
 ) {
-    DrawerGlobal({
-        // NOTA: para esta pantalla normalmente se usa fuera del drawer,
-        // pero si la quieres dentro, cambia la firma para recibir NavController.
-    })
+
+    DrawerGlobal(navController = navController) {   // ← AHORA SÍ SE USA DRAWERGLOBAL
+
+        ProductoContent(
+            navController = navController,
+            productosViewModel = productosViewModel,
+            carritoViewModel = carritoViewModel,
+            id = id
+        )
+    }
 }
 
-// Si prefieres, usa la versión sin drawer (como tenías antes):
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductoScreenSimple(
+private fun ProductoContent(
+    navController: NavController,
     productosViewModel: ProductosViewModel,
     carritoViewModel: CarritoViewModel,
-    id: Int,
-    onNavigateBack: () -> Unit
+    id: Int
 ) {
+
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
     val producto by productoFlow.collectAsState(initial = null)
 
@@ -61,7 +71,7 @@ fun ProductoScreenSimple(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Volver",
@@ -146,7 +156,7 @@ fun ProductoScreenSimple(
                         containerColor = Color(0xFF39FF14),
                         contentColor = Color.Black
                     ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
+                    shape = RoundedCornerShape(50),
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(60.dp)

@@ -16,7 +16,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AirlineSeatReclineExtra
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.CatchingPokemon
+import androidx.compose.material.icons.filled.Checkroom
+import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Mouse
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +41,7 @@ import com.example.levelup.R
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 
+
 data class Categoria(
     val nombre: String,
     val icono: androidx.compose.ui.graphics.vector.ImageVector
@@ -44,26 +53,26 @@ fun PantallaPrincipal(
     onNavigate: (String) -> Unit,
     onLogout: () -> Unit
 ) {
-    DrawerGlobal({
+
+    // =====================================================
+    //       DRAWER GLOBAL (maneja el menú lateral)
+    // =====================================================
+    DrawerGlobal(navController = navController) {
 
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    navigationIcon = {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = "Menú",
-                            tint = GamerGreen
-                        )
-                    },
                     title = {
                         Text(
                             text = "LevelUp Gamer",
                             color = GamerGreen,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
                         )
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Black
+                    )
                 )
             },
             containerColor = Color.Black
@@ -75,11 +84,12 @@ fun PantallaPrincipal(
                     .padding(innerPadding)
                     .background(Color.Black)
             ) {
+
                 BannerPrincipal()
                 CategoriasSection()
             }
         }
-    })
+    }
 }
 
 @Composable
@@ -91,6 +101,7 @@ fun BannerPrincipal() {
 
     var currentIndex by remember { mutableStateOf(0) }
 
+    // Rotación automática
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(4000L)
@@ -106,17 +117,20 @@ fun BannerPrincipal() {
         },
         label = "banner"
     ) { index ->
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(220.dp)
         ) {
+
             Image(
                 painter = rememberAsyncImagePainter(imagenes[index]),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
+
             Text(
                 text = "LEVEL UP TU EXPERIENCIA GAMER",
                 color = Color(0xFF00AAFF),
@@ -134,6 +148,7 @@ fun BannerPrincipal() {
 
 @Composable
 fun CategoriasSection() {
+
     val categorias = listOf(
         Categoria("Juegos de Mesa", Icons.Default.Casino),
         Categoria("Accesorios", Icons.Default.Headphones),

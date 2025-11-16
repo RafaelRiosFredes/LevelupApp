@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -9,16 +12,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.ui.components.DrawerGlobal
+import com.example.levelup.ui.theme.GamerGreen
+import com.example.levelup.ui.theme.JetBlack
+import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
-import com.example.levelup.ui.components.DrawerGlobal   // ← IMPORTANTE
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ======================================================
+//          PANTALLA PRINCIPAL CON DRAWER
+// ======================================================
+
 @Composable
 fun EditUsuarioScreen(
     navController: NavController,
@@ -29,17 +39,14 @@ fun EditUsuarioScreen(
     onCancel: () -> Unit
 ) {
 
-    // --- Seguridad admin ---
+    // Seguridad admin
     LaunchedEffect(Unit) {
-        if (currentUserRol != "admin") {
-            onCancel()
-        }
+        if (currentUserRol != "admin") onCancel()
     }
 
-    // ============================
-    //     ENVOLVER EN DRAWER
-    // ============================
-    DrawerGlobal() {
+    // Drawer corregido
+    DrawerGlobal(navController = navController) {
+
         EditUsuarioContent(
             usuariosViewModel = usuariosViewModel,
             userId = userId,
@@ -49,9 +56,8 @@ fun EditUsuarioScreen(
     }
 }
 
-
 // ======================================================
-//     CONTENIDO REAL DE LA PANTALLA (NO SE ROMPE NADA)
+//               CONTENIDO DE LA PANTALLA
 // ======================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,6 +83,7 @@ private fun EditUsuarioContent(
     var fotoBytes by remember { mutableStateOf<ByteArray?>(null) }
     var fotoBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
 
+    // Cargar datos iniciales
     LaunchedEffect(usuario) {
         usuario?.let {
             nombres = it.nombres
@@ -94,12 +101,20 @@ private fun EditUsuarioContent(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Editar Usuario") }) }
+        containerColor = JetBlack,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Editar usuario", color = GamerGreen) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = JetBlack
+                )
+            )
+        }
     ) { padding ->
 
         if (usuario == null) {
             Box(Modifier.fillMaxSize(), Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = GamerGreen)
             }
             return@Scaffold
         }
@@ -108,10 +123,14 @@ private fun EditUsuarioContent(
             Modifier
                 .padding(padding)
                 .padding(16.dp)
+                .fillMaxSize()
         ) {
-
+            // =============== FOTO PERFIL ===============
             Box(
-                Modifier.size(80.dp).clip(CircleShape),
+                Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .border(3.dp, GamerGreen, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 if (fotoBitmap != null) {
@@ -120,43 +139,33 @@ private fun EditUsuarioContent(
                         contentDescription = "",
                         modifier = Modifier.fillMaxSize()
                     )
-                } else Text("Foto")
+                } else {
+                    Text("Foto", color = PureWhite)
+                }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
-            OutlinedTextField(
-                value = nombres, onValueChange = { nombres = it },
-                label = { Text("Nombres") }, modifier = Modifier.fillMaxWidth()
-            )
+            // =============== CAMPOS ===============
 
-            Spacer(Modifier.height(12.dp))
+            StyledTextField("Nombres", nombres) { nombres = it }
 
-            OutlinedTextField(
-                value = apellidos, onValueChange = { apellidos = it },
-                label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth()
-            )
+            StyledTextField("Apellidos", apellidos) { apellidos = it }
 
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = correo, onValueChange = { correo = it },
-                label = { Text("Correo") }, modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(12.dp))
+            StyledTextField("Correo", correo) { correo = it }
 
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = { contrasena = it },
-                label = { Text("Contraseña") },
+                label = { Text("Contraseña", color = PureWhite) },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = gamerColors()
             )
 
             Spacer(Modifier.height(12.dp))
 
-            // Rol dropdown
+            // =============== DROPDOWN ROL ===============
             var expanded by remember { mutableStateOf(false) }
 
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
@@ -164,10 +173,11 @@ private fun EditUsuarioContent(
                     value = rol,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Rol") },
+                    label = { Text("Rol", color = PureWhite) },
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    colors = gamerColors()
                 )
 
                 ExposedDropdownMenu(
@@ -186,38 +196,79 @@ private fun EditUsuarioContent(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
+            // =============== BOTONES ===============
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onCancel) { Text("Cancelar") }
+                TextButton(onClick = onCancel) {
+                    Text("Cancelar", color = PureWhite)
+                }
+
                 Spacer(Modifier.width(12.dp))
 
-                Button(onClick = {
-                    val actualizado = UsuarioEntity(
-                        id = userId,
-                        nombres = nombres,
-                        apellidos = apellidos,
-                        correo = correo,
-                        contrasena = contrasena,
-                        telefono = usuario?.telefono,
-                        fechaNacimiento = usuario?.fechaNacimiento,
-                        fotoPerfil = fotoBytes,
-                        duoc = usuario?.duoc ?: false,
-                        descApl = usuario?.descApl ?: false,
-                        rol = rol
-                    )
+                Button(
+                    onClick = {
+                        val actualizado = UsuarioEntity(
+                            id = userId,
+                            nombres = nombres,
+                            apellidos = apellidos,
+                            correo = correo,
+                            contrasena = contrasena,
+                            telefono = usuario?.telefono,
+                            fechaNacimiento = usuario?.fechaNacimiento,
+                            fotoPerfil = fotoBytes,
+                            duoc = usuario?.duoc ?: false,
+                            descApl = usuario?.descApl ?: false,
+                            rol = rol
+                        )
 
-                    scope.launch {
-                        usuariosViewModel.actualizarUsuario(actualizado)
-                        onSaved()
-                    }
-                }) {
+                        scope.launch {
+                            usuariosViewModel.actualizarUsuario(actualizado)
+                            onSaved()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamerGreen,
+                        contentColor = JetBlack
+                    )
+                ) {
                     Text("Guardar")
                 }
             }
         }
     }
 }
+
+// ======================================================
+//      COMPONENTE REUTILIZABLE PARA CAMPOS GAMER
+// ======================================================
+
+@Composable
+private fun StyledTextField(
+    titulo: String,
+    valor: String,
+    onValue: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onValue,
+        label = { Text(titulo, color = PureWhite) },
+        modifier = Modifier.fillMaxWidth(),
+        textStyle = androidx.compose.ui.text.TextStyle(color = PureWhite),
+        colors = gamerColors()
+    )
+
+    Spacer(Modifier.height(12.dp))
+}
+
+@Composable
+private fun gamerColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = GamerGreen,
+    unfocusedBorderColor = Color.DarkGray,
+    cursorColor = GamerGreen,
+    focusedTextColor = PureWhite,
+    unfocusedTextColor = PureWhite
+)
