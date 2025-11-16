@@ -148,16 +148,17 @@ fun DrawerGlobal(
                             scope.launch { drawerState.close() }
                         }
                     )
+
+                    DrawerItem(
+                        label = "Historial de Boletas",
+                        icon = Icons.Default.List,
+                        onClick = {
+                            navController.navigate("historial_boletas")
+                            scope.launch { drawerState.close() }
+                        }
+                    )
                 }
 
-                DrawerItem(
-                    label = "Historial de Boletas",
-                    icon = Icons.Default.List,
-                    onClick = {
-                        navController.navigate("historial_boletas")
-                        scope.launch { drawerState.close() }
-                    }
-                )
 
 
                 // -----------------------
