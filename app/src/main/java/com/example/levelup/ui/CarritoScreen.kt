@@ -141,9 +141,9 @@ fun CarritoScreen(
                                 descuento = 0,
                                 fechaEmision = fecha,
                                 usuarioIdBackend = usuarioActual,
-                                usuarioNombre = "",
-                                usuarioApellidos = "",
-                                usuarioCorreo = "",
+                                usuarioNombre = UserSession.nombre,
+                                usuarioApellidos = UserSession.apellidos,
+                                usuarioCorreo = UserSession.correo,
                                 detalleTexto = detalleTexto
                             )
 
@@ -161,6 +161,7 @@ fun CarritoScreen(
                     ) {
                         Text("Finalizar compra", fontSize = 16.sp)
                     }
+
                 }
             }
         }

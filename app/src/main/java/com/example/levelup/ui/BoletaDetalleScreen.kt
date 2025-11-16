@@ -92,10 +92,19 @@ fun BoletaDetalleScreen(
                         Spacer(Modifier.height(8.dp))
 
                         Text("Fecha: ${boleta!!.fechaEmision}", color = PureWhite)
-                        Text("Cliente: ${boleta!!.usuarioNombre} ${boleta!!.usuarioApellidos}", color = PureWhite)
-                        Text("Correo: ${boleta!!.usuarioCorreo}", color = PureWhite)
+
+                        Text(
+                            "Cliente: ${boleta!!.usuarioNombre ?: "Sin nombre"} ${boleta!!.usuarioApellidos ?: ""}",
+                            color = PureWhite
+                        )
+
+                        Text(
+                            "Correo: ${boleta!!.usuarioCorreo ?: "Sin correo"}",
+                            color = PureWhite
+                        )
                     }
                 }
+
 
                 // ---------- Detalle ----------
                 Card(

@@ -52,6 +52,34 @@ fun DrawerGlobal(
                     }
                 )
 
+                    // -----------------------
+                    // OPCIONES PARA INVITADOS
+                    // -----------------------
+                if (!UserSession.isLogged()) {
+
+                    DrawerItem(
+                        label = "Iniciar sesión",
+                        icon = Icons.Default.Login,
+                        onClick = {
+                            navController.navigate("login") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                            scope.launch { drawerState.close() }
+                        }
+                    )
+
+                    DrawerItem(
+                        label = "Regístrate",
+                        icon = Icons.Default.PersonAdd,
+                        onClick = {
+                            navController.navigate("registro")
+                            scope.launch { drawerState.close() }
+                        }
+                    )
+
+                    Divider(color = Color.DarkGray)
+                }
+
                 DrawerItem(
                     label = "Productos",
                     icon = Icons.Default.ShoppingCart,
@@ -123,19 +151,22 @@ fun DrawerGlobal(
                 }
 
                 // -----------------------
-                // CERRAR SESIÓN
+                // CERRAR SESIÓN (solo si está logueado)
                 // -----------------------
-                DrawerItem(
-                    label = "Cerrar sesión",
-                    icon = Icons.Default.ExitToApp,
-                    onClick = {
-                        UserSession.logout()
-                        navController.navigate("login") {
-                            popUpTo("login") { inclusive = true }
+                if (UserSession.isLogged()) {
+                    DrawerItem(
+                        label = "Cerrar sesión",
+                        icon = Icons.Default.ExitToApp,
+                        onClick = {
+                            UserSession.logout()
+                            navController.navigate("login") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                            scope.launch { drawerState.close() }
                         }
-                        scope.launch { drawerState.close() }
-                    }
-                )
+                    )
+                }
+
             }
         }
     ) {
