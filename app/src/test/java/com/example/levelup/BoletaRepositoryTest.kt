@@ -25,9 +25,9 @@ class BoletaRepositoryTest {
         repository = BoletaRepository(dao, api)
     }
 
-    // ------------------------------------------------------------------
+
     // Funciones auxiliares
-    // ------------------------------------------------------------------
+
 
     private fun crearUsuarioDTO() = UsuarioBoletaDTO(
         id = 10,
@@ -74,9 +74,7 @@ class BoletaRepositoryTest {
         detalleTexto = "Mouse x2 = 10000"
     )
 
-    // ------------------------------------------------------------------
     // TESTS
-    // ------------------------------------------------------------------
 
     @Test
     fun `crearBoletaBackend - inserta entidad convertida en DAO`() = runTest {

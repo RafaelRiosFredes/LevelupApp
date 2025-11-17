@@ -54,9 +54,7 @@ class UsuariosViewModelTest {
         backendId = backendId
     )
 
-    // ------------------------------------------------------------------
-    // TESTS
-    // ------------------------------------------------------------------
+    //Test
 
     @Test
     fun `insertarUsuario llama repository_insertar`() = runTest {

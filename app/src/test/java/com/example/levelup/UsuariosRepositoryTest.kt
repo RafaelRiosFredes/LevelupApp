@@ -25,9 +25,6 @@ class UsuariosRepositoryTest {
         repository = UsuariosRepository(dao, api)
     }
 
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
     private fun crearEntity(
         backendId: Long? = 100L
     ) = UsuarioEntity(
@@ -61,9 +58,7 @@ class UsuariosRepositoryTest {
         rol = "user"
     )
 
-    // ------------------------------------------------------------------
-    // TESTS
-    // ------------------------------------------------------------------
+    // Test
 
     @Test
     fun `crearUsuarioBackend inserta entidad convertida en DAO`() = runTest {

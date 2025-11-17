@@ -30,8 +30,8 @@ class PantallaPrincipalTest {
 
             PantallaPrincipal(
                 navController = navController,
-                onLogout = {},      // 👉 callback vacío para test
-                onNavigate = {}     // 👉 callback vacío para test
+                onLogout = {},
+                onNavigate = {}
             )
         }
 

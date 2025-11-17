@@ -12,7 +12,7 @@ class NoticiasViewModelTest {
 
     @Test
     fun `ViewModel carga noticias al iniciar`() {
-        // Repositorio falso
+
         val repoMock = mockk<NoticiaRepository>()
 
         val noticiasFake = listOf(

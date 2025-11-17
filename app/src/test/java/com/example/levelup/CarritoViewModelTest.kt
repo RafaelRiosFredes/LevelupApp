@@ -36,7 +36,6 @@ class CarritoViewModelTest {
         // Mock del repositorio
         repository = mockk(relaxed = true)
 
-        // USAR Application REAL de Robolectric
         val app: Application = ApplicationProvider.getApplicationContext()
 
         // Crear el ViewModel MANUALMENTE sin que pase por AppDatabase

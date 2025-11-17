@@ -26,9 +26,7 @@ class ProductosRepositoryTest {
         repository = ProductosRepository(dao, api)
     }
 
-    // ============================================================
     //  Funciones auxiliares para crear DTO y Entity
-    // ============================================================
 
     private fun crearDTO(
         id: Long = 1L,
@@ -60,9 +58,8 @@ class ProductosRepositoryTest {
         )
     }
 
-    // ============================================================
-    //  TEST 1: Obtener desde backend guarda en BD
-    // ============================================================
+    // Test
+
     @Test
     fun `obtenerProductoDesdeBackend guarda la entidad convertida en dao`() = runTest {
         val dto = crearDTO(id = 10)
@@ -81,9 +78,6 @@ class ProductosRepositoryTest {
         }
     }
 
-    // ============================================================
-    //  TEST 2: Crear producto backend guarda en dao
-    // ============================================================
     @Test
     fun `crearProducto llama API y luego inserta entidad`() = runTest {
         val entity = crearEntity()
@@ -96,9 +90,6 @@ class ProductosRepositoryTest {
         coVerify { dao.insertar(any()) }
     }
 
-    // ============================================================
-    //  TEST 3: Actualizar backend cuando backendId existe
-    // ============================================================
     @Test
     fun `actualizarProductoBackend actualiza en dao si backendId existe`() = runTest {
         val entity = crearEntity(backendId = 20)
@@ -111,9 +102,6 @@ class ProductosRepositoryTest {
         coVerify { dao.actualizar(any()) }
     }
 
-    // ============================================================
-    //  TEST 4: No actualiza si backendId es null
-    // ============================================================
     @Test
     fun `actualizarProductoBackend NO llama API si backendId es null`() = runTest {
         val entity = crearEntity(backendId = null)
@@ -123,9 +111,7 @@ class ProductosRepositoryTest {
         coVerify(exactly = 0) { api.actualizarProducto(any(), any()) }
     }
 
-    // ============================================================
-    //  TEST 5: Eliminar backend y luego en Room
-    // ============================================================
+
     @Test
     fun `eliminarProductoBackend elimina en API y luego en dao`() = runTest {
         val entity = crearEntity(backendId = 44)
@@ -137,9 +123,7 @@ class ProductosRepositoryTest {
         coVerify { dao.eliminar(entity) }
     }
 
-    // ============================================================
-    //  TEST 6: Sincronizar productos
-    // ============================================================
+
     @Test
     fun `sincronizarProductosDesdeBackend elimina todo y guarda lista nueva`() = runTest {
         val listaDTO = listOf(

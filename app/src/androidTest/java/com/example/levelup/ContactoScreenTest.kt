@@ -16,7 +16,7 @@ class ContactoScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    // Crea navController de prueba (obligatorio porque tu pantalla lo pide)
+    // Crea navController de prueba
     private fun navController() = TestNavHostController(
         ApplicationProvider.getApplicationContext()
     )
