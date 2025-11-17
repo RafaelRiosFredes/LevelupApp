@@ -7,7 +7,7 @@ object RetrofitBuilder {
 
     // Cuando tengas backend real, cambia esta URL:
     // private const val BASE_URL = "http://TU-IP:8080/api/"
-    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
+    private const val BASE_URL = "http://10.0.2.2:8080/api/"
 
     // Instancia única de Retrofit
     private val retrofit: Retrofit by lazy {
@@ -16,6 +16,14 @@ object RetrofitBuilder {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
+    // ============================
+    //   API DE AUTH / USUARIOS
+    // ============================
+    val authApi: AuthApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
+    }
+
 
     // ============================
     //   API DE PRODUCTOS

@@ -7,10 +7,13 @@ interface ProductosApiService {
 
 
     @GET("productos")
-    suspend fun obtenerProductos(): List<ProductosDTO>
+    suspend fun obtenerProductos(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): PageProductosRemoteDTO
 
     @GET("productos/{id}")
-    suspend fun obtenerProductoPorId(@Path("id") id: Long): ProductosDTO
+    suspend fun obtenerProductoPorId(@Path("id") id: Long): ProductoRemoteDTO
 
 
     @POST("productos")

@@ -14,7 +14,7 @@ class UsuariosViewModelFactoryApp(private val app: Application) : ViewModelProvi
         val dao = db.usuarioDao()
         val api = RetrofitBuilder.usuariosApi
 
-        val repo = UsuariosRepository(dao, api)
+        val repo = UsuariosRepository(dao, api, authApi = RetrofitBuilder.authApi)
 
         if (modelClass.isAssignableFrom(UsuariosViewModel::class.java)) {
             return UsuariosViewModel(app, repo) as T

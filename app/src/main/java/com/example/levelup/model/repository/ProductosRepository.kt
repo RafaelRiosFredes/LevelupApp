@@ -89,7 +89,9 @@ class ProductosRepository(
 
     suspend fun sincronizarProductosDesdeBackend() {
         try {
-            val productosRemotos = api.obtenerProductos()
+            val page = api.obtenerProductos()
+            val productosRemotos = page.content
+
             val entidades = productosRemotos.map { it.toEntity() }
 
             dao.eliminarTodos()

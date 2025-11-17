@@ -1,6 +1,7 @@
 package com.example.levelup.remote.mappers
 
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.remote.ProductoRemoteDTO
 import com.example.levelup.remote.ProductosDTO
 
 // DTO → ENTITY
@@ -25,3 +26,12 @@ fun ProductosEntity.toDTO(): ProductosDTO {
         imagenUrl = this.imagenUrl
     )
 }
+
+fun ProductoRemoteDTO.toEntity(): ProductosEntity =
+    ProductosEntity(
+        id = idProducto,
+        nombre = nombreProducto,
+        precio = precio.toDouble(),
+        descripcion = descripcion,
+        imagenUrl = imagenes.firstOrNull()?.url ?: ""
+    )

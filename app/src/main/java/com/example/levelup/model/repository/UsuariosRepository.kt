@@ -2,14 +2,19 @@ package com.example.levelup.model.repository
 
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.data.UsuariosDao
+import com.example.levelup.remote.AuthApiService
+import com.example.levelup.remote.RegistroUsuarioRemoteDTO
 import com.example.levelup.remote.UsuariosApiService
 import com.example.levelup.remote.mappers.toDTO
 import com.example.levelup.remote.mappers.toEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class UsuariosRepository(
     private val dao: UsuariosDao,
-    private val api: UsuariosApiService
+    private val api: UsuariosApiService,
+    private val authApi: AuthApiService
 ) {
 
     // ROOM
@@ -60,4 +65,56 @@ class UsuariosRepository(
             dao.insertarUsuarios(entidades)
         } catch (_: Exception) {}
     }
+
+    suspend fun registrarUsuarioBackendYLocal(
+        nombres: String,
+        apellidos: String,
+        correo: String,
+        contrasena: String,
+        telefono: Long?,
+        fechaNacimiento: String,
+        fotoPerfilBase64: String?,
+        duoc: Boolean,
+        descApl: Boolean,
+        rol: String
+    ): Result<UsuarioEntity> = withContext(Dispatchers.IO) {
+        try {
+            // 1. DTO remoto
+            val tel = telefono ?: 0L  // si tu backend exige no-nulo
+            val dtoRemoto = RegistroUsuarioRemoteDTO(
+                nombres = nombres,
+                apellidos = apellidos,
+                correo = correo,
+                contrasena = contrasena,
+                telefono = tel,
+                fechaNacimiento = fechaNacimiento   // "YYYY-MM-DD"
+            )
+
+            // 2. Llamada al backend
+            val resp = authApi.registrar(dtoRemoto)
+
+            // 3. Mapear respuesta a tu entity local
+            val entity = UsuarioEntity(
+                id = resp.idUsuario.toInt(), // si tu entity usa Int
+                nombres = resp.nombres,
+                apellidos = resp.apellidos,
+                correo = resp.correo,
+                contrasena = contrasena, // NO viene en la respuesta
+                telefono = resp.telefono,
+                fechaNacimiento = resp.fechaNacimiento,
+                // dejamos lógica local para esto:
+                fotoPerfil = fotoPerfilBase64,
+                duoc = duoc,
+                descApl = descApl,
+                rol = rol
+            )
+
+            dao.insertar(entity)
+
+            Result.success(entity)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}
 }
