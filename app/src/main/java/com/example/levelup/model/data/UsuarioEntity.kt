@@ -18,5 +18,5 @@ data class UsuarioEntity(
     val duoc: Boolean = false,
     val descApl: Boolean = false,
     val rol: String = "user",
-    val backendId: Long? = null // ID del backend
+    val backendId: Long? = null
 )

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -32,6 +33,7 @@ import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 @Composable
 fun CarritoScreen(
@@ -55,11 +57,7 @@ fun CarritoScreen(
                     title = { Text("Tu Carrito", color = GamerGreen, fontSize = 20.sp) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = "Volver",
-                                tint = GamerGreen
-                            )
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = GamerGreen)
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -87,9 +85,7 @@ fun CarritoScreen(
 
                 } else {
 
-                    LazyColumn(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    LazyColumn(modifier = Modifier.weight(1f)) {
                         items(carrito) { item ->
                             CarritoItem(
                                 item = item,
@@ -107,16 +103,14 @@ fun CarritoScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Total:", color = PureWhite, fontSize = 18.sp)
-                        Text(
-                            "$${String.format("%.2f", total)}",
-                            color = GamerGreen,
-                            fontSize = 18.sp
-                        )
+                        Text("$${String.format("%.2f", total)}", color = GamerGreen, fontSize = 18.sp)
                     }
 
                     Spacer(Modifier.height(12.dp))
 
-                    // -------- Botón Finalizar Compra --------
+                    // -------------------------------------
+                    // -------- FINALIZAR COMPRA ----------
+                    // -------------------------------------
                     Button(
                         onClick = {
 
@@ -125,44 +119,52 @@ fun CarritoScreen(
                                 return@Button
                             }
 
-                            val productos = carrito
-
-                            val detalleTexto = productos.joinToString("\n") {
-                                "${it.productoId}|${it.nombre}|${it.cantidad}|${it.precio}"
-                            }
-
-                            val fecha = SimpleDateFormat(
-                                "yyyy-MM-dd HH:mm",
-                                Locale.getDefault()
-                            ).format(Date())
-
-                            // Obtener correo real desde UserSession
+                            // DESCUENTO POR CORREO DUOC
                             val correoUsuario = UserSession.correo ?: ""
-
-                            // Aplicar 20% si es @duocuc.cl
                             val descuentoAplicado = if (correoUsuario.endsWith("duocuc.cl")) 20 else 0
 
-                            // Total con descuento
-                            val totalFinal = if (descuentoAplicado > 0) {
-                                (total * 0.8).toLong()
-                            } else total.toLong()
+                            // Total bruto (sin descuento) como Long
+                            val totalSinDescuento = total.toLong()
 
-                            val boleta = BoletaEntity(
+                            // Total final con descuento
+                            val totalFinal = if (descuentoAplicado > 0)
+                                (total * 0.8).toLong()
+                            else totalSinDescuento
+
+                            // LA BOLETA QUE SE ENVÍA AL BACKEND
+                            val boletaEntityTemp = BoletaEntity(
                                 total = totalFinal,
+                                totalSinDescuento = totalSinDescuento,
+                                descuentoDuocAplicado = descuentoAplicado > 0,
                                 descuento = descuentoAplicado,
-                                fechaEmision = fecha,
+                                fechaEmision = SimpleDateFormat(
+                                    "yyyy-MM-dd HH:mm",
+                                    Locale.getDefault()
+                                ).format(Date()),
                                 usuarioIdBackend = usuarioActual,
                                 usuarioNombre = UserSession.nombre,
                                 usuarioApellidos = UserSession.apellidos,
                                 usuarioCorreo = UserSession.correo,
-                                detalleTexto = detalleTexto
+                                detalleTexto = carrito.joinToString("\n") {
+                                    "${it.productoId}|${it.nombre}|${it.cantidad}|${it.precio}"
+                                }
                             )
 
                             scope.launch {
-                                val idLocal = boletaViewModel.crearBoletaRoom(boleta).toInt()
-                                carritoViewModel.vaciarCarrito()
-                                navController.navigate("boleta_detalle/$idLocal")
+
+                                // 1. CREAR BOLETA EN BACKEND (y guardar en Room)
+                                val boletaBackend = boletaViewModel.crearBoletaBackend(boletaEntityTemp)
+
+                                if (boletaBackend != null) {
+
+                                    // 2. VACIAR CARRITO
+                                    carritoViewModel.vaciarCarrito()
+
+                                    // 3. NAVEGAR A DETALLE CON EL ID LOCAL DE ROOM
+                                    navController.navigate("boleta_detalle/${boletaBackend.id}")
+                                }
                             }
+
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
@@ -170,8 +172,9 @@ fun CarritoScreen(
                             contentColor = JetBlack
                         )
                     ) {
-                        Text("Finalizar compra", fontSize = 16.sp)
+                        Text("Finalizar compra", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
+
 
                 }
             }
@@ -229,3 +232,5 @@ fun CarritoItem(
         }
     }
 }
+
+

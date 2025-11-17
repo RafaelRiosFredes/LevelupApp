@@ -30,16 +30,16 @@ class BoletaRepository(
 
     suspend fun crearBoletaBackend(boleta: BoletaEntity): BoletaEntity? {
         return try {
-            // 1️⃣ Convertir BoletaEntity → BoletaCreateDTO (lo que backend pide)
+            // Convertir BoletaEntity → BoletaCreateDTO (lo que backend pide)
             val dtoRespuesta = api.crearBoleta(boleta.toCreateDTO())
 
-            // 2️⃣ Convertir respuesta del backend → Entity de Room
+            //  Convertir respuesta del backend → Entity de Room
             val entity = dtoRespuesta.toEntity()
 
-            // 3️⃣ Guardar en Room
+            // Guarda en Room
             dao.insertar(entity)
 
-            // 4️⃣ Retornar la entidad ya guardada
+            // Retornar la entidad ya guardada
             entity
         } catch (e: Exception) {
             e.printStackTrace()

@@ -50,6 +50,7 @@ android {
 dependencies {
 
     implementation(libs.androidx.navigation.testing)
+    implementation(libs.androidx.compose.ui.text)
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.3")
     // --------------------------
     // VERSIONES
