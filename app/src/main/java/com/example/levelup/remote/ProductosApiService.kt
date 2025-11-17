@@ -8,9 +8,14 @@ interface ProductosApiService {
 
     @GET("productos")
     suspend fun obtenerProductos(
+        @Query("nombre") nombre: String? = null,
+        @Query("idCategoria") idCategoria: Long? = null,
+        @Query("minPrecio") minPrecio: Long? = null,
+        @Query("maxPrecio") maxPrecio: Long? = null,
         @Query("page") page: Int = 0,
-        @Query("size") size: Int = 20
-    ): PageProductosRemoteDTO
+        @Query("size") size: Int = 20,
+        @Query("sort") sort: String = "idProducto,asc"
+    ): PageRemoteDTO<ProductoRemoteDTO>
 
     @GET("productos/{id}")
     suspend fun obtenerProductoPorId(@Path("id") id: Long): ProductoRemoteDTO
@@ -18,16 +23,15 @@ interface ProductosApiService {
 
     @POST("productos")
     @Headers("Content-Type: application/json")
-    suspend fun crearProducto(@Body producto: ProductosDTO): ProductosDTO
-
+    suspend fun crearProducto(@Body producto: ProductoCreateRemoteDTO): ProductoRemoteDTO
 
 
     @PUT("productos/{id}")
     @Headers("Content-Type: application/json")
     suspend fun actualizarProducto(
         @Path("id") id: Long,
-        @Body producto: ProductosDTO
-    ): ProductosDTO
+        @Body body: ProductoUpdateRemoteDTO
+    ): ProductoRemoteDTO
 
 
     @DELETE("productos/{id}")

@@ -29,7 +29,7 @@ fun EditProductoScreen(
     navController: NavController,
     productosViewModel: ProductosViewModel,
     currentUserRol: String,
-    productId: Int,
+    productId: Long,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -62,7 +62,7 @@ fun EditProductoScreen(
 @Composable
 private fun EditProductoContent(
     productosViewModel: ProductosViewModel,
-    productId: Int,
+    productId: Long,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {

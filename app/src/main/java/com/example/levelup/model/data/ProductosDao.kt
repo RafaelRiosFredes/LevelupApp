@@ -19,7 +19,7 @@ interface ProductosDao {
     fun obtenerTodos(): Flow<List<ProductosEntity>>
 
     @Query("SELECT * FROM productos WHERE id = :id LIMIT 1")
-    fun obtenerPorId(id: Int): Flow<ProductosEntity?>
+    fun obtenerPorId(id: Long): Flow<ProductosEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarProductos(productos: List<ProductosEntity>)

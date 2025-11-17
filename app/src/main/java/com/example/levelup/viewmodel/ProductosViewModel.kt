@@ -27,7 +27,7 @@ class ProductosViewModel(
         repository.insertarProducto(producto)
     }
 
-    fun obtenerProductoPorId(id: Int): Flow<ProductosEntity?> {
+    fun obtenerProductoPorId(id: Long): Flow<ProductosEntity?> {
         return repository.obtenerProductoPorId(id)
     }
 

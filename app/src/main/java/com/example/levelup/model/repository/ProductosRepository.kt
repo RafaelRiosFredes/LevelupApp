@@ -18,7 +18,7 @@ class ProductosRepository(
 
     fun obtenerProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
-    fun obtenerProductoPorId(id: Int): Flow<ProductosEntity?> = dao.obtenerPorId(id)
+    fun obtenerProductoPorId(id: Long): Flow<ProductosEntity?> = dao.obtenerPorId(id)
 
     suspend fun insertarProducto(producto: ProductosEntity) = dao.insertar(producto)
 

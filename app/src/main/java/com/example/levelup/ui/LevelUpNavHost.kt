@@ -61,7 +61,7 @@ fun LevelUpNavHost(
         }
 
         composable("producto/{id}") { backStack ->
-            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0
             ProductoScreen(
                 navController = navController,
                 productosViewModel = productosViewModel,
@@ -137,7 +137,7 @@ fun LevelUpNavHost(
         }
 
         composable("edit_producto/{id}") { backStack ->
-            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0
 
             EditProductoScreen(
                 navController = navController,

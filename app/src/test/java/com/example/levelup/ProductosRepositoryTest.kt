@@ -45,16 +45,19 @@ class ProductosRepositoryTest {
     }
 
     private fun crearEntity(
-        id: Int = 1,
+        id: Long = 1,
         backendId: Long? = null
     ): ProductosEntity {
         return ProductosEntity(
-            id = id,
+            idProducto = id,
             backendId = backendId,
             nombre = "Producto Test",
-            precio = 999.0,
+            precio = 999,
             descripcion = "Descripción test",
-            imagenUrl = "https://test.com/img.png"
+            imagenUrl = "https://test.com/img.png",
+            stock = 100,
+            categoriaId = 1,
+            categoriaNombre = "Categoria 1"
         )
     }
 

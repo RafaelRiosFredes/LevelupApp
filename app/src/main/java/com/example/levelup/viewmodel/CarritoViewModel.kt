@@ -29,7 +29,7 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         repository = repositoryTest
     }
 
-    fun agregarProducto(productoId: Int, nombre: String, precio: Double, imagenUrl: String) {
+    fun agregarProducto(productoId: Long, nombre: String, precio: Double, imagenUrl: String) {
         viewModelScope.launch {
             val producto = CarritoEntity(
                 productoId = productoId,

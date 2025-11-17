@@ -30,7 +30,7 @@ fun ProductoScreen(
     navController: NavController,
     productosViewModel: ProductosViewModel,
     carritoViewModel: CarritoViewModel,
-    id: Int
+    id: Long
 ) {
 
     DrawerGlobal(navController = navController) {   // ← AHORA SÍ SE USA DRAWERGLOBAL
@@ -51,7 +51,7 @@ private fun ProductoContent(
     navController: NavController,
     productosViewModel: ProductosViewModel,
     carritoViewModel: CarritoViewModel,
-    id: Int
+    id: Long
 ) {
 
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
