@@ -103,7 +103,8 @@ fun CarritoScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Total:", color = PureWhite, fontSize = 18.sp)
-                        Text("$${String.format("%.2f", total)}", color = GamerGreen, fontSize = 18.sp)
+                        Text("$${total}", color = GamerGreen, fontSize = 18.sp)
+
                     }
 
                     Spacer(Modifier.height(12.dp))

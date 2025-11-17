@@ -29,7 +29,7 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         repository = repositoryTest
     }
 
-    fun agregarProducto(productoId: Long, nombre: String, precio: Double, imagenUrl: String) {
+    fun agregarProducto(productoId: Long, nombre: String, precio: Long, imagenUrl: String?) {
         viewModelScope.launch {
             val producto = CarritoEntity(
                 productoId = productoId,
@@ -63,8 +63,15 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun total(): StateFlow<Double> =
-        carrito.map { lista -> lista.sumOf { it.precio * it.cantidad } }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+        carrito
+            .map { lista ->
+                lista.sumOf { (it.precio * it.cantidad).toDouble() }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                0.0
+            )
 
     fun vaciarCarrito() = viewModelScope.launch {
         repository.eliminarTodo()

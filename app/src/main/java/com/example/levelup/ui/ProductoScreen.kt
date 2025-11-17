@@ -24,7 +24,6 @@ import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun ProductoScreen(
     navController: NavController,
@@ -33,8 +32,7 @@ fun ProductoScreen(
     id: Long
 ) {
 
-    DrawerGlobal(navController = navController) {   // ← AHORA SÍ SE USA DRAWERGLOBAL
-
+    DrawerGlobal(navController = navController) {
         ProductoContent(
             navController = navController,
             productosViewModel = productosViewModel,
@@ -43,7 +41,6 @@ fun ProductoScreen(
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +87,10 @@ private fun ProductoContent(
 
         producto?.let { prod ->
 
+            val imagenSegura = (prod.imagenUrl ?: "").ifBlank {
+                "https://placehold.co/300x300/000000/FFFFFF"
+            }
+
             Column(
                 modifier = Modifier
                     .padding(padding)
@@ -110,7 +111,7 @@ private fun ProductoContent(
                 )
 
                 Image(
-                    painter = rememberAsyncImagePainter(prod.imagenUrl),
+                    painter = rememberAsyncImagePainter(imagenSegura),
                     contentDescription = prod.nombre,
                     modifier = Modifier
                         .size(250.dp)

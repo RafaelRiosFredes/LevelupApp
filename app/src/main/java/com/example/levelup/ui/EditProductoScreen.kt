@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
@@ -19,10 +18,6 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
-
-// =========================================================
-//             PANTALLA PRINCIPAL (CON DRAWER)
-// =========================================================
 
 @Composable
 fun EditProductoScreen(
@@ -34,7 +29,6 @@ fun EditProductoScreen(
     onCancel: () -> Unit
 ) {
 
-    // Permiso admin
     LaunchedEffect(Unit) {
         if (currentUserRol != "admin") {
             navController.navigate("PantallaPrincipal") {
@@ -44,7 +38,6 @@ fun EditProductoScreen(
     }
 
     DrawerGlobal(navController = navController) {
-
         EditProductoContent(
             productosViewModel = productosViewModel,
             productId = productId,
@@ -53,10 +46,6 @@ fun EditProductoScreen(
         )
     }
 }
-
-// =========================================================
-//                 CONTENIDO EDITABLE
-// =========================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,12 +67,11 @@ private fun EditProductoContent(
     var imagenUrl by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
 
-    // Cuando cargue el producto, rellenar campos
     LaunchedEffect(producto) {
         producto?.let {
             nombre = it.nombre
             precio = it.precio.toString()
-            imagenUrl = it.imagenUrl
+            imagenUrl = it.imagenUrl ?: ""
             descripcion = it.descripcion
         }
     }
@@ -119,7 +107,6 @@ private fun EditProductoContent(
                 .padding(20.dp)
         ) {
 
-            // ========= NOMBRE =========
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -137,10 +124,9 @@ private fun EditProductoContent(
 
             Spacer(Modifier.height(12.dp))
 
-            // ========= PRECIO =========
             OutlinedTextField(
                 value = precio,
-                onValueChange = { precio = it.filter { c -> c.isDigit() || c == '.' } },
+                onValueChange = { precio = it.filter { c -> c.isDigit() } },
                 label = { Text("Precio", color = PureWhite) },
                 textStyle = TextStyle(color = PureWhite),
                 modifier = Modifier.fillMaxWidth(),
@@ -155,7 +141,6 @@ private fun EditProductoContent(
 
             Spacer(Modifier.height(12.dp))
 
-            // ========= URL IMAGEN =========
             OutlinedTextField(
                 value = imagenUrl,
                 onValueChange = { imagenUrl = it },
@@ -173,7 +158,6 @@ private fun EditProductoContent(
 
             Spacer(Modifier.height(12.dp))
 
-            // ========= DESCRIPCIÓN =========
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
@@ -203,13 +187,18 @@ private fun EditProductoContent(
 
                 Button(
                     onClick = {
+                        val original = producto!!
+
                         val actualizado = ProductosEntity(
-                            id = productId,
-                            backendId = producto!!.backendId,
+                            id = original.id,
+                            backendId = original.backendId,
                             nombre = nombre,
-                            precio = precio.toDoubleOrNull() ?: 0.0,
                             descripcion = descripcion,
-                            imagenUrl = imagenUrl
+                            precio = precio.toLongOrNull() ?: 0L,
+                            stock = original.stock,
+                            imagenUrl = imagenUrl.ifBlank { null },
+                            categoriaId = original.categoriaId,
+                            categoriaNombre = original.categoriaNombre
                         )
 
                         scope.launch {

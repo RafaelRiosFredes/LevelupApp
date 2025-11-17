@@ -30,7 +30,6 @@ import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun ProductosScreen(
     navController: NavHostController,
@@ -38,7 +37,7 @@ fun ProductosScreen(
     carritoViewModel: CarritoViewModel
 ) {
 
-    DrawerGlobal(navController = navController) {  // ← USO CORRECTO DEL DRAWER
+    DrawerGlobal(navController = navController) {
 
         val productos by productosViewModel.productos.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -128,7 +127,6 @@ fun ProductosScreen(
     }
 }
 
-
 @Composable
 fun ProductoItem(
     producto: ProductosEntity,
@@ -136,7 +134,7 @@ fun ProductoItem(
     onAddToCart: () -> Unit
 ) {
 
-    val imagenSegura = producto.imagenUrl.ifBlank {
+    val imagenSegura = (producto.imagenUrl ?: "").ifBlank {
         "https://placehold.co/300x300/000000/FFFFFF"
     }
 

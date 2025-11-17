@@ -15,6 +15,7 @@ class ProductosViewModelFactoryApp(private val app: Application) : ViewModelProv
         val repo = ProductosRepository(dao, api)
 
         if (modelClass.isAssignableFrom(ProductosViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
             return ProductosViewModel(repo) as T
         }
 

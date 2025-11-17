@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
         CarritoEntity::class,
         BoletaEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -24,7 +24,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuariosDao
     abstract fun productosDao(): ProductosDao
     abstract fun carritoDao(): CarritoDao
-
     abstract fun boletaDao(): BoletasDao
 
     companion object {
@@ -47,32 +46,53 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
+
                         CoroutineScope(Dispatchers.IO).launch {
                             val database = getInstance(context)
                             val dao = database.productosDao()
 
+                            // ================================
+                            //   PRODUCTOS INICIALES CORREGIDOS
+                            // ================================
                             val productosIniciales = listOf(
                                 ProductosEntity(
+                                    id = 0L,                   // id local ROOM
+                                    backendId = null,          // aún no existe en backend
                                     nombre = "Teclado Gamer",
-                                    precio = 12990.0,
                                     descripcion = "Teclado ideal para gamers",
-                                    imagenUrl = "https://mutant.cl/cdn/shop/files/Teclado-Gamer-Tecware-Phantom-L-Red-Switch-Mutant-27972418273349.png?v=1755035408"
+                                    precio = 12990,
+                                    stock = 15,
+                                    imagenUrl = "https://mutant.cl/cdn/shop/files/Teclado-Gamer-Tecware-Phantom-L-Red-Switch-Mutant-27972418273349.png?v=1755035408",
+                                    categoriaId = 1L,
+                                    categoriaNombre = "Accesorios"
                                 ),
                                 ProductosEntity(
+                                    id = 0L,
+                                    backendId = null,
                                     nombre = "Mouse Gamer",
-                                    precio = 39990.0,
                                     descripcion = "Mouse cómodo ideal para tus juegos",
-                                    imagenUrl = "https://s3.amazonaws.com/w3.assets/fotos/27719/1..webp?v=1883517885"
+                                    precio = 39990,
+                                    stock = 20,
+                                    imagenUrl = "https://s3.amazonaws.com/w3.assets/fotos/27719/1..webp?v=1883517885",
+                                    categoriaId = 1L,
+                                    categoriaNombre = "Accesorios"
                                 ),
                                 ProductosEntity(
+                                    id = 0L,
+                                    backendId = null,
                                     nombre = "Camiseta personalizada",
-                                    precio = 7990.0,
                                     descripcion = "Elige el diseño que quieras",
-                                    imagenUrl = "https://iglboards.cl/cdn/shop/files/PoleraNegraIglNinoReverso.jpg?v=1722515395&width=1445"
+                                    precio = 7990,
+                                    stock = 50,
+                                    imagenUrl = "https://iglboards.cl/cdn/shop/files/PoleraNegraIglNinoReverso.jpg?v=1722515395&width=1445",
+                                    categoriaId = 2L,
+                                    categoriaNombre = "Ropa"
                                 )
                             )
+
                             dao.insertarProductos(productosIniciales)
-                            println(" Productos iniciales insertados correctamente en Room")
+
+                            println("✔ Productos iniciales guardados correctamente en ROOM")
                         }
                     }
                 })

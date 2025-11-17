@@ -25,7 +25,7 @@ fun AddProductScreen(
     productosViewModel: ProductosViewModel
 ) {
 
-    // 🔐 Protección: solo admin puede entrar
+    // 🔐 Solo admin
     LaunchedEffect(Unit) {
         if (UserSession.rol != "admin") {
             navController.navigate("PantallaPrincipal") {
@@ -39,6 +39,9 @@ fun AddProductScreen(
         var nombre by remember { mutableStateOf("") }
         var descripcion by remember { mutableStateOf("") }
         var precio by remember { mutableStateOf("") }
+        var stock by remember { mutableStateOf("") }
+        var categoriaId by remember { mutableStateOf("") }
+        var categoriaNombre by remember { mutableStateOf("") }
         var imagenUrl by remember { mutableStateOf("") }
 
         val scope = rememberCoroutineScope()
@@ -46,6 +49,7 @@ fun AddProductScreen(
 
         Scaffold(
             containerColor = JetBlack,
+            snackbarHost = { SnackbarHost(snackbar) },
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Agregar Producto", color = GamerGreen) },
@@ -53,8 +57,7 @@ fun AddProductScreen(
                         containerColor = JetBlack
                     )
                 )
-            },
-            snackbarHost = { SnackbarHost(snackbar) }
+            }
         ) { padding ->
 
             Column(
@@ -62,43 +65,52 @@ fun AddProductScreen(
                     .fillMaxSize()
                     .padding(padding)
                     .padding(20.dp),
-                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 CampoTexto("Nombre", nombre) { nombre = it }
                 CampoTexto("Descripción", descripcion) { descripcion = it }
                 CampoTexto("Precio", precio, KeyboardType.Number) { precio = it }
+                CampoTexto("Stock", stock, KeyboardType.Number) { stock = it }
+                CampoTexto("Categoría ID", categoriaId, KeyboardType.Number) { categoriaId = it }
+                CampoTexto("Nombre Categoría", categoriaNombre) { categoriaNombre = it }
                 CampoTexto("Imagen URL", imagenUrl) { imagenUrl = it }
 
                 Spacer(Modifier.height(25.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-
                     TextButton(onClick = { navController.popBackStack() }) {
                         Text("Cancelar", color = Color.Gray)
                     }
 
                     Button(
                         onClick = {
-                            if (nombre.isBlank() || precio.isBlank()) {
+                            if (nombre.isBlank() || precio.isBlank() || stock.isBlank()
+                                || categoriaId.isBlank() || categoriaNombre.isBlank()
+                            ) {
                                 scope.launch { snackbar.showSnackbar("Faltan campos obligatorios") }
                                 return@Button
                             }
 
                             val nuevoProducto = ProductosEntity(
-                                id = 0,
+                                id = 0L, // ROOM asigna ID local automático
+                                backendId = null,
                                 nombre = nombre.trim(),
                                 descripcion = descripcion.trim(),
-                                precio = precio.toDoubleOrNull() ?: 0.0,
-                                imagenUrl = imagenUrl.trim()
+                                precio = precio.toLongOrNull() ?: 0L,
+                                stock = stock.toIntOrNull() ?: 0,
+                                imagenUrl = imagenUrl.trim().ifBlank { null },
+                                categoriaId = categoriaId.toLongOrNull() ?: 0L,
+                                categoriaNombre = categoriaNombre.trim()
                             )
 
-                            productosViewModel.insertarProducto(nuevoProducto)
-                            navController.popBackStack()
+                            scope.launch {
+                                productosViewModel.insertarProducto(nuevoProducto)
+                                navController.popBackStack()
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                     ) {
@@ -110,9 +122,6 @@ fun AddProductScreen(
     }
 }
 
-// ========================================================
-//                 ✨ CAMPO TEXTO REUTILIZABLE
-// ========================================================
 @Composable
 fun CampoTexto(
     titulo: String,
@@ -123,17 +132,17 @@ fun CampoTexto(
     OutlinedTextField(
         value = valor,
         onValueChange = onChange,
-        label = { Text(titulo) },
+        label = { Text(titulo, color = Color.White) },
         modifier = Modifier.fillMaxWidth(),
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-            keyboardType = tipo
-        ),
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = tipo),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF39FF14),
+            focusedBorderColor = GamerGreen,
             unfocusedBorderColor = Color.DarkGray,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,
-            cursorColor = Color(0xFF39FF14)
+            cursorColor = GamerGreen
         )
     )
+
+    Spacer(Modifier.height(12.dp))
 }

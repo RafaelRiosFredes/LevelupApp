@@ -74,7 +74,6 @@ class ProductosViewModel(
     }
 
     init {
-        // ❗IMPORTANTE: NO sincronizar automáticamente hasta tener backend funcionando
-        // sincronizarProductos()
+        sincronizarProductos()
     }
 }

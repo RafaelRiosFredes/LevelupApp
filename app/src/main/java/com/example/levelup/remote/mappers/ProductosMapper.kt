@@ -1,37 +1,46 @@
 package com.example.levelup.remote.mappers
 
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.remote.ProductoCreateRemoteDTO
 import com.example.levelup.remote.ProductoRemoteDTO
-import com.example.levelup.remote.ProductosDTO
+import com.example.levelup.remote.ProductoUpdateRemoteDTO
 
-// DTO → ENTITY
-fun ProductosDTO.toEntity(): ProductosEntity {
-    return ProductosEntity(
-        id = 0,                    // Room genera id local
-        backendId = this.id,       // ID REAL del backend
-        nombre = this.nombre,
-        precio = this.precio,
-        descripcion = this.descripcion,
-        imagenUrl = this.imagenUrl
-    )
-}
-
-// ENTITY → DTO
-fun ProductosEntity.toDTO(): ProductosDTO {
-    return ProductosDTO(
-        id = this.backendId ?: 0,  // si el backend no ha asignado id
-        nombre = this.nombre,
-        precio = this.precio,
-        descripcion = this.descripcion,
-        imagenUrl = this.imagenUrl
-    )
-}
-
+// ===============================
+//  REMOTO → ENTITY (Room)
+// ===============================
 fun ProductoRemoteDTO.toEntity(): ProductosEntity =
     ProductosEntity(
-        id = idProducto,
+        id = 0L,                         // Room lo autogenera
+        backendId = idProducto,          // id real del backend
         nombre = nombreProducto,
-        precio = precio.toDouble(),
         descripcion = descripcion,
-        imagenUrl = imagenes.firstOrNull()?.url ?: ""
+        precio = precio,
+        stock = stock,
+        imagenUrl = imagenes.firstOrNull()?.url,
+        categoriaId = categoriaId,
+        categoriaNombre = categoriaNombre
+    )
+
+// ===============================
+//  ENTITY → DTO CREATE
+// ===============================
+fun ProductosEntity.toCreateRemote(): ProductoCreateRemoteDTO =
+    ProductoCreateRemoteDTO(
+        nombreProducto = nombre,
+        descripcion = descripcion,
+        precio = precio,
+        stock = stock,
+        categoriaId = categoriaId
+    )
+
+// ===============================
+//  ENTITY → DTO UPDATE
+// ===============================
+fun ProductosEntity.toUpdateRemote(): ProductoUpdateRemoteDTO =
+    ProductoUpdateRemoteDTO(
+        nombreProducto = nombre,
+        descripcion = descripcion,
+        precio = precio,
+        stock = stock,
+        categoriaId = categoriaId
     )
