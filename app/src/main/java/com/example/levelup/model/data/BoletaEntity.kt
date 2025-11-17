@@ -10,6 +10,8 @@ data class BoletaEntity(
 
     val backendId: Long? = null,     // id real del backend (idBoleta)
     val total: Long,
+    val totalSinDescuento: Long,
+    val descuentoDuocAplicado: Boolean,
     val descuento: Int? = null,
     val fechaEmision: String,
     val usuarioIdBackend: Int,

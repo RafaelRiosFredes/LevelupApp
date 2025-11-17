@@ -47,16 +47,13 @@ fun BoletaDetalleScreen(
 
         val detalles = boleta!!.detalleTexto.split("\n")
 
-        // ----------- Calcular Subtotal -----------
-        val subtotal = detalles.sumOf { linea ->
+        // ----------- Calcular subtotal (precio unitario * cantidad) -----------
+        val subtotalCalculado = detalles.sumOf { linea ->
             val p = linea.split("|")
             if (p.size >= 4) p[3].toDouble() else 0.0
         }
 
-        // Descuento en porcentaje (0 o 20)
         val descuento = boleta!!.descuento ?: 0
-
-        // Total ya viene descontado desde Room
         val totalFinal = boleta!!.total
 
         Scaffold(
@@ -86,7 +83,10 @@ fun BoletaDetalleScreen(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
 
-                // ---------- Datos del cliente ----------
+                // -------------------------------------------------------
+                // ---------- Datos del Cliente + Totales Iniciales ------
+                // -------------------------------------------------------
+
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
@@ -117,19 +117,37 @@ fun BoletaDetalleScreen(
 
                         Spacer(Modifier.height(12.dp))
 
-                        // ----- Subtotal -----
-                        Text("Subtotal: $${"%.0f".format(subtotal)}", color = PureWhite)
-
-                        // ----- Descuento -----
+                        // ----- Subtotal calculado -----
                         Text(
-                            "Descuento aplicado: $descuento%",
+                            "Subtotal calculado: $${"%.0f".format(subtotalCalculado)}",
+                            color = PureWhite
+                        )
+
+                        // ----- Subtotal original (sin descuento) -----
+                        Text(
+                            "Subtotal original: $${boleta!!.totalSinDescuento}",
+                            color = PureWhite
+                        )
+
+                        // ----- Descuento DUOC aplicado -----
+                        Text(
+                            "Descuento DUOC aplicado: ${if (boleta!!.descuentoDuocAplicado) "Sí" else "No"}",
+                            color = if (boleta!!.descuentoDuocAplicado) GamerGreen else Color.Red,
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        // ----- Descuento % -----
+                        Text(
+                            "Descuento: $descuento%",
                             color = if (descuento > 0) GamerGreen else PureWhite
                         )
                     }
                 }
 
+                // -------------------------------------------------------
+                // ---------- Detalle de los productos -------------------
+                // -------------------------------------------------------
 
-                // ---------- Detalle productos ----------
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
@@ -163,7 +181,10 @@ fun BoletaDetalleScreen(
                     }
                 }
 
-                // ---------- Total Final ----------
+                // -------------------------------------------------------
+                // ------------------ Total Final ------------------------
+                // -------------------------------------------------------
+
                 Text(
                     "TOTAL FINAL: $${totalFinal}",
                     color = GamerGreen,
@@ -173,7 +194,6 @@ fun BoletaDetalleScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // ---------- Botón volver ----------
                 Button(
                     onClick = { navController.popBackStack() },
                     colors = ButtonDefaults.buttonColors(

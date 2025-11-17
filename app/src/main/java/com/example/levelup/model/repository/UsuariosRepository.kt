@@ -102,8 +102,6 @@ class UsuariosRepository(
                 contrasena = contrasena, // NO viene en la respuesta
                 telefono = resp.telefono,
                 fechaNacimiento = resp.fechaNacimiento,
-                // dejamos lógica local para esto:
-                fotoPerfil = fotoPerfilBase64,
                 duoc = duoc,
                 descApl = descApl,
                 rol = rol
@@ -117,4 +115,4 @@ class UsuariosRepository(
         }
     }
 }
-}
+

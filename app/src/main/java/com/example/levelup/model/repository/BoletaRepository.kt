@@ -3,7 +3,7 @@ package com.example.levelup.model.repository
 import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.model.data.BoletasDao
 import com.example.levelup.remote.BoletaApiService
-import com.example.levelup.remote.mappers.toDTO
+import com.example.levelup.remote.mappers.toCreateDTO
 import com.example.levelup.remote.mappers.toEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -24,12 +24,22 @@ class BoletaRepository(
         dao.insertarBoletas(lista)
 
 
-    // -------- BACKEND --------
+    // -----------------------------------------------------------
+    // -------- BACKEND  (Este es el método que preguntas) --------
+    // -----------------------------------------------------------
+
     suspend fun crearBoletaBackend(boleta: BoletaEntity): BoletaEntity? {
         return try {
-            val dtoRespuesta = api.crearBoleta(boleta.toDTO())
+            // 1️⃣ Convertir BoletaEntity → BoletaCreateDTO (lo que backend pide)
+            val dtoRespuesta = api.crearBoleta(boleta.toCreateDTO())
+
+            // 2️⃣ Convertir respuesta del backend → Entity de Room
             val entity = dtoRespuesta.toEntity()
+
+            // 3️⃣ Guardar en Room
             dao.insertar(entity)
+
+            // 4️⃣ Retornar la entidad ya guardada
             entity
         } catch (e: Exception) {
             e.printStackTrace()
@@ -37,10 +47,12 @@ class BoletaRepository(
         }
     }
 
+    // -------- Obtener todas las boletas del backend --------
+
     suspend fun obtenerBoletasBackend() {
         try {
-            val remotas = api.obtenerBoletas()
-            val entidades = remotas.map { it.toEntity() }
+            val page = api.obtenerBoletas()
+            val entidades = page.content.map { it.toEntity() }
             dao.eliminarTodas()
             dao.insertarBoletas(entidades)
         } catch (e: Exception) {

@@ -4,12 +4,15 @@ import retrofit2.http.*
 
 interface BoletaApiService {
 
-    @POST("boletas")
-    suspend fun crearBoleta(@Body boleta: BoletaCreateRequestDTO): BoletaRemoteDTO
+    @POST("api/boletas")
+    suspend fun crearBoleta(@Body boleta: BoletaCreateDTO): BoletaRemoteDTO
 
-    @GET("boletas")
-    suspend fun obtenerBoletas(): List<BoletaRemoteDTO>
+    @GET("api/boletas")
+    suspend fun obtenerBoletas(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): PageResponseBoletaDTO
 
-    @GET("boletas/{id}")
+    @GET("api/boletas/{id}")
     suspend fun obtenerBoletaId(@Path("id") id: Long): BoletaRemoteDTO
 }
