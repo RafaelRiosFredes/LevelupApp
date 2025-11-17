@@ -1,6 +1,5 @@
 package com.example.levelup
 
-
 import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.model.data.BoletasDao
 import com.example.levelup.model.repository.BoletaRepository
@@ -25,9 +24,9 @@ class BoletaRepositoryTest {
         repository = BoletaRepository(dao, api)
     }
 
-
-    // Funciones auxiliares
-
+    // ---------------------------
+    // Helpers
+    // ---------------------------
 
     private fun crearUsuarioDTO() = UsuarioBoletaDTO(
         id = 10,
@@ -74,7 +73,9 @@ class BoletaRepositoryTest {
         detalleTexto = "Mouse x2 = 10000"
     )
 
+    // ---------------------------
     // TESTS
+    // ---------------------------
 
     @Test
     fun `crearBoletaBackend - inserta entidad convertida en DAO`() = runTest {
@@ -85,9 +86,7 @@ class BoletaRepositoryTest {
 
         repository.crearBoletaBackend(boleta)
 
-        coVerify {
-            dao.insertar(any())
-        }
+        coVerify { dao.insertar(any()) }
     }
 
     @Test
@@ -113,7 +112,10 @@ class BoletaRepositoryTest {
 
     @Test
     fun `obtenerBoletaBackendPorId - si API falla retorna null`() = runTest {
-        coEvery { api.obtenerBoletaId(any()) } throws RuntimeException("crash")
+        // El truco especial para que la excepción NO se lance antes del suspend
+        coEvery { api.obtenerBoletaId(any()) } answers {
+            throw Exception("crash")
+        }
 
         val result = repository.obtenerBoletaBackendPorId(99)
 
