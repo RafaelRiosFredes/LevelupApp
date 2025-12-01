@@ -55,6 +55,9 @@ fun DetalleCompraScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val carrito by carritoViewModel.carrito.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
 
     // Estados del Formulario (Pre-llenados con UserSession)
     var nombre by remember { mutableStateOf(UserSession.nombre ?: "") }
@@ -248,53 +251,75 @@ fun DetalleCompraScreen(
                 // Botón Pagar
                 Button(
                     onClick = {
-                        // Validaciones simples
+                        // 1. Validaciones básicas
                         if (nombre.isBlank() || calle.isBlank() || regionSeleccionada.isBlank()) {
-                            Toast.makeText(context, "Completa los datos de envío", Toast.LENGTH_SHORT).show()
+                            scope.launch { snackbarHostState.showSnackbar("Completa los datos de envío") }
                             return@Button
                         }
                         if (tarjeta.length != 16) {
-                            Toast.makeText(context, "Tarjeta inválida", Toast.LENGTH_SHORT).show()
+                            scope.launch { snackbarHostState.showSnackbar("Tarjeta inválida (debe tener 16 dígitos)") }
                             return@Button
                         }
 
-                        // Crear la entidad Boleta para enviar al backend
-                        // NOTA: El backend actual no guarda la dirección en la tabla Boleta,
-                        // pero simulamos el flujo completo del frontend.
-                        val boletaEntityTemp = BoletaEntity(
+                        // 2. Construir el texto del detalle con el formato requerido por el Mapper:
+                        // id|nombre|cantidad|precio
+                        val detalleString = carrito.joinToString("\n") { prod ->
+                            "${prod.productoId}|${prod.nombre}|${prod.cantidad}|${prod.precio}"
+                        }
+
+                        // 3. Crear la entidad Boleta temporal
+                        val nuevaBoleta = BoletaEntity(
+                            backendId = null, // Se generará en el backend
                             total = totalFinal,
-                            totalSinDescuento = (if(descuentoPercent > 0) (totalFinal / 0.8) else totalFinal.toDouble()).toLong(),
+                            totalSinDescuento = (totalFinal * 100) / (100 - descuentoPercent), // Estimado o traer del VM
                             descuentoDuocAplicado = descuentoPercent > 0,
                             descuento = descuentoPercent,
-                            fechaEmision = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date()),
-                            usuarioIdBackend = UserSession.id ?: 0,
+                            fechaEmision = java.time.LocalDate.now().toString(),
+                            usuarioIdBackend = UserSession.id ?: 0, // ID del usuario logueado
                             usuarioNombre = nombre,
                             usuarioApellidos = apellidos,
                             usuarioCorreo = correo,
-                            // Guardamos los items del carrito como string simple para el historial local
-                            detalleTexto = carrito.joinToString("\n") { "${it.productoId}|${it.nombre}|${it.cantidad}|${it.precio}" }
+                            detalleTexto = detalleString // <--- CAMPO CLAVE
                         )
 
+                        // 4. Enviar al Backend y Navegar
                         scope.launch {
-                            val boletaCreada = boletaViewModel.crearBoletaBackend(boletaEntityTemp)
-                            if (boletaCreada != null) {
-                                carritoViewModel.vaciarCarrito()
-                                Toast.makeText(context, "¡Compra Exitosa!", Toast.LENGTH_LONG).show()
-                                // Navegar al historial o inicio
-                                navController.navigate("PantallaPrincipal") {
-                                    popUpTo("PantallaPrincipal") { inclusive = true }
+                            try {
+                                // Llamamos al ViewModel (que debe retornar la boleta creada o null si falla)
+                                val boletaCreada = boletaViewModel.crearBoletaBackend(nuevaBoleta)
+
+                                if (boletaCreada != null) {
+                                    // Ã‰XITO
+                                    carritoViewModel.vaciarCarrito() // Opcional: limpiar carrito
+                                    snackbarHostState.showSnackbar("¡Compra exitosa!")
+
+                                    // Navegar al historial o detalle
+                                    navController.navigate("historial_boletas") {
+                                        // Limpiar la pila para no volver al carrito con 'atrás'
+                                        popUpTo("PantallaPrincipal")
+                                    }
+                                } else {
+                                    // ERROR DEL BACKEND
+                                    snackbarHostState.showSnackbar("Error al procesar compra (Backend retornó null)")
                                 }
-                            } else {
-                                Toast.makeText(context, "Error al procesar compra", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                // ERROR DE RED O EXCEPCIÓN
+                                e.printStackTrace()
+                                snackbarHostState.showSnackbar("Error de conexión: ${e.message}")
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = GamerGreen, contentColor = Color.Black),
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamerGreen,
+                        contentColor = JetBlack
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
                 ) {
-                    Text("PAGAR AHORA", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("PAGAR $$totalFinal", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
+
             }
         }
     }
