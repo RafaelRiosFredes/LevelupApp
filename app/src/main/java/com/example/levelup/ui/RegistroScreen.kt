@@ -176,13 +176,15 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(26.dp))
 
+
                 // BOTÓN REGISTRAR
                 Button(
                     onClick = {
                         scope.launch {
-
+                            // --- VALIDACIONES EXISTENTES ---
                             val emailRegex = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.[a-zA-Z]+".toRegex()
 
+                            // Corrección: El backend exige teléfono positivo, validamos eso también
                             val error = when {
                                 nombres.isBlank() -> "Ingresa nombre"
                                 apellidos.isBlank() -> "Ingresa apellido"
@@ -190,6 +192,7 @@ fun RegistroScreen(
                                 !correo.matches(emailRegex) -> "Correo inválido"
                                 contrasena.length < 6 -> "Contraseña mínima 6 caracteres"
                                 contrasena != contrasena2 -> "Las contraseñas no coinciden"
+                                telefono.isBlank() -> "Ingresa un teléfono" // Backend @NotNull
                                 else -> null
                             }
 
@@ -198,31 +201,32 @@ fun RegistroScreen(
                                 return@launch
                             }
 
-                            val telLong = telefono.toLongOrNull()
+                            // Convertir teléfono (Backend pide Long positivo)
+                            val telLong = telefono.toLongOrNull() ?: 0L
 
-                            val usuario = UsuarioEntity(
-                                id = 0,
+                            // --- CAMBIO PRINCIPAL AQUÍ ---
+                            // En lugar de crear la Entity manual, llamamos al ViewModel
+                            vm.registrarUsuarioPublico(
                                 nombres = nombres.trim(),
                                 apellidos = apellidos.trim(),
                                 correo = correo.trim(),
                                 contrasena = contrasena.trim(),
                                 telefono = telLong,
-                                fechaNacimiento = fechaNacimiento.ifBlank { null },
-                                fotoPerfil = fotoBytes,
-                                duoc = false,
-                                descApl = false,
-                                rol = "user",
-                                backendId = null
-                            )
-
-                            vm.insertarUsuario(usuario)
-
-                            snackbarHostState.showSnackbar("Usuario registrado exitosamente")
-
-                            onSaved()
-
-                            navController.navigate("login") {
-                                popUpTo("registro") { inclusive = true }
+                                fechaNacimiento = fechaNacimiento // Debe ser formato "YYYY-MM-DD"
+                            ) { exito ->
+                                scope.launch {
+                                    if (exito) {
+                                        snackbarHostState.showSnackbar("Usuario registrado exitosamente")
+                                        onSaved() // Callback opcional
+                                        // Esperar un poco para que se vea el mensaje
+                                        kotlinx.coroutines.delay(1000)
+                                        navController.navigate("login") {
+                                            popUpTo("registro") { inclusive = true }
+                                        }
+                                    } else {
+                                        snackbarHostState.showSnackbar("Error al registrar: Revisa los datos o conexión")
+                                    }
+                                }
                             }
                         }
                     },

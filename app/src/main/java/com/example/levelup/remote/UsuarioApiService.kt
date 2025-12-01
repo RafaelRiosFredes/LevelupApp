@@ -4,21 +4,21 @@ import retrofit2.http.*
 
 interface UsuariosApiService {
 
-    @GET("usuarios")
+    @GET("api/v1/usuarios")
     suspend fun obtenerUsuarios(): List<UsuarioDTO>
 
-    @GET("usuarios/{id}")
+    @GET("api/v1/usuarios/{id}")
     suspend fun obtenerUsuario(@Path("id") id: Long): UsuarioDTO
 
-    @POST("usuarios")
+    @POST("api/v1/usuarios")
     suspend fun crearUsuario(@Body usuario: UsuarioDTO): UsuarioDTO
 
-    @PUT("usuarios/{id}")
+    @PUT("api/v1/usuarios/{id}")
     suspend fun actualizarUsuario(
         @Path("id") id: Long,
         @Body usuario: UsuarioDTO
     ): UsuarioDTO
 
-    @DELETE("usuarios/{id}")
+    @DELETE("api/v1/usuarios/{id}")
     suspend fun eliminarUsuario(@Path("id") id: Long)
 }

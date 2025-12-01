@@ -3,6 +3,7 @@ package com.example.levelup.model.repository
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.data.UsuariosDao
 import com.example.levelup.remote.AuthApiService
+import com.example.levelup.remote.LoginRequestDTO
 import com.example.levelup.remote.RegistroUsuarioRemoteDTO
 import com.example.levelup.remote.UsuariosApiService
 import com.example.levelup.remote.mappers.toDTO
@@ -25,8 +26,33 @@ class UsuariosRepository(
     suspend fun actualizar(usuario: UsuarioEntity) = dao.actualizar(usuario)
     suspend fun eliminar(usuario: UsuarioEntity) = dao.eliminar(usuario)
 
-    suspend fun login(correo: String, contrasena: String): UsuarioEntity? =
-        dao.login(correo, contrasena)
+    suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
+        return try {
+            // 1. Petición al Backend
+            val loginResponse = authApi.login(LoginRequestDTO(correo, contrasena))
+
+            // 2. Si el login es exitoso, obtenemos los datos completos del usuario
+            //    (El login response no trae nombres ni apellidos, solo el ID y Token)
+            val usuarioDto = api.obtenerUsuario(loginResponse.idUsuario)
+
+            // 3. Convertimos a Entidad Local y guardamos la contraseña (para persistencia)
+            val entity = usuarioDto.toEntity().copy(
+                contrasena = contrasena, // Guardamos la pass para login offline futuro si quisieras
+                rol = if (loginResponse.username == "admin@levelup.com") "admin" else "user" // Ajuste simple de rol
+            )
+
+            // 4. Guardamos/Actualizamos en Room
+            dao.insertar(entity)
+
+            // 5. Retornamos el usuario logueado
+            entity
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Opcional: Si falla la red, intentar login local (offline)
+            dao.login(correo, contrasena)
+        }
+    }
 
 
     // BACKEND
@@ -80,14 +106,14 @@ class UsuariosRepository(
     ): Result<UsuarioEntity> = withContext(Dispatchers.IO) {
         try {
             // 1. DTO remoto
-            val tel = telefono ?: 0L  // si tu backend exige no-nulo
+            val tel = telefono ?: 0L
             val dtoRemoto = RegistroUsuarioRemoteDTO(
                 nombres = nombres,
                 apellidos = apellidos,
                 correo = correo,
                 contrasena = contrasena,
                 telefono = tel,
-                fechaNacimiento = fechaNacimiento   // "YYYY-MM-DD"
+                fechaNacimiento = fechaNacimiento
             )
 
             // 2. Llamada al backend
@@ -95,11 +121,12 @@ class UsuariosRepository(
 
             // 3. Mapear respuesta a tu entity local
             val entity = UsuarioEntity(
-                id = resp.idUsuario.toInt(), // si tu entity usa Int
+                id = 0, // CORRECCIÓN AQUÍ: 0 para que Room genere el ID local automáticamente
+                backendId = resp.idUsuario, // CORRECCIÓN AQUÍ: Guardamos el ID del servidor aquí
                 nombres = resp.nombres,
                 apellidos = resp.apellidos,
                 correo = resp.correo,
-                contrasena = contrasena, // NO viene en la respuesta
+                contrasena = contrasena,
                 telefono = resp.telefono,
                 fechaNacimiento = resp.fechaNacimiento,
                 duoc = duoc,

@@ -39,10 +39,40 @@ class UsuariosViewModel(
         repository.eliminar(usuario)
     }
 
-    // BACKEND: crear
-    suspend fun crearUsuarioBackend(usuario: UsuarioEntity): UsuarioEntity? =
-        repository.crearUsuarioBackend(usuario)
+    //Backend crear
 
+    fun registrarUsuarioPublico(
+        nombres: String,
+        apellidos: String,
+        correo: String,
+        contrasena: String,
+        telefono: Long,
+        fechaNacimiento: String,
+        onResult: (Boolean) -> Unit // Callback para saber si funcionó
+    ) = viewModelScope.launch {
+
+        // Llamamos a la función del repositorio que conecta con AuthApiService
+        val resultado = repository.registrarUsuarioBackendYLocal(
+            nombres = nombres,
+            apellidos = apellidos,
+            correo = correo,
+            contrasena = contrasena,
+            telefono = telefono,
+            fechaNacimiento = fechaNacimiento,
+            fotoPerfilBase64 = null, // Opcional por ahora
+            duoc = correo.endsWith("@duocuc.cl"),
+            descApl = false,
+            rol = "user"
+        )
+
+        // Notificamos a la vista si fue exitoso o no
+        if (resultado.isSuccess) {
+            onResult(true)
+        } else {
+            resultado.exceptionOrNull()?.printStackTrace()
+            onResult(false)
+        }
+    }
     // BACKEND: actualizar
     suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) =
         repository.actualizarUsuarioBackend(usuario)
