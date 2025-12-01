@@ -12,6 +12,8 @@ import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.BoletaViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.levelup.viewmodel.BoletaViewModelFactoryApp
 import com.example.levelup.viewmodel.CarritoViewModelFactory
 
@@ -206,5 +208,27 @@ fun LevelUpNavHost(
                 boletaViewModel = boletaViewModel
             )
         }
+        // ----------------------------------------------------
+        //                    DETALLE COMPRA
+        // ----------------------------------------------------
+        composable(
+            route = "detalle_compra/{total}/{descuento}",
+            arguments = listOf(
+                navArgument("total") { type = NavType.LongType },
+                navArgument("descuento") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val total = backStackEntry.arguments?.getLong("total") ?: 0L
+            val descuento = backStackEntry.arguments?.getInt("descuento") ?: 0
+
+            DetalleCompraScreen(
+                navController = navController,
+                carritoViewModel = carritoViewModel,
+                boletaViewModel = boletaViewModel,
+                totalFinal = total,
+                descuentoPercent = descuento
+            )
+        }
+
     }
 }

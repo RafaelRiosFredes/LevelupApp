@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.levelup.core.UserSession
-import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
@@ -30,10 +29,6 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.UsuariosViewModel
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
-
 
 @Composable
 fun CarritoScreen(
@@ -48,7 +43,7 @@ fun CarritoScreen(
         val carrito by carritoViewModel.carrito.collectAsState()
         val total = carrito.sumOf { it.precio * it.cantidad }
         val usuarioActual = UserSession.id
-        val scope = rememberCoroutineScope()
+        // Ya no necesitamos scope aquí porque no haremos llamadas asíncronas de BD
 
         Scaffold(
             containerColor = JetBlack,
@@ -75,14 +70,12 @@ fun CarritoScreen(
             ) {
 
                 if (carrito.isEmpty()) {
-
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("El carrito está vacío", color = PureWhite)
                     }
-
                 } else {
 
                     LazyColumn(modifier = Modifier.weight(1f)) {
@@ -104,68 +97,35 @@ fun CarritoScreen(
                     ) {
                         Text("Total:", color = PureWhite, fontSize = 18.sp)
                         Text("$${total}", color = GamerGreen, fontSize = 18.sp)
-
                     }
 
                     Spacer(Modifier.height(12.dp))
 
                     // -------------------------------------
-                    // -------- FINALIZAR COMPRA ----------
+                    // -------- IR A DETALLE COMPRA -------
                     // -------------------------------------
                     Button(
                         onClick = {
-
+                            // 1. Validar Login
                             if (usuarioActual == null) {
                                 navController.navigate("login")
                                 return@Button
                             }
 
-                            // DESCUENTO POR CORREO DUOC
+                            // 2. Calcular Totales y Descuentos
+                            // (Esto es solo para pasar el dato visual a la siguiente pantalla)
                             val correoUsuario = UserSession.correo ?: ""
                             val descuentoAplicado = if (correoUsuario.endsWith("duocuc.cl")) 20 else 0
-
-                            // Total bruto (sin descuento) como Long
                             val totalSinDescuento = total.toLong()
 
-                            // Total final con descuento
+                            // Total final con descuento aplicado
                             val totalFinal = if (descuentoAplicado > 0)
                                 (total * 0.8).toLong()
                             else totalSinDescuento
 
-                            // LA BOLETA QUE SE ENVÍA AL BACKEND
-                            val boletaEntityTemp = BoletaEntity(
-                                total = totalFinal,
-                                totalSinDescuento = totalSinDescuento,
-                                descuentoDuocAplicado = descuentoAplicado > 0,
-                                descuento = descuentoAplicado,
-                                fechaEmision = SimpleDateFormat(
-                                    "yyyy-MM-dd HH:mm",
-                                    Locale.getDefault()
-                                ).format(Date()),
-                                usuarioIdBackend = usuarioActual,
-                                usuarioNombre = UserSession.nombre,
-                                usuarioApellidos = UserSession.apellidos,
-                                usuarioCorreo = UserSession.correo,
-                                detalleTexto = carrito.joinToString("\n") {
-                                    "${it.productoId}|${it.nombre}|${it.cantidad}|${it.precio}"
-                                }
-                            )
-
-                            scope.launch {
-
-                                // 1. CREAR BOLETA EN BACKEND (y guardar en Room)
-                                val boletaBackend = boletaViewModel.crearBoletaBackend(boletaEntityTemp)
-
-                                if (boletaBackend != null) {
-
-                                    // 2. VACIAR CARRITO
-                                    carritoViewModel.vaciarCarrito()
-
-                                    // 3. NAVEGAR A DETALLE CON EL ID LOCAL DE ROOM
-                                    navController.navigate("boleta_detalle/${boletaBackend.id}")
-                                }
-                            }
-
+                            // 3. NAVEGAR A LA PANTALLA DE DETALLE
+                            // No creamos la boleta aquí. Solo pasamos los montos.
+                            navController.navigate("detalle_compra/$totalFinal/$descuentoAplicado")
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
@@ -173,10 +133,8 @@ fun CarritoScreen(
                             contentColor = JetBlack
                         )
                     ) {
-                        Text("Finalizar compra", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Continuar Compra", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
-
-
                 }
             }
         }
@@ -190,19 +148,16 @@ fun CarritoItem(
     onAumentar: () -> Unit,
     onDisminuir: () -> Unit
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
     ) {
-
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Image(
                 painter = rememberAsyncImagePainter(item.imagenUrl),
                 contentDescription = item.nombre,
@@ -233,5 +188,3 @@ fun CarritoItem(
         }
     }
 }
-
-
