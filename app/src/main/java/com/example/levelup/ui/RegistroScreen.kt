@@ -118,50 +118,6 @@ fun RegistroScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // FOTO PERFIL
-                Box(
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clip(CircleShape)
-                        .border(4.dp, GamerGreen, CircleShape)
-                        .background(Color(0xFF1A1A1A)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (fotoBitmap != null) {
-                        Image(
-                            bitmap = fotoBitmap!!.asImageBitmap(),
-                            contentDescription = "Foto perfil",
-                            modifier = Modifier
-                                .size(140.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Text("Sin foto", color = PureWhite)
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-
-                    IconButton(
-                        onClick = {
-                            permisoCamara.launch(Manifest.permission.CAMERA)
-                            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                            launcherCamara.launch(intent)
-                        },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(Icons.Default.CameraAlt, contentDescription = "Camara", tint = GamerGreen)
-                    }
-
-                    IconButton(
-                        onClick = { launcherGaleria.launch("image/*") },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(Icons.Default.Image, contentDescription = "Galeria", tint = GamerBlue)
-                    }
-                }
 
                 Spacer(Modifier.height(25.dp))
 
@@ -171,7 +127,7 @@ fun RegistroScreen(
                 RegistroCampo("Correo", correo) { correo = it }
                 RegistroCampoPassword("Contraseña", contrasena) { contrasena = it }
                 RegistroCampoPassword("Repetir contraseña", contrasena2) { contrasena2 = it }
-                RegistroCampo("Teléfono (opcional)", telefono, KeyboardType.Number) { telefono = it }
+                RegistroCampo("Teléfono", telefono, KeyboardType.Number) { telefono = it }
                 RegistroCampo("Fecha nacimiento (YYYY-MM-DD)", fechaNacimiento) { fechaNacimiento = it }
 
                 Spacer(Modifier.height(26.dp))
