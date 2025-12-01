@@ -2,7 +2,6 @@
 
 package com.example.levelup.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,13 +21,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun ProductosScreen(
@@ -134,7 +134,7 @@ fun ProductoItem(
     onAddToCart: () -> Unit
 ) {
 
-    val imagenSegura = (producto.imagenUrl ?: "").ifBlank {
+    val imagen = (producto.imagenUrl ?: "").ifBlank {
         "https://placehold.co/300x300/000000/FFFFFF"
     }
 
@@ -162,8 +162,8 @@ fun ProductoItem(
 
             Spacer(Modifier.height(10.dp))
 
-            Image(
-                painter = rememberAsyncImagePainter(imagenSegura),
+            AsyncImage(
+                model = imagen,
                 contentDescription = producto.nombre,
                 modifier = Modifier
                     .size(150.dp)

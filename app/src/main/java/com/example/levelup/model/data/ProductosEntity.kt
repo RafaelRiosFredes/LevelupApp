@@ -15,14 +15,11 @@ data class ProductosEntity(
     val id: Long = 0L,                // id LOCAL de Room
 
     val backendId: Long? = null,      // idProducto del backend
-
     val nombre: String,
     val descripcion: String,
     val precio: Long,
     val stock: Int,
-
-    val imagenUrl: String?,           // url de la primera imagen (o null)
-
+    val imagenUrl: String?,  // url de la primera imagen (o null)
     val categoriaId: Long,
     val categoriaNombre: String
 )
