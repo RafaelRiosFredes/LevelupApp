@@ -1,20 +1,30 @@
 package com.example.levelup.remote
 
-import retrofit2.Retrofit
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit // <--- Si esta línea falta, Retrofit saldrá en rojo
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.levelup.core.AuthInterceptor // Tu interceptor
 
 object RetrofitBuilder {
 
+    const val BASE_URL = "http://10.0.2.2:9090/" // Agrega el / al final por convención
 
-     const val BASE_URL = "http://10.0.2.2:9090"
+    // 1. CONFIGURAMOS EL CLIENTE CON EL INTERCEPTOR
+    private val client: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor()) // <--- Aquí inyectamos el token automáticamente
+            .build()
+    }
 
-    // Instancia única de Retrofit
+    // 2. INSTANCIA DE RETROFIT USANDO EL CLIENTE
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(client) // <--- ASIGNAMOS EL CLIENTE AQUI
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
 
     // ============================
     //   API DE AUTH / USUARIOS

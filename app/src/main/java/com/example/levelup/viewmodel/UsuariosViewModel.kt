@@ -5,6 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.repository.UsuariosRepository
+import com.example.levelup.remote.LoginRequestDTO
+import com.example.levelup.remote.LoginResponseDTO
+import com.example.levelup.remote.RetrofitBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -116,6 +119,18 @@ class UsuariosViewModel(
                     rol = "admin"
                 )
             )
+        }
+    }
+
+    suspend fun loginBackend(email: String, pass: String): LoginResponseDTO? {
+        return try {
+            // Llamada a la API usando Retrofit
+            // Asegúrate de que tu AuthApiService tenga un método login que devuelva LoginResponseDTO
+            val response = RetrofitBuilder.authApi.login(LoginRequestDTO(email, pass))
+            response // Retornamos el DTO que trae el token
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null // Si falla, retornamos null
         }
     }
 }

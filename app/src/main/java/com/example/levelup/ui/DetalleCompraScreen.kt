@@ -78,6 +78,7 @@ fun DetalleCompraScreen(
     DrawerGlobal(navController = navController) {
         Scaffold(
             containerColor = JetBlack,
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Detalle de Compra", color = GamerGreen) },

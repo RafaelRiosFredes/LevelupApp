@@ -117,7 +117,8 @@ fun LoginScreen(
                                 correo = "admin@levelup.com",
                                 rol = "admin",
                                 nombre = "Administrador",
-                                apellidos = "LevelUp"
+                                apellidos = "LevelUp",
+                                        jwt = "token_falso_admin"
                             )
 
                             navController.navigate("PantallaPrincipal") {
@@ -139,7 +140,8 @@ fun LoginScreen(
                                 correo = usuario.correo,
                                 rol = usuario.rol,
                                 nombre = usuario.nombres,
-                                apellidos = usuario.apellidos
+                                apellidos = usuario.apellidos,
+                                        jwt = "token_offline"
                             )
 
                             navController.navigate("PantallaPrincipal") {
