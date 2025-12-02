@@ -51,6 +51,8 @@ dependencies {
 
     implementation(libs.androidx.navigation.testing)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.material3)
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.3")
     // --------------------------
     // VERSIONES
