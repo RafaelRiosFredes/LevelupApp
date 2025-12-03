@@ -20,36 +20,39 @@ import kotlinx.coroutines.launch
 class BoletaViewModel (application: Application) : AndroidViewModel(application) {
 
     private val api = RetrofitBuilder.boletaApi
-    private val repository = BoletaRepository(RetrofitBuilder.boletaApi)
+    private val _boletaActual = MutableStateFlow<BoletaRemoteDTO?>(null)
+    val boletaActual: StateFlow<BoletaRemoteDTO?> = _boletaActual
 
-    private val _boletaActual = MutableStateFlow<BoletaEntity?>(null)
-    val boletaActual: StateFlow<BoletaEntity?> = _boletaActual
-
-    suspend fun crearBoletaBackend(
-        boletaLocal: BoletaEntity,
-        itemsCarrito: List<CarritoEntity>): BoletaEntity? {
+    // se crea la boleta en backend a partir de carrito
+    fun crearBoletaBackend(itemsCarrito: List<CarritoEntity>) {
         val token = UserSession.jwt?: throw IllegalStateException("Usuario no logueado")
 
-        val items = itemsCarrito.map {
-            BoletaItemRequestDTO(
-                idProducto = it.productoId,
-                cantidad = it.cantidad
+        viewModelScope.launch {
+            val items = itemsCarrito.map {
+                BoletaItemRequestDTO(
+                    idProducto = it.productoId,
+                    cantidad = it.cantidad
+
+                )
+            }
+
+            val body = BoletaCreateDTO(
+                items = items
             )
+
+            val respuesta = api.crearBoleta("Bearer $token", body)
+
+            _boletaActual.value = respuesta
         }
-
-        val body = BoletaCreateDTO(
-            items = items,
-            total = total,
-            descuento = descuento
-        )
-
-        return api.crearBoleta("Bearer $token",body)
     }
 
-    suspend fun obtenerBoletaId(id: Long): BoletaRemoteDTO {
-        val token = UserSession.jwt
-            ?: throw IllegalStateException("Usuario no logueado")
+    fun obtenerBoletaId(id: Long) {
+        val token = UserSession.jwt ?: throw IllegalStateException("Usuario no logueado")
 
-        return api.obtenerBoletaId("Bearer $token", id)
+        viewModelScope.launch {
+            val resp = api.obtenerBoletaId("Bearer $token",id)
+            _boletaActual.value = resp
+        }
     }
+
 }

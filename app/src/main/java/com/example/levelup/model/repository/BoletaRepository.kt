@@ -77,7 +77,11 @@ class BoletaRepository(
 
     suspend fun obtenerBoletasBackend() {
         try {
-            val page = api.obtenerBoletas()
+            val page = api.obtenerBoletas(
+                auth = TODO(),
+                page = TODO(),
+                size = TODO()
+            )
             val entidades = page.content.map { it.toEntity() }
             dao.eliminarTodas()
             dao.insertarBoletas(entidades)
