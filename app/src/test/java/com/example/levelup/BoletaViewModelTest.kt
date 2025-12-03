@@ -3,7 +3,6 @@ package com.example.levelup
 
 import android.app.Application
 import com.example.levelup.model.data.BoletaEntity
-import com.example.levelup.model.repository.BoletaRepository
 import com.example.levelup.viewmodel.BoletaViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify

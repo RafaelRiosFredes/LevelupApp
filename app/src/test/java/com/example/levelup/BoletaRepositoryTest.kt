@@ -2,7 +2,6 @@ package com.example.levelup
 
 import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.model.data.BoletasDao
-import com.example.levelup.model.repository.BoletaRepository
 import com.example.levelup.remote.*
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi

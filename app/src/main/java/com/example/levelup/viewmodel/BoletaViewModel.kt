@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.BoletaEntity
-import com.example.levelup.model.repository.BoletaRepository
 import com.example.levelup.model.data.AppDatabase
 import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.remote.BoletaApiService
@@ -22,6 +21,11 @@ class BoletaViewModel (application: Application) : AndroidViewModel(application)
     private val api : BoletaApiService = RetrofitBuilder.boletaApi
     private val _boletaActual = MutableStateFlow<BoletaRemoteDTO?>(null)
     val boletaActual: StateFlow<BoletaRemoteDTO?> = _boletaActual
+
+
+    //  HISTORIAL DE BOLETAS
+    private val _historial = MutableStateFlow<List<BoletaRemoteDTO>>(emptyList())
+    val historial: StateFlow<List<BoletaRemoteDTO>> = _historial
 
     // se crea la boleta en backend a partir de carrito
     suspend fun crearBoletaBackend(itemsCarrito: List<CarritoEntity>): BoletaRemoteDTO {
@@ -53,6 +57,29 @@ class BoletaViewModel (application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             val resp = api.obtenerBoletaId("Bearer $token",id)
             _boletaActual.value = resp
+        }
+    }
+
+    // ----------------------------------------------------
+    //  OBTENER HISTORIAL DE BOLETAS (backend)
+    // ----------------------------------------------------
+    fun obtenerBoletas(page: Int = 0, size: Int = 20) {
+        val token = UserSession.jwt ?: throw IllegalStateException("Usuario no logueado")
+
+        viewModelScope.launch {
+            try {
+                val resp = api.obtenerBoletas(
+                    auth = "Bearer $token",
+                    page = page,
+                    size = size
+                )
+
+                // PageResponseBoletaDTO.content
+                _historial.value = resp.content
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
