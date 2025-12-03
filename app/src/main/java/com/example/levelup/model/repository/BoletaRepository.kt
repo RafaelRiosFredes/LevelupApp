@@ -1,8 +1,12 @@
 package com.example.levelup.model.repository
 
+import com.example.levelup.core.UserSession
 import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.model.data.BoletasDao
+import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.remote.BoletaApiService
+import com.example.levelup.remote.BoletaCreateDTO
+import com.example.levelup.remote.BoletaItemRequestDTO
 import com.example.levelup.remote.mappers.toCreateDTO
 import com.example.levelup.remote.mappers.toEntity
 import kotlinx.coroutines.flow.Flow
@@ -12,8 +16,7 @@ class BoletaRepository(
     private val api: BoletaApiService
 ) {
 
-    // -------- ROOM --------
-    fun obtenerBoletas(): Flow<List<BoletaEntity>> = dao.obtenerBoletas()
+    fun obtenerBoletas() = dao.obtenerBoletas()
 
     fun obtenerBoletaLocal(id: Int) = dao.boletaPorIdLocal(id)
 
@@ -25,26 +28,49 @@ class BoletaRepository(
 
 
     // -----------------------------------------------------------
-    // -------- BACKEND  (Este es el método que preguntas) --------
+    // -------- BACKEND  (Este es el metodo que preguntas) --------
     // -----------------------------------------------------------
 
-    suspend fun crearBoletaBackend(boleta: BoletaEntity): BoletaEntity? {
-        return try {
-            // Convertir BoletaEntity → BoletaCreateDTO (lo que backend pide)
-            val dtoRespuesta = api.crearBoleta(boleta.toCreateDTO())
+    suspend fun crearBoletaBackend(
+        boletaLocal: BoletaEntity,
+        itemsCarrito: List<CarritoEntity>
+    ): BoletaEntity? = try {
 
-            //  Convertir respuesta del backend → Entity de Room
-            val entity = dtoRespuesta.toEntity()
+        val token = UserSession.jwt ?: return null
 
-            // Guarda en Room
-            dao.insertar(entity)
+        val request = BoletaCreateDTO(
+            items = itemsCarrito.map {
+                BoletaItemRequestDTO(
+                    idProducto = it.productoId,
+                    cantidad = it.cantidad
+                )
+            },
+            total = boletaLocal.total,
+            descuento = boletaLocal.descuento ?: 0
+        )
 
-            // Retornar la entidad ya guardada
-            entity
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        // Llamada al backend, igual que React
+        val remota = api.crearBoleta("Bearer $token", request)
+
+        // Mapear respuesta remota -> entidad Room
+        BoletaEntity(
+            id = 0,
+            backendId = remota.idBoleta,
+            total = remota.total,
+            totalSinDescuento = remota.totalSinDescuento,
+            descuentoDuocAplicado = remota.descuentoDuocAplicado,
+            descuento = remota.descuento,
+            fechaEmision = remota.fechaEmision,
+            usuarioIdBackend = remota.idUsuario,
+            usuarioNombre = boletaLocal.usuarioNombre,
+            usuarioApellidos = boletaLocal.usuarioApellidos,
+            usuarioCorreo = boletaLocal.usuarioCorreo,
+            detalleTexto = boletaLocal.detalleTexto
+        )
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 
     // -------- Obtener todas las boletas del backend --------
@@ -60,15 +86,12 @@ class BoletaRepository(
         }
     }
 
-    suspend fun obtenerBoletaBackendPorId(id: Long): BoletaEntity? {
-        return try {
-            val dto = api.obtenerBoletaId(id)
-            val entity = dto.toEntity()
-            dao.insertar(entity)
-            entity
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+    suspend fun obtenerBoletaBackendPorId(id: Long): BoletaEntity? = try{
+            val token = UserSession.jwt ?: return null
+            val dto = api.obtenerBoletaId("Bearer $token", id)
+            dto.toEntity()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

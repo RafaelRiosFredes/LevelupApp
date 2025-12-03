@@ -224,21 +224,21 @@ fun LevelUpNavHost(
         //                    DETALLE COMPRA
         // ----------------------------------------------------
         composable(
-            route = "detalle_compra/{total}/{descuento}",
+            route = "detalle_compra/{totalFinal}/{descuentoAplicado}",
             arguments = listOf(
-                navArgument("total") { type = NavType.LongType },
-                navArgument("descuento") { type = NavType.IntType }
+                navArgument("totalFinal") { type = NavType.LongType },
+                navArgument("descuentoAplicado") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val total = backStackEntry.arguments?.getLong("total") ?: 0L
-            val descuento = backStackEntry.arguments?.getInt("descuento") ?: 0
+            val totalFinal  = backStackEntry.arguments?.getLong("totalFinal ") ?: 0L
+            val descuentoAplicado  = backStackEntry.arguments?.getInt("descuentoAplicado") ?: 0
 
             DetalleCompraScreen(
                 navController = navController,
                 carritoViewModel = carritoViewModel,
                 boletaViewModel = boletaViewModel,
-                totalFinal = total,
-                descuentoPercent = descuento
+                totalFinal = totalFinal,
+                descuentoPercent = descuentoAplicado
             )
         }
 

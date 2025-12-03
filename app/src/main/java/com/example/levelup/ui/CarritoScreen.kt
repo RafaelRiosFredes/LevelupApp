@@ -125,7 +125,7 @@ fun CarritoScreen(
 
                             // 3. NAVEGAR A LA PANTALLA DE DETALLE
                             // No creamos la boleta aquí. Solo pasamos los montos.
-                            navController.navigate("detalle_compra/$totalFinal/$descuentoAplicado")
+                            navController.navigate("detalle_compra/{totalFinal}/{descuentoAplicado}")
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(

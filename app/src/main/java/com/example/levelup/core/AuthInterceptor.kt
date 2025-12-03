@@ -5,11 +5,15 @@ import okhttp3.Response
 
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val requestBuilder = chain.request().newBuilder()
+        val original = chain.request()
+        val requestBuilder = original.newBuilder()
 
-        // Si tenemos un token guardado, lo agregamos como cabecera "Authorization"
-        UserSession.jwt?.let { token ->
-            requestBuilder.addHeader("Authorization", "Bearer $token")
+        val token = UserSession.jwt
+
+        val isAuthCall = original.url.encodedPath.startsWith("/api/v1/auth")
+
+        if(!token.isNullOrBlank() && !isAuthCall){
+            requestBuilder.header("Authorization","Bearer $token")
         }
 
         return chain.proceed(requestBuilder.build())

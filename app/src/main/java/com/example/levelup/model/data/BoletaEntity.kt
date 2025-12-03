@@ -14,7 +14,7 @@ data class BoletaEntity(
     val descuentoDuocAplicado: Boolean,
     val descuento: Int? = null,
     val fechaEmision: String,
-    val usuarioIdBackend: Int,
+    val usuarioIdBackend: Long,
     val usuarioNombre: String?,
     val usuarioApellidos: String?,
     val usuarioCorreo: String?,

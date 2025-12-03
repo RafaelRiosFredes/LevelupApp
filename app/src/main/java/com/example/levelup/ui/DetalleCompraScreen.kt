@@ -1,16 +1,12 @@
 package com.example.levelup.ui
 
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -27,8 +23,6 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 // Datos estáticos de regiones y comunas (Replicado de tu frontend React)
 val regionesConComunas = mapOf(
@@ -50,7 +44,7 @@ fun DetalleCompraScreen(
     carritoViewModel: CarritoViewModel,
     boletaViewModel: BoletaViewModel,
     totalFinal: Long,
-    descuentoPercent: Int
+    descuentoAplicado: Int
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -107,8 +101,8 @@ fun DetalleCompraScreen(
                         Text("Resumen del Pedido", color = GamerGreen, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Total a Pagar: $${totalFinal}", color = PureWhite, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
-                        if (descuentoPercent > 0) {
-                            Text("Descuento aplicado: $descuentoPercent%", color = GamerGreen, fontSize = 14.sp)
+                        if (descuentoAplicado > 0) {
+                            Text("Descuento aplicado: $descuentoAplicado%", color = GamerGreen, fontSize = 14.sp)
                         }
                     }
                 }
@@ -268,45 +262,49 @@ fun DetalleCompraScreen(
                             "${prod.productoId}|${prod.nombre}|${prod.cantidad}|${prod.precio}"
                         }
 
-                        // 3. Crear la entidad Boleta temporal
-                        val nuevaBoleta = BoletaEntity(
+                        // 3. Calcular total sin descuento solo para mostrar
+                        val totalSinDescuentoCalc = if (descuentoAplicado > 0) {
+                            // cuidado con división por 0
+                            (totalFinal * 100) / (100 - descuentoAplicado)
+                        } else {
+                            totalFinal
+                        }
+
+                        // 4. Crear la entidad Boleta temporal
+                        val boletaLocal = BoletaEntity(
                             backendId = null, // Se generará en el backend
                             total = totalFinal,
-                            totalSinDescuento = (totalFinal * 100) / (100 - descuentoPercent), // Estimado o traer del VM
-                            descuentoDuocAplicado = descuentoPercent > 0,
-                            descuento = descuentoPercent,
+                            totalSinDescuento = totalSinDescuentoCalc,
+                            descuentoDuocAplicado = descuentoAplicado > 0,
+                            descuento = descuentoAplicado,
                             fechaEmision = java.time.LocalDate.now().toString(),
-                            usuarioIdBackend = UserSession.id ?: 0, // ID del usuario logueado
+                            usuarioIdBackend = (UserSession.id ?: 0).toLong(), // ID del usuario logueado
                             usuarioNombre = nombre,
                             usuarioApellidos = apellidos,
                             usuarioCorreo = correo,
                             detalleTexto = detalleString // <--- CAMPO CLAVE
                         )
 
-                        // 4. Enviar al Backend y Navegar
+                        // 5. Llamar al ViewModel y Navegar
                         scope.launch {
                             try {
-                                // Llamamos al ViewModel (que debe retornar la boleta creada o null si falla)
-                                val boletaCreada = boletaViewModel.crearBoletaBackend(nuevaBoleta)
+                                val boletaRemota = boletaViewModel.crearBoletaBackend(
+                                    total = totalFinal,
+                                    descuento = descuentoAplicado,
+                                    itemsCarrito = carrito)
 
-                                if (boletaCreada != null) {
-                                    // Ã‰XITO
-                                    carritoViewModel.vaciarCarrito() // Opcional: limpiar carrito
-                                    snackbarHostState.showSnackbar("¡Compra exitosa!")
+                                carritoViewModel.vaciarCarrito()
 
-                                    // Navegar al historial o detalle
-                                    navController.navigate("historial_boletas") {
-                                        // Limpiar la pila para no volver al carrito con 'atrás'
-                                        popUpTo("PantallaPrincipal")
-                                    }
-                                } else {
-                                    // ERROR DEL BACKEND
-                                    snackbarHostState.showSnackbar("Error al procesar compra (Backend retornó null)")
+                                snackbarHostState.showSnackbar(
+                                    "¡Compra exitosa! Boleta # ${boletaRemota?.idBoleta}"
+                                )
+
+                                navController.navigate("detalle_boleta/${boletaRemota?.idBoleta}"){
+                                    popUpTo("PantallaPrincipal")
                                 }
                             } catch (e: Exception) {
-                                // ERROR DE RED O EXCEPCIÓN
                                 e.printStackTrace()
-                                snackbarHostState.showSnackbar("Error de conexión: ${e.message}")
+                                snackbarHostState.showSnackbar("Error al procesar compra: ${e.message}")
                             }
                         }
                     },
