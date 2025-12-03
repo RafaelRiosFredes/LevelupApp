@@ -101,8 +101,7 @@ fun LevelUpNavHost(
         // ----------------------------------------------------
         composable("login") {
             LoginScreen(
-                navController = navController,
-                usuariosViewModel = usuariosViewModel
+                navController = navController
             )
         }
 

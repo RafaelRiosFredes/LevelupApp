@@ -8,7 +8,7 @@ data class CarritoEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
 
-    val productoId: Long,      // id del producto
+    val backendId: Long,      // id del producto backend
     val nombre: String,        // nombre del producto
     val precio: Long,          // PRECIO EN LONG (no Double)
     val cantidad: Int = 1,     // cantidad

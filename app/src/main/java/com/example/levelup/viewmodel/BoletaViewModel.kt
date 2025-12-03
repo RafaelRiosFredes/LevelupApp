@@ -28,59 +28,58 @@ class BoletaViewModel (application: Application) : AndroidViewModel(application)
     val historial: StateFlow<List<BoletaRemoteDTO>> = _historial
 
     // se crea la boleta en backend a partir de carrito
-    suspend fun crearBoletaBackend(itemsCarrito: List<CarritoEntity>): BoletaRemoteDTO {
-        val token = UserSession.jwt?: throw IllegalStateException("Usuario no logueado")
+    suspend fun crearBoletaBackend(
+        itemsCarrito: List<CarritoEntity>,
+        totalFinal: Long,
+        descuentoAplicado: Int
+    ): BoletaRemoteDTO {
 
-        //mapeo de carrito
+        val token = UserSession.jwt ?: throw IllegalStateException("Usuario no logueado")
+
+        // map items
         val items = itemsCarrito.map {
             BoletaItemRequestDTO(
-                idProducto = it.productoId,
+                idProducto = it.backendId,
                 cantidad = it.cantidad
             )
         }
 
-        //DTO que espera el backend
-        val body = BoletaCreateDTO(items = items)
+        val body = BoletaCreateDTO(
+            items = items,
+            total = totalFinal,
+            descuento = descuentoAplicado
+        )
 
-        //llamada al backend
-        val respuesta = api.crearBoleta("Bearer $token", body)
-
-        //guarda en StateFLow
+        val respuesta = api.crearBoleta(body)
         _boletaActual.value = respuesta
 
         return respuesta
     }
 
+
+    // se obtiene boleta por id
     fun obtenerBoletaId(id: Long) {
         val token = UserSession.jwt ?: throw IllegalStateException("Usuario no logueado")
 
         viewModelScope.launch {
-            val resp = api.obtenerBoletaId("Bearer $token",id)
+            val resp = api.obtenerBoletaId(id)
             _boletaActual.value = resp
         }
     }
 
-    // ----------------------------------------------------
-    //  OBTENER HISTORIAL DE BOLETAS (backend)
-    // ----------------------------------------------------
+
+    //  OBTENER HISTORIAL DE BOLETAS
     fun obtenerBoletas(page: Int = 0, size: Int = 20) {
-        val token = UserSession.jwt ?: throw IllegalStateException("Usuario no logueado")
+        if (UserSession.jwt.isNullOrBlank())
+            throw IllegalStateException("Usuario no logueado")
 
         viewModelScope.launch {
             try {
-                val resp = api.obtenerBoletas(
-                    auth = "Bearer $token",
-                    page = page,
-                    size = size
-                )
-
-                // PageResponseBoletaDTO.content
+                val resp = api.obtenerBoletas(page, size)
                 _historial.value = resp.content
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
-
 }

@@ -12,7 +12,7 @@ object RetrofitBuilder {
     // 1. CONFIGURAMOS EL CLIENTE CON EL INTERCEPTOR
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor()) // <--- Aquí inyectamos el token automáticamente
+            .addInterceptor(AuthInterceptor())
             .build()
     }
 

@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.levelup.core.UserSession
-import com.example.levelup.model.data.BoletaEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.ui.theme.JetBlack
@@ -24,7 +23,7 @@ import com.example.levelup.viewmodel.BoletaViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
 
-// Datos estáticos de regiones y comunas (Replicado de tu frontend React)
+// mismas regiones que ya tienes
 val regionesConComunas = mapOf(
     "Arica y Parinacota" to listOf("Arica", "Camarones", "Putre", "General Lagos"),
     "Tarapacá" to listOf("Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"),
@@ -34,7 +33,6 @@ val regionesConComunas = mapOf(
     "Valparaíso" to listOf("Valparaíso", "Casablanca", "Concón", "Juan Fernández", "Puchuncaví", "Quintero", "Viña del Mar", "Isla de Pascua", "Los Andes", "Calle Larga", "Rinconada", "San Esteban", "La Ligua", "Cabildo", "Papudo", "Petorca", "Zapallar", "Quillota", "Calera", "Hijuelas", "La Cruz", "Nogales", "San Antonio", "Algarrobo", "Cartagena", "El Quisco", "El Tabo", "Santo Domingo", "San Felipe", "Catemu", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Quilpué", "Limache", "Olmué", "Villa Alemana"),
     "Metropolitana de Santiago" to listOf("Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Santiago", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"),
     "Biobío" to listOf("Concepción", "Coronel", "Chiguayante", "Florida", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Hualpén", "Lebu", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Los Álamos", "Tirúa", "Los Ángeles", "Antuco", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Quilaco", "Quilleco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío")
-
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,21 +48,16 @@ fun DetalleCompraScreen(
     val carrito by carritoViewModel.carrito.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-
-
-    // Estados del Formulario (Pre-llenados con UserSession)
     var nombre by remember { mutableStateOf(UserSession.nombre ?: "") }
     var apellidos by remember { mutableStateOf(UserSession.apellidos ?: "") }
     var correo by remember { mutableStateOf(UserSession.correo ?: "") }
 
-    // Estados de Dirección
     var regionSeleccionada by remember { mutableStateOf("") }
     var comunaSeleccionada by remember { mutableStateOf("") }
     var calle by remember { mutableStateOf("") }
     var numero by remember { mutableStateOf("") }
     var tarjeta by remember { mutableStateOf("") }
 
-    // Control de Dropdowns
     var regionExpanded by remember { mutableStateOf(false) }
     var comunaExpanded by remember { mutableStateOf(false) }
 
@@ -91,7 +84,7 @@ fun DetalleCompraScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                // 1. Resumen de la Compra
+                // 1. Resumen
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
                     modifier = Modifier.fillMaxWidth()
@@ -108,7 +101,7 @@ fun DetalleCompraScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 2. Datos del Cliente
+                // 2. Datos cliente
                 Text("Información del Cliente", color = GamerGreen, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -138,11 +131,10 @@ fun DetalleCompraScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 3. Dirección de Despacho
+                // 3. Dirección
                 Text("Dirección de Despacho", color = GamerGreen, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Selector de Región
                 ExposedDropdownMenuBox(
                     expanded = regionExpanded,
                     onExpandedChange = { regionExpanded = !regionExpanded }
@@ -165,7 +157,7 @@ fun DetalleCompraScreen(
                                 text = { Text(text = region) },
                                 onClick = {
                                     regionSeleccionada = region
-                                    comunaSeleccionada = "" // Reset comuna
+                                    comunaSeleccionada = ""
                                     regionExpanded = false
                                 }
                             )
@@ -175,7 +167,6 @@ fun DetalleCompraScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Selector de Comuna (Dependiente de Región)
                 ExposedDropdownMenuBox(
                     expanded = comunaExpanded,
                     onExpandedChange = { comunaExpanded = !comunaExpanded }
@@ -245,7 +236,15 @@ fun DetalleCompraScreen(
                 // Botón Pagar
                 Button(
                     onClick = {
-                        // 1. Validaciones básicas
+
+                        if (UserSession.jwt.isNullOrBlank()) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Debes iniciar sesión para pagar")
+                            }
+                            navController.navigate("login")
+                            return@Button
+                        }
+
                         if (nombre.isBlank() || calle.isBlank() || regionSeleccionada.isBlank()) {
                             scope.launch { snackbarHostState.showSnackbar("Completa los datos de envío") }
                             return@Button
@@ -254,54 +253,41 @@ fun DetalleCompraScreen(
                             scope.launch { snackbarHostState.showSnackbar("Tarjeta inválida (debe tener 16 dígitos)") }
                             return@Button
                         }
-
-                        // 2. Construir el texto del detalle con el formato requerido por el Mapper:
-                        // id|nombre|cantidad|precio
-                        val detalleString = carrito.joinToString("\n") { prod ->
-                            "${prod.productoId}|${prod.nombre}|${prod.cantidad}|${prod.precio}"
+                        if (carrito.isEmpty()) {
+                            scope.launch { snackbarHostState.showSnackbar("Tu carrito está vacío") }
+                            return@Button
                         }
 
-                        // 3. Calcular total sin descuento solo para mostrar
-                        val totalSinDescuentoCalc = if (descuentoAplicado > 0) {
-                            // cuidado con división por 0
-                            (totalFinal * 100) / (100 - descuentoAplicado)
-                        } else {
-                            totalFinal
-                        }
-
-                        // 4. Crear la entidad Boleta temporal
-                        val boletaLocal = BoletaEntity(
-                            backendId = null, // Se generará en el backend
-                            total = totalFinal,
-                            totalSinDescuento = totalSinDescuentoCalc,
-                            descuentoDuocAplicado = descuentoAplicado > 0,
-                            descuento = descuentoAplicado,
-                            fechaEmision = java.time.LocalDate.now().toString(),
-                            usuarioIdBackend = (UserSession.id ?: 0).toLong(), // ID del usuario logueado
-                            usuarioNombre = nombre,
-                            usuarioApellidos = apellidos,
-                            usuarioCorreo = correo,
-                            detalleTexto = detalleString // <--- CAMPO CLAVE
-                        )
-
-                        // 5. Llamar al ViewModel y Navegar
                         scope.launch {
                             try {
-                                val boletaRemota = boletaViewModel.crearBoletaBackend(carrito)
+                                val boletaRemota = boletaViewModel.crearBoletaBackend(
+                                    itemsCarrito = carrito,
+                                    totalFinal = totalFinal,
+                                    descuentoAplicado = descuentoAplicado
+                                )
 
                                 carritoViewModel.vaciarCarrito()
 
                                 snackbarHostState.showSnackbar(
-                                    "¡Compra exitosa! Boleta # ${boletaRemota.idBoleta}"
+                                    "¡Compra exitosa! Boleta #${boletaRemota.idBoleta}"
                                 )
 
-                                navController.navigate("detalle_boleta/${boletaRemota?.idBoleta}"){
-                                    popUpTo("boleta_detalle/{${boletaRemota.idBoleta})}")
+                                navController.navigate("boleta_detalle/${boletaRemota.idBoleta}") {
+                                    popUpTo("carrito") { inclusive = true }
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
-                                snackbarHostState.showSnackbar("Error al procesar compra: ${e.message}")
+
+                                val msg = if (e is retrofit2.HttpException) {
+                                    val errorBody = e.response()?.errorBody()?.string()
+                                    "Error HTTP ${e.code()} -> $errorBody"
+                                } else {
+                                    e.message ?: "Error desconocido"
+                                }
+
+                                snackbarHostState.showSnackbar("Error al procesar compra: $msg")
                             }
+
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -314,7 +300,6 @@ fun DetalleCompraScreen(
                 ) {
                     Text("PAGAR $$totalFinal", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
-
             }
         }
     }

@@ -16,19 +16,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.levelup.core.UserSession
+import com.example.levelup.remote.LoginRequestDTO
+import com.example.levelup.remote.RetrofitBuilder
 import com.example.levelup.ui.theme.GamerGreen
-import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    usuariosViewModel: UsuariosViewModel
+    navController: NavController
 ) {
 
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by rememberSaveable { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
+
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -59,9 +60,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // -------------------------------
-            // CAMPO CORREO
-            // -------------------------------
+            // CORREO
             OutlinedTextField(
                 value = correo,
                 onValueChange = { correo = it },
@@ -79,9 +78,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // -------------------------------
-            // CAMPO CONTRASEÑA
-            // -------------------------------
+            // CONTRASEÑA
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = { contrasena = it },
@@ -100,58 +97,39 @@ fun LoginScreen(
 
             Spacer(Modifier.height(26.dp))
 
-            // -------------------------------
             // BOTÓN INGRESAR
-            // -------------------------------
             Button(
                 onClick = {
+
                     scope.launch {
-
-                        // ADMIN FIJO
-                        if (correo.trim() == "admin@levelup.com" &&
-                            contrasena.trim() == "admin123"
-                        ) {
-
-                            UserSession.login(
-                                id = -1,
-                                correo = "admin@levelup.com",
-                                rol = "admin",
-                                nombre = "Administrador",
-                                apellidos = "LevelUp",
-                                        jwt = "token_falso_admin"
+                        try {
+                            val dto = LoginRequestDTO(
+                                correo = correo.trim(),
+                                contrasena = contrasena.trim()
                             )
 
-                            navController.navigate("PantallaPrincipal") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                            return@launch
-                        }
+                            val response = RetrofitBuilder.authApi.login(dto)
 
-                        // LOGIN DESDE ROOM
-                        val usuario = usuariosViewModel.login(
-                            correo.trim(),
-                            contrasena.trim()
-                        )
-
-                        if (usuario != null) {
-
+                            // Guardar correctamente la sesión desde BACKEND
                             UserSession.login(
-                                id = usuario.id,
-                                correo = usuario.correo,
-                                rol = usuario.rol,
-                                nombre = usuario.nombres,
-                                apellidos = usuario.apellidos,
-                                        jwt = "token_offline"
+                                id = response.idUsuario,
+                                correo = correo.trim(),
+                                rol = response.roles.toString(),
+                                nombre = "",
+                                apellidos = "",
+                                jwt = response.token
                             )
 
                             navController.navigate("PantallaPrincipal") {
                                 popUpTo("login") { inclusive = true }
                             }
 
-                        } else {
-                            error = "Datos incorrectos"
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            error = "Correo o contraseña incorrectos"
                         }
                     }
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -173,9 +151,6 @@ fun LoginScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // --------------------------------
-            // REGISTRO
-            // --------------------------------
             TextButton(
                 onClick = { navController.navigate("registro") }
             ) {

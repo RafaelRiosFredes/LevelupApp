@@ -2,13 +2,11 @@ package com.example.levelup.core
 
 object UserSession {
 
-    var id: Int? = null
+    var id: Long? = null
     var correo: String? = null
-    var rol: String = "user"
+    var rol: String? = null
     var nombre: String? = null
     var apellidos: String? = null
-
-    // NUEVO: Aquí guardaremos la llave de seguridad
     var jwt: String? = null
 
     fun isLogged(): Boolean {
@@ -17,27 +15,27 @@ object UserSession {
 
     // Actualizamos la función para pedir el token
     fun login(
-        id: Int,
+        id: Long,
         correo: String,
         rol: String,
         nombre: String,
         apellidos: String,
-        jwt: String // <--- Nuevo parámetro
+        jwt: String
     ) {
         this.id = id
         this.correo = correo
-        this.rol = rol.lowercase()
+        this.rol = rol
         this.nombre = nombre
         this.apellidos = apellidos
-        this.jwt = jwt // <--- Guardamos el token
+        this.jwt = jwt
     }
 
     fun logout() {
         id = null
         correo = null
-        rol = "user"
+        rol = null
         nombre = null
         apellidos = null
-        jwt = null // <--- Borramos el token al salir
+        jwt = null
     }
 }
