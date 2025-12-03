@@ -214,7 +214,7 @@ fun LevelUpNavHost(
         composable("boleta_detalle/{id}") { backStack ->
             val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0L
 
-            BoletaDetalleScreen(
+            DetalleBoletaScreen(
                 navController = navController,
                 boletaId = id,
                 boletaViewModel = boletaViewModel
@@ -230,7 +230,7 @@ fun LevelUpNavHost(
                 navArgument("descuentoAplicado") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val totalFinal  = backStackEntry.arguments?.getLong("totalFinal ") ?: 0L
+            val totalFinal  = backStackEntry.arguments?.getLong("totalFinal") ?: 0L
             val descuentoAplicado  = backStackEntry.arguments?.getInt("descuentoAplicado") ?: 0
 
             DetalleCompraScreen(
@@ -238,7 +238,7 @@ fun LevelUpNavHost(
                 carritoViewModel = carritoViewModel,
                 boletaViewModel = boletaViewModel,
                 totalFinal = totalFinal,
-                descuentoPercent = descuentoAplicado
+                descuentoAplicado = descuentoAplicado
             )
         }
 

@@ -288,19 +288,16 @@ fun DetalleCompraScreen(
                         // 5. Llamar al ViewModel y Navegar
                         scope.launch {
                             try {
-                                val boletaRemota = boletaViewModel.crearBoletaBackend(
-                                    total = totalFinal,
-                                    descuento = descuentoAplicado,
-                                    itemsCarrito = carrito)
+                                val boletaRemota = boletaViewModel.crearBoletaBackend(carrito)
 
                                 carritoViewModel.vaciarCarrito()
 
                                 snackbarHostState.showSnackbar(
-                                    "¡Compra exitosa! Boleta # ${boletaRemota?.idBoleta}"
+                                    "¡Compra exitosa! Boleta # ${boletaRemota.idBoleta}"
                                 )
 
                                 navController.navigate("detalle_boleta/${boletaRemota?.idBoleta}"){
-                                    popUpTo("PantallaPrincipal")
+                                    popUpTo("boleta_detalle/{${boletaRemota.idBoleta})}")
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()

@@ -19,31 +19,32 @@ import kotlinx.coroutines.launch
 
 class BoletaViewModel (application: Application) : AndroidViewModel(application) {
 
-    private val api = RetrofitBuilder.boletaApi
+    private val api : BoletaApiService = RetrofitBuilder.boletaApi
     private val _boletaActual = MutableStateFlow<BoletaRemoteDTO?>(null)
     val boletaActual: StateFlow<BoletaRemoteDTO?> = _boletaActual
 
     // se crea la boleta en backend a partir de carrito
-    fun crearBoletaBackend(itemsCarrito: List<CarritoEntity>) {
+    suspend fun crearBoletaBackend(itemsCarrito: List<CarritoEntity>): BoletaRemoteDTO {
         val token = UserSession.jwt?: throw IllegalStateException("Usuario no logueado")
 
-        viewModelScope.launch {
-            val items = itemsCarrito.map {
-                BoletaItemRequestDTO(
-                    idProducto = it.productoId,
-                    cantidad = it.cantidad
-
-                )
-            }
-
-            val body = BoletaCreateDTO(
-                items = items
+        //mapeo de carrito
+        val items = itemsCarrito.map {
+            BoletaItemRequestDTO(
+                idProducto = it.productoId,
+                cantidad = it.cantidad
             )
-
-            val respuesta = api.crearBoleta("Bearer $token", body)
-
-            _boletaActual.value = respuesta
         }
+
+        //DTO que espera el backend
+        val body = BoletaCreateDTO(items = items)
+
+        //llamada al backend
+        val respuesta = api.crearBoleta("Bearer $token", body)
+
+        //guarda en StateFLow
+        _boletaActual.value = respuesta
+
+        return respuesta
     }
 
     fun obtenerBoletaId(id: Long) {

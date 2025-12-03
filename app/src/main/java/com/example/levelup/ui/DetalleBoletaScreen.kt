@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -22,19 +21,20 @@ import com.example.levelup.ui.theme.JetBlack
 import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
 @Composable
-fun BoletaDetalleScreen(
+fun DetalleBoletaScreen(
     navController: NavController,
     boletaId: Long,
     boletaViewModel: BoletaViewModel
 ) {
-    var boleta by remember { mutableStateOf<BoletaRemoteDTO?>(null) }
+    val boleta by boletaViewModel.boletaActual.collectAsState()
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(boletaId) {
         try {
             loading = true
-            boleta = boletaViewModel.obtenerBoletaId(boletaId)
+            boletaViewModel.obtenerBoletaId(boletaId)
         } catch (e: Exception) {
             error = e.message
         } finally {
