@@ -33,4 +33,15 @@ interface ProductosApiService {
 
     @DELETE("api/v1/productos/{id}")
     suspend fun eliminarProducto(@Path("id") id: Long)
+
+    // --- CORREGIDO AQUÍ ---
+    @POST("api/v1/productos/{id}/imagenes")
+    @Headers("Content-Type: application/json")
+    suspend fun agregarImagen(
+        @Path("id") idProducto: Long,
+        @Body dto: ProductoImagenCreateDTO // El archivo nuevo del paso 1
+    ): ProductoImagenRemoteDTO // <--- AQUÍ USAMOS TU CLASE EXISTENTE
+
+    @GET("api/v1/categorias")
+    suspend fun obtenerCategorias(): List<CategoriaRemoteDTO>
 }

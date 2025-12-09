@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.viewmodel.UsuariosViewModel
@@ -34,6 +35,7 @@ fun LoginScreen(
 
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by rememberSaveable { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
 
     // 🔥 ESCUCHAR ERROR DEL VIEWMODEL
     val errorVM by vm.error.collectAsState()
@@ -118,6 +120,7 @@ fun LoginScreen(
                             popUpTo("login") { inclusive = true }
                         }
                     }
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -144,7 +147,7 @@ fun LoginScreen(
                 onClick = { navController.navigate("registro") }
             ) {
                 Text(
-                    "¿No tienes cuenta? Regístrate aquí",
+                    "¿No tienes cuenta?\nRegístrate aquí",
                     color = GamerGreen,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold

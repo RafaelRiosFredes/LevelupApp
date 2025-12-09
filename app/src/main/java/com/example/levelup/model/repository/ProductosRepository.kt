@@ -110,4 +110,29 @@ class ProductosRepository(
             e.printStackTrace()
         }
     }
+
+    suspend fun crearProductoRetornandoEntidad(producto: ProductosEntity): ProductosEntity? {
+        return try {
+            // 1. Enviamos al backend
+            val creadoRemoto = api.crearProducto(producto.toCreateRemote())
+            // 2. Convertimos la respuesta (que trae el ID real) a entidad local
+            val entity = creadoRemoto.toEntity()
+            // 3. Guardamos en Room
+            dao.insertar(entity)
+            // 4. Retornamos la entidad con el ID correcto
+            entity
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun obtenerCategoriasBackend(): List<com.example.levelup.remote.CategoriaRemoteDTO> {
+        return try {
+            api.obtenerCategorias()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
 }
