@@ -2,30 +2,19 @@
 
 package com.example.levelup.ui
 
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.levelup.core.UserSession
-import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.ui.theme.JetBlack
@@ -33,18 +22,14 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.UsuariosViewModel
 import kotlinx.coroutines.launch
 
-// ----------------------------------------------------------
-//              PANTALLA PRINCIPAL (ADMIN)
-// ----------------------------------------------------------
 @Composable
 fun AddUsuarioScreen(
     navController: NavController,
-    usuariosViewModel: UsuariosViewModel
+    vm: UsuariosViewModel
 ) {
-
-    // 🔐 Protección admin
+    // Solo admin
     LaunchedEffect(Unit) {
-        if (UserSession.rol != "admin") {
+        if (!UserSession.rol.toString().contains("ADMIN", ignoreCase = true)) {
             navController.navigate("PantallaPrincipal") {
                 popUpTo("PantallaPrincipal") { inclusive = true }
             }
@@ -53,50 +38,36 @@ fun AddUsuarioScreen(
 
     DrawerGlobal(navController = navController) {
         AddUsuarioContent(
-            usuariosViewModel = usuariosViewModel,
+            vm = vm,
             onSaved = { navController.popBackStack() },
             onCancel = { navController.popBackStack() }
         )
     }
 }
 
-// ----------------------------------------------------------
-//                  CONTENIDO DE LA VISTA
-// ----------------------------------------------------------
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddUsuarioContent(
-    usuariosViewModel: UsuariosViewModel,
+    vm: UsuariosViewModel,
     onSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // FORMULARIO
     var nombres by remember { mutableStateOf("") }
     var apellidos by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+    var fechaNacimiento by remember { mutableStateOf("") }
     var rol by remember { mutableStateOf("user") }
-
-    var fotoBytes by remember { mutableStateOf<ByteArray?>(null) }
-    var fotoBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val bytes = ctx.contentResolver.openInputStream(it)?.use { stream -> stream.readBytes() }
-            fotoBytes = bytes
-            fotoBitmap = bytes?.let { b -> BitmapFactory.decodeByteArray(b, 0, b.size) }
-        }
-    }
 
     Scaffold(
         containerColor = JetBlack,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Agregar Usuario", color = GamerGreen) },
+                title = { Text("Agregar usuario", color = GamerGreen) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = JetBlack)
             )
         }
@@ -110,69 +81,49 @@ private fun AddUsuarioContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // FOTO PERFIL
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .clickable { launcher.launch("image/*") },
-                contentAlignment = Alignment.Center
-            ) {
-                if (fotoBitmap != null) {
-                    Image(
-                        bitmap = fotoBitmap!!.asImageBitmap(),
-                        contentDescription = "",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else Text("Foto", color = PureWhite)
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // CAMPOS
+            // CAMPOS sin foto
             CampoTexto("Nombres", nombres) { nombres = it }
             CampoTexto("Apellidos", apellidos) { apellidos = it }
             CampoTexto("Correo", correo) { correo = it }
-            CampoTextoPassword("Contraseña", contrasena) { contrasena = it }
+            CampoTexto("Contraseña", contrasena) { contrasena = it }
+            CampoTexto("Teléfono", telefono) { telefono = it }
+            CampoTexto("Fecha nacimiento (YYYY-MM-DD)", fechaNacimiento) { fechaNacimiento = it }
 
-            // ROL
-            Spacer(Modifier.height(16.dp))
-            RolSelector(rol) { rol = it }
+            Spacer(Modifier.height(12.dp))
 
-            Spacer(Modifier.height(25.dp))
+            // SELECTOR DE ROL
+            RolSelector(rolActual = rol) { rol = it }
 
-            // BOTONES
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Spacer(Modifier.height(24.dp))
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+
                 TextButton(onClick = onCancel) {
                     Text("Cancelar", color = PureWhite)
                 }
+
                 Spacer(Modifier.width(12.dp))
+
                 Button(
                     onClick = {
                         if (nombres.isBlank() || correo.isBlank() || contrasena.isBlank()) {
-                            Toast.makeText(ctx, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, "Completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
 
-                        val nuevo = UsuarioEntity(
-                            id = 0,
-                            nombres = nombres,
-                            apellidos = apellidos,
-                            correo = correo,
-                            contrasena = contrasena,
-                            telefono = null,
-                            fechaNacimiento = null,
-                            fotoPerfil = fotoBytes,
-                            duoc = false,
-                            descApl = false,
-                            rol = rol
-                        )
-
                         scope.launch {
-                            usuariosViewModel.insertarUsuario(nuevo)
-                            onSaved()
+                            vm.registrar(
+                                nombres = nombres,
+                                apellidos = apellidos,
+                                correo = correo,
+                                contrasena = contrasena,
+                                telefono = telefono.toLongOrNull() ?: 0,
+                                fechaNacimiento = fechaNacimiento
+                            ) {
+                                Toast.makeText(ctx, "Usuario creado", Toast.LENGTH_SHORT).show()
+                                onSaved()
+                            }
                         }
-
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GamerGreen)
                 ) {
@@ -183,8 +134,9 @@ private fun AddUsuarioContent(
     }
 }
 
+
 // ----------------------------------------------------------
-//                   CAMPOS REUTILIZABLES
+// REUSABLE FIELDS
 // ----------------------------------------------------------
 @Composable
 fun CampoTexto(
@@ -205,33 +157,10 @@ fun CampoTexto(
             cursorColor = GamerGreen
         )
     )
+
+    Spacer(Modifier.height(12.dp))
 }
 
-@Composable
-fun CampoTextoPassword(
-    titulo: String,
-    valor: String,
-    onChange: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onChange,
-        label = { Text(titulo, color = PureWhite) },
-        visualTransformation = PasswordVisualTransformation(),
-        modifier = Modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GamerGreen,
-            unfocusedBorderColor = Color.DarkGray,
-            focusedTextColor = PureWhite,
-            unfocusedTextColor = PureWhite,
-            cursorColor = GamerGreen
-        )
-    )
-}
-
-// ----------------------------------------------------------
-//                   SELECTOR DE ROL
-// ----------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RolSelector(rolActual: String, onChange: (String) -> Unit) {
@@ -240,7 +169,7 @@ fun RolSelector(rolActual: String, onChange: (String) -> Unit) {
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it }
+        onExpandedChange = { expanded = !expanded }
     ) {
 
         OutlinedTextField(

@@ -2,6 +2,7 @@
 
 package com.example.levelup.ui
 
+import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,35 +10,40 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.levelup.core.UserSession
-import com.example.levelup.remote.LoginRequestDTO
-import com.example.levelup.remote.RetrofitBuilder
 import com.example.levelup.ui.theme.GamerGreen
-import kotlinx.coroutines.launch
+import com.example.levelup.viewmodel.UsuariosViewModel
+import com.example.levelup.viewmodel.UsuariosViewModelFactoryApp
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    vm: UsuariosViewModel = viewModel(
+        factory = UsuariosViewModelFactoryApp(
+            LocalContext.current.applicationContext as Application
+        )
+    )
 ) {
 
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by rememberSaveable { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
 
-    val scope = rememberCoroutineScope()
+    // 🔥 ESCUCHAR ERROR DEL VIEWMODEL
+    val errorVM by vm.error.collectAsState()
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Iniciar sesión",
+                        "Iniciar sesión",
                         color = GamerGreen,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -60,7 +66,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // CORREO
+            // -------------------- CORREO --------------------
             OutlinedTextField(
                 value = correo,
                 onValueChange = { correo = it },
@@ -78,7 +84,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // CONTRASEÑA
+            // -------------------- CONTRASEÑA --------------------
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = { contrasena = it },
@@ -97,39 +103,21 @@ fun LoginScreen(
 
             Spacer(Modifier.height(26.dp))
 
-            // BOTÓN INGRESAR
+            // -------------------- BOTÓN INGRESAR --------------------
             Button(
                 onClick = {
 
-                    scope.launch {
-                        try {
-                            val dto = LoginRequestDTO(
-                                correo = correo.trim(),
-                                contrasena = contrasena.trim()
-                            )
-
-                            val response = RetrofitBuilder.authApi.login(dto)
-
-                            // Guardar correctamente la sesión desde BACKEND
-                            UserSession.login(
-                                id = response.idUsuario,
-                                correo = correo.trim(),
-                                rol = response.roles.toString(),
-                                nombre = "",
-                                apellidos = "",
-                                jwt = response.token
-                            )
-
-                            navController.navigate("PantallaPrincipal") {
-                                popUpTo("login") { inclusive = true }
-                            }
-
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            error = "Correo o contraseña incorrectos"
-                        }
+                    // Validación básica antes de llamar al backend
+                    if (correo.isBlank() || contrasena.isBlank()) {
+                        vm.setError("Debes completar ambos campos")
+                        return@Button
                     }
 
+                    vm.login(correo.trim(), contrasena.trim()) {
+                        navController.navigate("PantallaPrincipal") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,10 +127,11 @@ fun LoginScreen(
                 Text("Ingresar", color = Color.Black, fontWeight = FontWeight.Bold)
             }
 
-            if (error.isNotEmpty()) {
+            // -------------------- MOSTRAR ERROR --------------------
+            if (!errorVM.isNullOrBlank()) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = error,
+                    text = errorVM!!,
                     color = Color.Red,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()

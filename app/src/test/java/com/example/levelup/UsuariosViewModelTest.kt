@@ -1,7 +1,6 @@
 package com.example.levelup
 
 import android.app.Application
-import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.repository.UsuariosRepository
 import com.example.levelup.viewmodel.UsuariosViewModel
 import io.mockk.coEvery

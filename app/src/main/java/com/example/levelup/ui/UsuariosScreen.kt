@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.remote.UsuarioDTO
 import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.DarkGray
 import com.example.levelup.ui.theme.GamerGreen
@@ -27,27 +27,29 @@ import com.example.levelup.viewmodel.UsuariosViewModel
 
 @Composable
 fun UsuariosScreen(
-    usuariosViewModel: UsuariosViewModel,
+    vm: UsuariosViewModel,
     currentUserRol: String,
     navController: NavController,
-    onAgregarClick: () -> Unit,
-    onEditarClick: (Int) -> Unit,
-    onLogout: () -> Unit = {}
+    onEditarClick: (Long) -> Unit,
 ) {
 
-    // 🔐 Seguridad: solo admin
+    // Solo ADMIN
     LaunchedEffect(Unit) {
-        if (currentUserRol != "admin") {
+        if (!currentUserRol.contains("ADMIN", ignoreCase = true)) {
             navController.navigate("PantallaPrincipal") {
                 popUpTo("PantallaPrincipal") { inclusive = true }
             }
         }
     }
 
-    val usuarios by usuariosViewModel.obtenerUsuarios()
-        .collectAsState(initial = emptyList())
+    val usuarios by vm.listaUsuarios.collectAsState()
 
-    var selectedUser by remember { mutableStateOf<UsuarioEntity?>(null) }
+
+    LaunchedEffect(Unit) {
+        vm.cargarUsuarios()
+    }
+
+    var selectedUser by remember { mutableStateOf<UsuarioDTO?>(null) }
     var showConfirmDelete by remember { mutableStateOf(false) }
 
     DrawerGlobal(navController = navController) {
@@ -100,9 +102,10 @@ fun UsuariosScreen(
                                 )
 
                                 Text(u.correo, color = Color.LightGray)
+
                                 Text(
                                     "Rol: ${u.rol}",
-                                    color = if (u.rol == "admin") GamerGreen else Color.Gray
+                                    color = if (u.rol.contains("ADMIN", ignoreCase = true)) GamerGreen else Color.Gray
                                 )
 
                                 if (selectedUser?.id == u.id) {
@@ -112,7 +115,7 @@ fun UsuariosScreen(
                                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
 
-                                        IconButton(onClick = { onEditarClick(u.id) }) {
+                                        IconButton(onClick = { onEditarClick(u.id!!) }) {
                                             Icon(
                                                 Icons.Default.Edit,
                                                 contentDescription = "Editar",
@@ -139,7 +142,7 @@ fun UsuariosScreen(
             }
         }
 
-        // CONFIRMAR ELIMINACION
+        // CONFIRMA ELIMINACIÓN
         if (showConfirmDelete && selectedUser != null) {
 
             AlertDialog(
@@ -153,7 +156,7 @@ fun UsuariosScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        usuariosViewModel.eliminarUsuario(selectedUser!!)
+                        vm.eliminarUsuarioBackend(selectedUser!!.id!!)
                         selectedUser = null
                         showConfirmDelete = false
                     }) {

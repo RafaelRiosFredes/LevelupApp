@@ -12,16 +12,14 @@ import kotlinx.coroutines.launch
 @Database(
     entities = [
         ProductosEntity::class,
-        UsuarioEntity::class,
         CarritoEntity::class,
         BoletaEntity::class
     ],
-    version = 15,
+    version = 16, //
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun usuarioDao(): UsuariosDao
     abstract fun productosDao(): ProductosDao
     abstract fun carritoDao(): CarritoDao
     abstract fun boletaDao(): BoletasDao
@@ -52,12 +50,12 @@ abstract class AppDatabase : RoomDatabase() {
                             val dao = database.productosDao()
 
                             // ================================
-                            //   PRODUCTOS INICIALES CORREGIDOS
+                            //   PRODUCTOS INICIALES DEMO
                             // ================================
                             val productosIniciales = listOf(
                                 ProductosEntity(
-                                    id = 0L,                   // id local ROOM
-                                    backendId = null,          // aún no existe en backend
+                                    id = 0L,
+                                    backendId = null,
                                     nombre = "Teclado Gamer",
                                     descripcion = "Teclado ideal para gamers",
                                     precio = 12990,
@@ -70,7 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     id = 0L,
                                     backendId = null,
                                     nombre = "Mouse Gamer",
-                                    descripcion = "Mouse cómodo ideal para tus juegos",
+                                    descripcion = "Mouse cómodo ideal para juegos",
                                     precio = 39990,
                                     stock = 20,
                                     imagenUrl = "https://s3.amazonaws.com/w3.assets/fotos/27719/1..webp?v=1883517885",
@@ -81,7 +79,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     id = 0L,
                                     backendId = null,
                                     nombre = "Camiseta personalizada",
-                                    descripcion = "Elige el diseño que quieras",
+                                    descripcion = "Diseño a elección",
                                     precio = 7990,
                                     stock = 50,
                                     imagenUrl = "https://iglboards.cl/cdn/shop/files/PoleraNegraIglNinoReverso.jpg?v=1722515395&width=1445",
@@ -92,7 +90,7 @@ abstract class AppDatabase : RoomDatabase() {
 
                             dao.insertarProductos(productosIniciales)
 
-                            println("✔ Productos iniciales guardados correctamente en ROOM")
+                            println("✔ Productos iniciales insertados en ROOM")
                         }
                     }
                 })

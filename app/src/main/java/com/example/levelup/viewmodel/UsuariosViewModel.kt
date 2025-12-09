@@ -3,134 +3,122 @@ package com.example.levelup.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelup.model.data.UsuarioEntity
+import com.example.levelup.core.UserSession
 import com.example.levelup.model.repository.UsuariosRepository
-import com.example.levelup.remote.LoginRequestDTO
-import com.example.levelup.remote.LoginResponseDTO
-import com.example.levelup.remote.RetrofitBuilder
+import com.example.levelup.remote.RegistroUsuarioRemoteDTO
+import com.example.levelup.remote.UsuarioDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UsuariosViewModel(
     application: Application,
-    private val repository: UsuariosRepository
+    private val repo: UsuariosRepository
 ) : AndroidViewModel(application) {
 
-    private val _loginMensaje = MutableStateFlow<String?>(null)
-    val loginMensaje: StateFlow<String?> = _loginMensaje
+    // ---------- LISTA COMPLETA DE USUARIOS ----------
+    private val _listaUsuarios = MutableStateFlow<List<UsuarioDTO>>(emptyList())
+    val listaUsuarios: StateFlow<List<UsuarioDTO>> = _listaUsuarios
 
-    private val _usuarioActual = MutableStateFlow<UsuarioEntity?>(null)
-    val usuarioActual: StateFlow<UsuarioEntity?> = _usuarioActual
+    // ---------- USUARIO INDIVIDUAL ----------
+    private val _usuarioActual = MutableStateFlow<UsuarioDTO?>(null)
+    val usuarioActual: StateFlow<UsuarioDTO?> = _usuarioActual
 
-    fun limpiarLoginMensaje() {
-        _loginMensaje.value = null
-    }
+    // ---------- ERRORES ----------
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
-    fun obtenerUsuarios() = repository.obtenerUsuarios()
-    fun usuarioPorId(id: Int) = repository.usuarioPorId(id)
 
-    fun insertarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
-        repository.insertar(usuario)
-    }
+    // ---------- LOGIN ----------
+    fun login(correo: String, contrasena: String, onSuccess: () -> Unit) =
+        viewModelScope.launch {
+            try {
+                val resp = repo.login(correo, contrasena)
 
-    fun actualizarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
-        repository.actualizar(usuario)
-    }
+                UserSession.login(
+                    id = resp.idUsuario,
+                    correo = resp.username,
+                    rol = resp.roles.toString(),
+                    nombre = "",
+                    apellidos = "",
+                    jwt = resp.token
+                )
 
-    fun eliminarUsuario(usuario: UsuarioEntity) = viewModelScope.launch {
-        repository.eliminar(usuario)
-    }
+                val user = repo.obtenerUsuario(resp.idUsuario)
+                _usuarioActual.value = user
 
-    //Backend crear
+                onSuccess()
 
-    fun registrarUsuarioPublico(
+            } catch (e: Exception) {
+                _error.value = "Login incorrecto"
+            }
+        }
+
+
+    // ---------- REGISTRO ----------
+    fun registrar(
         nombres: String,
         apellidos: String,
         correo: String,
         contrasena: String,
         telefono: Long,
         fechaNacimiento: String,
-        onResult: (Boolean) -> Unit // Callback para saber si funcionó
+        onSuccess: () -> Unit
     ) = viewModelScope.launch {
 
-        // Llamamos a la función del repositorio que conecta con AuthApiService
-        val resultado = repository.registrarUsuarioBackendYLocal(
-            nombres = nombres,
-            apellidos = apellidos,
-            correo = correo,
-            contrasena = contrasena,
-            telefono = telefono,
-            fechaNacimiento = fechaNacimiento,
-            fotoPerfilBase64 = null, // Opcional por ahora
-            duoc = correo.endsWith("@duocuc.cl"),
-            descApl = false,
-            rol = "user"
-        )
+        try {
 
-        // Notificamos a la vista si fue exitoso o no
-        if (resultado.isSuccess) {
-            onResult(true)
-        } else {
-            resultado.exceptionOrNull()?.printStackTrace()
-            onResult(false)
-        }
-    }
-    // BACKEND: actualizar
-    suspend fun actualizarUsuarioBackend(usuario: UsuarioEntity) =
-        repository.actualizarUsuarioBackend(usuario)
-
-    // BACKEND: eliminar
-    suspend fun eliminarUsuarioBackend(usuario: UsuarioEntity) =
-        repository.eliminarUsuarioBackend(usuario)
-
-    fun sincronizarUsuarios() = viewModelScope.launch {
-        repository.sincronizarUsuarios()
-    }
-
-    // LOGIN
-    suspend fun login(correo: String, contrasena: String): UsuarioEntity? {
-        val usuario = repository.login(correo, contrasena)
-
-        _loginMensaje.value =
-            if (usuario != null) "Ingreso exitoso"
-            else "Credenciales incorrectas"
-
-        _usuarioActual.value = usuario
-
-        return usuario
-    }
-
-    // LOGOUT
-    fun logout() {
-        _usuarioActual.value = null
-    }
-
-    // ADMIN POR DEFECTO
-    fun crearAdminPorDefecto() = viewModelScope.launch {
-        val admin = repository.login("admin@levelup.com", "admin123")
-        if (admin == null) {
-            repository.insertar(
-                UsuarioEntity(
-                    nombres = "Admin",
-                    apellidos = "LevelUp",
-                    correo = "admin@levelup.com",
-                    contrasena = "admin123",
-                    rol = "admin"
-                )
+            val dto = RegistroUsuarioRemoteDTO(
+                nombres = nombres,
+                apellidos = apellidos,
+                correo = correo,
+                contrasena = contrasena,
+                telefono = telefono,
+                fechaNacimiento = fechaNacimiento
             )
+
+            repo.registrar(dto)
+
+            onSuccess()
+
+        } catch (e: Exception) {
+            _error.value = "Error al registrar usuario"
         }
     }
 
-    suspend fun loginBackend(email: String, pass: String): LoginResponseDTO? {
-        return try {
-            // Llamada a la API usando Retrofit
-            // Asegúrate de que tu AuthApiService tenga un método login que devuelva LoginResponseDTO
-            val response = RetrofitBuilder.authApi.login(LoginRequestDTO(email, pass))
-            response // Retornamos el DTO que trae el token
+
+    // ---------- CARGAR LISTA COMPLETA DESDE BACKEND ----------
+    fun cargarUsuarios() = viewModelScope.launch {
+        try {
+            _listaUsuarios.value = repo.obtenerUsuarios()
         } catch (e: Exception) {
-            e.printStackTrace()
-            null // Si falla, retornamos null
+            _error.value = "No se pudieron cargar usuarios"
         }
     }
+
+    // ---------- CARGAR UN SOLO USUARIO ----------
+    fun cargarUsuario(id: Long) = viewModelScope.launch {
+        try {
+            _usuarioActual.value = repo.obtenerUsuario(id)
+        } catch (e: Exception) {
+            _error.value = "No se pudo cargar usuario"
+        }
+    }
+
+
+    // ---------- ELIMINAR USUARIO DESDE BACKEND ----------
+    fun eliminarUsuarioBackend(id: Long) = viewModelScope.launch {
+        try {
+            repo.eliminarUsuario(id)
+            cargarUsuarios()
+        } catch (e: Exception) {
+            _error.value = "No se pudo eliminar usuario"
+        }
+    }
+
+    // ---------- SETEAR ERROR MANUAL DESDE UI ----------
+    fun setError(msg: String) {
+        _error.value = msg
+    }
+
 }

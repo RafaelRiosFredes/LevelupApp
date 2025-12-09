@@ -31,6 +31,9 @@ fun LevelUpNavHost(
 
     val context = LocalContext.current
 
+    // ============================
+    // CARRO / BOLETAS / OPINIONES
+    // ============================
     val carritoViewModel: CarritoViewModel =
         viewModel(factory = CarritoViewModelFactory(context.applicationContext as Application))
 
@@ -38,7 +41,6 @@ fun LevelUpNavHost(
         viewModel(factory = BoletaViewModelFactoryApp(context.applicationContext as Application))
 
     val opinionesRepository = OpinionesRepository(RetrofitBuilder.opinionesApi)
-
     val opinionViewModel: OpinionesViewModel =
         viewModel(factory = OpinionesViewModelFactory(opinionesRepository))
 
@@ -48,9 +50,9 @@ fun LevelUpNavHost(
         startDestination = "PantallaPrincipal"
     ) {
 
-        // ----------------------------------------------------
-        //                      PRINCIPAL
-        // ----------------------------------------------------
+        // --------------------------
+        // PRINCIPAL
+        // --------------------------
         composable("PantallaPrincipal") {
             PantallaPrincipal(
                 navController = navController,
@@ -62,9 +64,9 @@ fun LevelUpNavHost(
             )
         }
 
-        // ----------------------------------------------------
-        //                       PRODUCTOS
-        // ----------------------------------------------------
+        // --------------------------
+        // PRODUCTOS
+        // --------------------------
         composable("productos") {
             ProductosScreen(
                 navController = navController,
@@ -84,9 +86,9 @@ fun LevelUpNavHost(
             )
         }
 
-        // ----------------------------------------------------
-        //                         CARRITO
-        // ----------------------------------------------------
+        // --------------------------
+        // CARRITO
+        // --------------------------
         composable("carrito") {
             CarritoScreen(
                 navController = navController,
@@ -96,18 +98,16 @@ fun LevelUpNavHost(
             )
         }
 
-        // ----------------------------------------------------
-        //                         LOGIN
-        // ----------------------------------------------------
+        // --------------------------
+        // LOGIN
+        // --------------------------
         composable("login") {
-            LoginScreen(
-                navController = navController
-            )
+            LoginScreen(navController = navController)
         }
 
-        // ----------------------------------------------------
-        //                      REGISTRO
-        // ----------------------------------------------------
+        // --------------------------
+        // REGISTRO (público)
+        // --------------------------
         composable("registro") {
             RegistroScreen(
                 navController = navController,
@@ -115,30 +115,20 @@ fun LevelUpNavHost(
             )
         }
 
-        // ----------------------------------------------------
-        //                       NOTICIAS
-        // ----------------------------------------------------
-        composable("noticias") {
-            NoticiasScreen(
-                navController = navController
-            )
-        }
+        // --------------------------
+        // NOTICIAS / CONTACTO
+        // --------------------------
+        composable("noticias") { NoticiasScreen(navController = navController) }
+        composable("contacto") { ContactoScreen(navController = navController) }
 
-        // ----------------------------------------------------
-        //                       CONTACTO
-        // ----------------------------------------------------
-        composable("contacto") {
-            ContactoScreen(navController = navController)
-        }
-
-        // ----------------------------------------------------
-        //                       INVENTARIO (ADMIN)
-        // ----------------------------------------------------
+        // --------------------------
+        // INVENTARIO ADMIN
+        // --------------------------
         composable("inventario") {
             InventarioScreen(
                 navController = navController,
                 productosViewModel = productosViewModel,
-                currentUserRol = UserSession.rol ?: "user"
+                currentUserRol = UserSession.rol ?: "USER"
             )
         }
 
@@ -155,22 +145,21 @@ fun LevelUpNavHost(
             EditProductoScreen(
                 navController = navController,
                 productosViewModel = productosViewModel,
-                currentUserRol = UserSession.rol ?: "user",
+                currentUserRol = UserSession.rol ?: "USER",
                 productId = id,
                 onSaved = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
             )
         }
 
-        // ----------------------------------------------------
-        //                    ADMIN: USUARIOS
-        // ----------------------------------------------------
+        // --------------------------
+        // ADMIN → USUARIOS
+        // --------------------------
         composable("admin_usuarios") {
             UsuariosScreen(
-                usuariosViewModel = usuariosViewModel,
-                currentUserRol = UserSession.rol ?: "user",
+                vm = usuariosViewModel,
+                currentUserRol = UserSession.rol ?: "USER",
                 navController = navController,
-                onAgregarClick = { navController.navigate("add_usuario") },
                 onEditarClick = { id -> navController.navigate("edit_usuario/$id") }
             )
         }
@@ -178,27 +167,25 @@ fun LevelUpNavHost(
         composable("add_usuario") {
             AddUsuarioScreen(
                 navController = navController,
-                usuariosViewModel = usuariosViewModel
+                vm = usuariosViewModel
             )
         }
 
         composable("edit_usuario/{id}") { backStack ->
-            val id = backStack.arguments?.getString("id")?.toIntOrNull() ?: 0
+            val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0L
 
             EditUsuarioScreen(
                 navController = navController,
-                usuariosViewModel = usuariosViewModel,
-                currentUserRol = UserSession.rol ?: "user",
+                vm = usuariosViewModel,
+                currentUserRol = UserSession.rol ?: "USER",
                 userId = id,
-                onSaved = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
             )
         }
 
-        // ----------------------------------------------------
-        //                    Hisorial de boleta
-        // ----------------------------------------------------
-
+        // --------------------------
+        // BOLETAS
+        // --------------------------
         composable("historial_boletas") {
             HistorialBoletasScreen(
                 navController = navController,
@@ -206,10 +193,6 @@ fun LevelUpNavHost(
             )
         }
 
-
-        // ----------------------------------------------------
-        //                    DETALLE BOLETA
-        // ----------------------------------------------------
         composable("boleta_detalle/{id}") { backStack ->
             val id = backStack.arguments?.getString("id")?.toLongOrNull() ?: 0L
 
@@ -219,9 +202,10 @@ fun LevelUpNavHost(
                 boletaViewModel = boletaViewModel
             )
         }
-        // ----------------------------------------------------
-        //                    DETALLE COMPRA
-        // ----------------------------------------------------
+
+        // --------------------------
+        // DETALLE COMPRA
+        // --------------------------
         composable(
             route = "detalle_compra/{totalFinal}/{descuentoAplicado}",
             arguments = listOf(
@@ -229,8 +213,8 @@ fun LevelUpNavHost(
                 navArgument("descuentoAplicado") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val totalFinal  = backStackEntry.arguments?.getLong("totalFinal") ?: 0L
-            val descuentoAplicado  = backStackEntry.arguments?.getInt("descuentoAplicado") ?: 0
+            val totalFinal = backStackEntry.arguments?.getLong("totalFinal") ?: 0L
+            val descuentoAplicado = backStackEntry.arguments?.getInt("descuentoAplicado") ?: 0
 
             DetalleCompraScreen(
                 navController = navController,
@@ -240,6 +224,6 @@ fun LevelUpNavHost(
                 descuentoAplicado = descuentoAplicado
             )
         }
-
     }
 }
+

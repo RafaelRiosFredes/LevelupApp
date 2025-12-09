@@ -1,6 +1,5 @@
 package com.example.levelup
 
-import com.example.levelup.model.data.UsuarioEntity
 import com.example.levelup.model.data.UsuariosDao
 import com.example.levelup.model.repository.UsuariosRepository
 import com.example.levelup.remote.UsuarioDTO

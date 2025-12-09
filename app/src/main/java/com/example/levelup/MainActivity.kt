@@ -40,11 +40,6 @@ class MainActivity : ComponentActivity() {
                 )
 
                 // -------------------------
-                // Crear ADMIN si no existe
-                // -------------------------
-                usuariosViewModel.crearAdminPorDefecto()
-
-                // -------------------------
                 // NavController global
                 // -------------------------
                 val navController = rememberNavController()
