@@ -50,12 +50,13 @@ fun LevelUpNavHost(
         startDestination = "PantallaPrincipal"
     ) {
 
-        // --------------------------
-        // PRINCIPAL
-        // --------------------------
+        // ----------------------------------------------------
+        //                      PRINCIPAL
+        // ----------------------------------------------------
         composable("PantallaPrincipal") {
             PantallaPrincipal(
                 navController = navController,
+                productosViewModel = productosViewModel, // <--- AGREGAMOS ESTO
                 onNavigate = { navController.navigate(it) },
                 onLogout = {
                     UserSession.logout()
