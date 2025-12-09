@@ -30,26 +30,36 @@ class UsuariosViewModel(
 
 
     // ---------- LOGIN ----------
+// ---------- LOGIN ----------
     fun login(correo: String, contrasena: String, onSuccess: () -> Unit) =
         viewModelScope.launch {
             try {
                 // 1) LOGIN
                 val resp = repo.login(correo, contrasena)
 
-                // 2) Guardar solo lo básico
+                val rawRoles = resp.roles.toString()
+
+                val rolNormalizado =
+                    rawRoles
+                        .substringAfter("authority=")
+                        .substringBefore("}")
+                        .replace("ROLE_", "", true)
+                        .lowercase()
+                        .trim()
+
                 UserSession.login(
                     id = resp.idUsuario,
                     correo = resp.username,
-                    rol = resp.roles.toString(),
+                    rol = rolNormalizado,
                     nombre = "",
                     apellidos = "",
                     jwt = resp.token
                 )
 
-                // 3) 🔥 Obtener datos completos del usuario
+
+                // 4) Obtener datos completos
                 val usuario = repo.obtenerUsuario(resp.idUsuario)
 
-                // 4) 🔥 Actualizar nombre y apellidos reales
                 UserSession.nombre = usuario.nombres
                 UserSession.apellidos = usuario.apellidos
 
@@ -57,7 +67,6 @@ class UsuariosViewModel(
                 onSuccess()
 
             } catch (e: Exception) {
-                e.printStackTrace()
                 _error.value = "Correo o contraseña incorrectos"
             }
         }
