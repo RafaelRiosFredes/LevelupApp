@@ -8,6 +8,7 @@ import com.example.levelup.model.data.CarritoEntity
 import com.example.levelup.model.repository.CarritoRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+
 class CarritoViewModel(application: Application) : AndroidViewModel(application) {
 
     internal var repository: CarritoRepository
@@ -24,15 +25,16 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         )
     }
 
-
     constructor(repositoryTest: CarritoRepository) : this(Application()) {
         repository = repositoryTest
     }
 
+    // --- CORRECCIÓN AQUÍ ---
     fun agregarProducto(productoId: Long, nombre: String, precio: Long, imagenUrl: String?) {
         viewModelScope.launch {
             val producto = CarritoEntity(
-                productoId = productoId,
+                // El error estaba aquí: tu entidad espera 'backendId', no 'productoId'
+                backendId = productoId,
                 nombre = nombre,
                 precio = precio,
                 cantidad = 1,

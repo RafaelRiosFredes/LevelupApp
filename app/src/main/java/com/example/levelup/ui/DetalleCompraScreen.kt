@@ -22,8 +22,10 @@ import com.example.levelup.ui.theme.PureWhite
 import com.example.levelup.viewmodel.BoletaViewModel
 import com.example.levelup.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
+import com.example.levelup.ui.components.CompraChecklistDialog
+import com.example.levelup.remote.BoletaRemoteDTO
 
-// mismas regiones que ya tienes
+// Datos de regiones (se mantienen fuera porque son constantes)
 val regionesConComunas = mapOf(
     "Arica y Parinacota" to listOf("Arica", "Camarones", "Putre", "General Lagos"),
     "Tarapacá" to listOf("Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"),
@@ -48,6 +50,7 @@ fun DetalleCompraScreen(
     val carrito by carritoViewModel.carrito.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // --- ESTADOS DE FORMULARIO ---
     var nombre by remember { mutableStateOf(UserSession.nombre ?: "") }
     var apellidos by remember { mutableStateOf(UserSession.apellidos ?: "") }
     var correo by remember { mutableStateOf(UserSession.correo ?: "") }
@@ -60,6 +63,32 @@ fun DetalleCompraScreen(
 
     var regionExpanded by remember { mutableStateOf(false) }
     var comunaExpanded by remember { mutableStateOf(false) }
+
+    // --- ESTADOS PARA LA ANIMACIÓN (Deben estar DENTRO del Composable) ---
+    var showAnimation by remember { mutableStateOf(false) }
+    var compraExitosaDto by remember { mutableStateOf<BoletaRemoteDTO?>(null) }
+    var errorCompra by remember { mutableStateOf<String?>(null) }
+
+    // LOGICA DEL DIALOGO DE ANIMACIÓN
+    if (showAnimation) {
+        CompraChecklistDialog(
+            onDismiss = { /* No dejar cerrar */ },
+            onAnimationFinished = {
+                // Cuando termina la animación visual, revisamos si el backend respondió
+                if (compraExitosaDto != null) {
+                    carritoViewModel.vaciarCarrito()
+                    navController.navigate("boleta_detalle/${compraExitosaDto!!.idBoleta}") {
+                        popUpTo("carrito") { inclusive = true }
+                    }
+                } else if (errorCompra != null) {
+                    showAnimation = false
+                    scope.launch { snackbarHostState.showSnackbar(errorCompra ?: "Error desconocido") }
+                } else {
+                    // Si el backend aun no responde, esperamos (el estado cambiará y reactivará esto)
+                }
+            }
+        )
+    }
 
     DrawerGlobal(navController = navController) {
         Scaffold(
@@ -233,61 +262,51 @@ fun DetalleCompraScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Pagar
+                // --- BOTÓN PAGAR CORREGIDO ---
                 Button(
                     onClick = {
-
+                        // VALIDACIONES
                         if (UserSession.jwt.isNullOrBlank()) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Debes iniciar sesión para pagar")
-                            }
+                            scope.launch { snackbarHostState.showSnackbar("Debes iniciar sesión para pagar") }
                             navController.navigate("login")
                             return@Button
                         }
-
                         if (nombre.isBlank() || calle.isBlank() || regionSeleccionada.isBlank()) {
                             scope.launch { snackbarHostState.showSnackbar("Completa los datos de envío") }
                             return@Button
                         }
                         if (tarjeta.length != 16) {
-                            scope.launch { snackbarHostState.showSnackbar("Tarjeta inválida (debe tener 16 dígitos)") }
+                            scope.launch { snackbarHostState.showSnackbar("Tarjeta inválida (16 dígitos)") }
                             return@Button
                         }
                         if (carrito.isEmpty()) {
-                            scope.launch { snackbarHostState.showSnackbar("Tu carrito está vacío") }
+                            scope.launch { snackbarHostState.showSnackbar("Carrito vacío") }
                             return@Button
                         }
 
+                        // INICIAR PROCESO DE COMPRA Y ANIMACIÓN
+                        showAnimation = true
+                        errorCompra = null
+                        compraExitosaDto = null
+
                         scope.launch {
                             try {
-                                val boletaRemota = boletaViewModel.crearBoletaBackend(
+                                val respuestaBackend = boletaViewModel.crearBoletaBackend(
                                     itemsCarrito = carrito,
                                     totalFinal = totalFinal,
                                     descuentoAplicado = descuentoAplicado
                                 )
-
-                                carritoViewModel.vaciarCarrito()
-
-                                snackbarHostState.showSnackbar(
-                                    "¡Compra exitosa! Boleta #${boletaRemota.idBoleta}"
-                                )
-
-                                navController.navigate("boleta_detalle/${boletaRemota.idBoleta}") {
-                                    popUpTo("carrito") { inclusive = true }
-                                }
+                                compraExitosaDto = respuestaBackend
                             } catch (e: Exception) {
                                 e.printStackTrace()
-
                                 val msg = if (e is retrofit2.HttpException) {
                                     val errorBody = e.response()?.errorBody()?.string()
                                     "Error HTTP ${e.code()} -> $errorBody"
                                 } else {
                                     e.message ?: "Error desconocido"
                                 }
-
-                                snackbarHostState.showSnackbar("Error al procesar compra: $msg")
+                                errorCompra = "Error: $msg"
                             }
-
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
