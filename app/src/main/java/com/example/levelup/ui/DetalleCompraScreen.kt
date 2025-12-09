@@ -1,10 +1,16 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.levelup.ui
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Map // Icono de mapa
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -25,7 +31,7 @@ import kotlinx.coroutines.launch
 import com.example.levelup.ui.components.CompraChecklistDialog
 import com.example.levelup.remote.BoletaRemoteDTO
 
-// Datos de regiones (se mantienen fuera porque son constantes)
+// Datos de regiones
 val regionesConComunas = mapOf(
     "Arica y Parinacota" to listOf("Arica", "Camarones", "Putre", "General Lagos"),
     "Tarapacá" to listOf("Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"),
@@ -49,6 +55,7 @@ fun DetalleCompraScreen(
     val scope = rememberCoroutineScope()
     val carrito by carritoViewModel.carrito.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     // --- ESTADOS DE FORMULARIO ---
     var nombre by remember { mutableStateOf(UserSession.nombre ?: "") }
@@ -64,7 +71,7 @@ fun DetalleCompraScreen(
     var regionExpanded by remember { mutableStateOf(false) }
     var comunaExpanded by remember { mutableStateOf(false) }
 
-    // --- ESTADOS PARA LA ANIMACIÓN (Deben estar DENTRO del Composable) ---
+    // --- ESTADOS PARA LA ANIMACIÓN ---
     var showAnimation by remember { mutableStateOf(false) }
     var compraExitosaDto by remember { mutableStateOf<BoletaRemoteDTO?>(null) }
     var errorCompra by remember { mutableStateOf<String?>(null) }
@@ -74,7 +81,6 @@ fun DetalleCompraScreen(
         CompraChecklistDialog(
             onDismiss = { /* No dejar cerrar */ },
             onAnimationFinished = {
-                // Cuando termina la animación visual, revisamos si el backend respondió
                 if (compraExitosaDto != null) {
                     carritoViewModel.vaciarCarrito()
                     navController.navigate("boleta_detalle/${compraExitosaDto!!.idBoleta}") {
@@ -83,8 +89,6 @@ fun DetalleCompraScreen(
                 } else if (errorCompra != null) {
                     showAnimation = false
                     scope.launch { snackbarHostState.showSnackbar(errorCompra ?: "Error desconocido") }
-                } else {
-                    // Si el backend aun no responde, esperamos (el estado cambiará y reactivará esto)
                 }
             }
         )
@@ -246,6 +250,49 @@ fun DetalleCompraScreen(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // --- RECURSO NATIVO: BOTÓN ABRIR MAPAS ---
+                OutlinedButton(
+                    onClick = {
+                        // Construimos la dirección para la búsqueda
+                        val direccionCompleta = "$calle $numero, $comunaSeleccionada, $regionSeleccionada, Chile"
+
+                        // Si no ha escrito nada, abrimos el mapa general
+                        val query = if (calle.isNotBlank() || comunaSeleccionada.isNotBlank())
+                            "geo:0,0?q=${Uri.encode(direccionCompleta)}"
+                        else
+                            "geo:0,0"
+
+                        // Lanzamos el Intent Nativo
+                        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
+                        // Intentamos abrir Google Maps específicamente si está instalado, sino cualquiera
+                        mapIntent.setPackage("com.google.android.apps.maps")
+
+                        try {
+                            context.startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            // Si no tiene Google Maps, intentamos abrir cualquier mapa
+                            val genericMapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(query))
+                            try {
+                                context.startActivity(genericMapIntent)
+                            } catch (ex: Exception) {
+                                Toast.makeText(context, "No tienes app de mapas instalada", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = GamerGreen
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GamerGreen)
+                ) {
+                    Icon(Icons.Default.Map, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Ver dirección en Mapa")
+                }
+                // ------------------------------------------
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 4. Pago
@@ -262,7 +309,7 @@ fun DetalleCompraScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // --- BOTÓN PAGAR CORREGIDO ---
+                // --- BOTÓN PAGAR ---
                 Button(
                     onClick = {
                         // VALIDACIONES
