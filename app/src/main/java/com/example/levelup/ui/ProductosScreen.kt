@@ -108,7 +108,7 @@ fun ProductosScreen(
                                 onClick = { navController.navigate("producto/$idSeguro") },
                                 onAddToCart = {
                                     carritoViewModel.agregarProducto(
-                                        productoId = producto.id,
+                                        productoId = producto.backendId ?: 0,
                                         nombre = producto.nombre,
                                         precio = producto.precio,
                                         imagenUrl = producto.imagenUrl

@@ -148,7 +148,7 @@ private fun ProductoContent(
                     Button(
                         onClick = {
                             carritoViewModel.agregarProducto(
-                                productoId = prod.id,
+                                productoId = prod.backendId ?: 0,
                                 nombre = prod.nombre,
                                 precio = prod.precio,
                                 imagenUrl = prod.imagenUrl
