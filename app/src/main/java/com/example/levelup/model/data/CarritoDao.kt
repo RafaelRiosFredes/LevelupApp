@@ -10,6 +10,9 @@ interface CarritoDao {
     @Query("SELECT * FROM carrito")
     fun obtenerCarrito(): Flow<List<CarritoEntity>>
 
+    @Query("SELECT * FROM carrito WHERE backendId = :backendId LIMIT 1")
+    suspend fun obtenerPorBackendId(backendId: Long): CarritoEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(item: CarritoEntity)
 

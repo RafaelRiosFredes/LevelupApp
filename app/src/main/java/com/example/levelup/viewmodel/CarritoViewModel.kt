@@ -32,15 +32,26 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
     // --- CORRECCIÓN AQUÍ ---
     fun agregarProducto(productoId: Long, nombre: String, precio: Long, imagenUrl: String?) {
         viewModelScope.launch {
-            val producto = CarritoEntity(
-                // El error estaba aquí: tu entidad espera 'backendId', no 'productoId'
-                backendId = productoId,
-                nombre = nombre,
-                precio = precio,
-                cantidad = 1,
-                imagenUrl = imagenUrl
-            )
-            repository.agregar(producto)
+            // 1. Buscamos si ya existe en el carrito
+            val productoExistente = repository.buscarPorBackendId(productoId)
+
+            if (productoExistente != null) {
+                // 2. SI EXISTE: Solo aumentamos la cantidad
+                val copiaActualizada = productoExistente.copy(
+                    cantidad = productoExistente.cantidad + 1
+                )
+                repository.actualizar(copiaActualizada)
+            } else {
+                // 3. NO EXISTE: Lo creamos desde cero
+                val nuevoProducto = CarritoEntity(
+                    backendId = productoId,
+                    nombre = nombre,
+                    precio = precio,
+                    cantidad = 1,
+                    imagenUrl = imagenUrl
+                )
+                repository.agregar(nuevoProducto)
+            }
         }
     }
 

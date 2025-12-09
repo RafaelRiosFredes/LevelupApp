@@ -8,6 +8,10 @@ class CarritoRepository(private val dao: CarritoDao) {
 
     val carrito: Flow<List<CarritoEntity>> = dao.obtenerCarrito()
 
+    suspend fun buscarPorBackendId(id: Long): CarritoEntity? {
+        return dao.obtenerPorBackendId(id)
+    }
+
     suspend fun agregar(item: CarritoEntity) = dao.insertar(item)
 
     suspend fun actualizar(item: CarritoEntity) = dao.actualizar(item)
