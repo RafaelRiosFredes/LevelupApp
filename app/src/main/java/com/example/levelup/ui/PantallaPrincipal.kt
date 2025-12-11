@@ -37,7 +37,6 @@ import com.example.levelup.ui.components.DrawerGlobal
 import com.example.levelup.ui.theme.GamerGreen
 import com.example.levelup.viewmodel.ProductosViewModel // Importamos el ViewModel
 
-// UI Model interno
 data class CategoriaUI(
     val id: Long,
     val nombre: String,
@@ -47,16 +46,14 @@ data class CategoriaUI(
 @Composable
 fun PantallaPrincipal(
     navController: NavHostController,
-    productosViewModel: ProductosViewModel, // Recibimos el ViewModel
+    productosViewModel: ProductosViewModel,
     onNavigate: (String) -> Unit,
     onLogout: () -> Unit
 ) {
-    // Cargar categorías al iniciar
+    // Carga categorías al iniciar
     LaunchedEffect(Unit) {
         productosViewModel.cargarCategorias()
     }
-
-    // Observar las categorías reales del backend
     val categoriasBackend by productosViewModel.categorias.collectAsState()
 
     DrawerGlobal(navController = navController) {
@@ -84,7 +81,6 @@ fun PantallaPrincipal(
             ) {
                 BannerPrincipal()
 
-                // Pasamos la lista real del backend a la sección
                 CategoriasSection(
                     categoriasData = categoriasBackend,
                     onCategoryClick = { idCat ->
@@ -163,7 +159,6 @@ fun CategoriasSection(
                 modifier = Modifier.fillMaxHeight()
             ) {
                 items(categoriasData) { catBackend ->
-                    // Convertimos el DTO del backend a nuestro modelo UI con icono
                     val catUI = CategoriaUI(
                         id = catBackend.idCategoria,
                         nombre = catBackend.nombreCategoria,
@@ -177,7 +172,6 @@ fun CategoriasSection(
     }
 }
 
-// Función auxiliar para asignar iconos según el nombre que venga del backend
 fun obtenerIconoPorNombre(nombre: String): ImageVector {
     val n = nombre.lowercase()
     return when {
@@ -189,7 +183,7 @@ fun obtenerIconoPorNombre(nombre: String): ImageVector {
         "mouse" in n && "pad" !in n -> Icons.Default.Mouse
         "pad" in n || "alfombrilla" in n -> Icons.Default.TouchApp
         "ropa" in n || "polera" in n || "camiseta" in n -> Icons.Default.Checkroom
-        else -> Icons.Default.Category // Icono por defecto si no coincide nada
+        else -> Icons.Default.Category // icono por defecto si no coincide nada
     }
 }
 

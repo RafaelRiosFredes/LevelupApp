@@ -6,5 +6,5 @@ data class UsuarioResponseRemoteDTO(
     val apellidos: String,
     val correo: String,
     val telefono: Long?,
-    val fechaNacimiento: String // viene como "YYYY-MM-DD"
+    val fechaNacimiento: String
 )

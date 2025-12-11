@@ -7,50 +7,43 @@ import com.example.levelup.core.AuthInterceptor // Tu interceptor
 
 object RetrofitBuilder {
 
-    const val BASE_URL = "http://10.0.2.2:9090/" // Agrega el / al final por convención
+    const val BASE_URL = "http://10.0.2.2:9090/"
 
-    // 1. CONFIGURAMOS EL CLIENTE CON EL INTERCEPTOR
+    // SE  CONFIGURA EL CLIENTE
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor())
             .build()
     }
 
-    // 2. INSTANCIA DE RETROFIT USANDO EL CLIENTE
+    // INSTANCIA DE RETROFIT USANDO EL CLIENTE
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client) // <--- ASIGNAMOS EL CLIENTE AQUI
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
 
-    // ============================
+
     //   API DE AUTH / USUARIOS
-    // ============================
     val authApi: AuthApiService by lazy {
         retrofit.create(AuthApiService::class.java)
     }
 
 
-    // ============================
     //   API DE PRODUCTOS
-    // ========================= ===
     val productosApi: ProductosApiService by lazy {
         retrofit.create(ProductosApiService::class.java)
     }
 
-    // ============================
     //   API DE BOLETAS
-    // ============================
     val boletaApi: BoletaApiService by lazy {
         retrofit.create(BoletaApiService::class.java)
     }
 
-    // ============================
     //   API DE USUARIOS
-    // ============================
     val usuariosApi: UsuariosApiService by lazy {
         retrofit.create(UsuariosApiService::class.java)
     }

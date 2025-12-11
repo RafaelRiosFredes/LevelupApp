@@ -34,8 +34,6 @@ fun LoginScreen(
 
     var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by rememberSaveable { mutableStateOf("") }
-
-    // 🔥 ESCUCHAR ERROR DEL VIEWMODEL
     val errorVM by vm.error.collectAsState()
 
     Scaffold(
@@ -66,7 +64,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // -------------------- CORREO --------------------
+            //  correo
             OutlinedTextField(
                 value = correo,
                 onValueChange = { correo = it },
@@ -84,7 +82,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // -------------------- CONTRASEÑA --------------------
+            //  contraseña
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = { contrasena = it },
@@ -103,11 +101,9 @@ fun LoginScreen(
 
             Spacer(Modifier.height(26.dp))
 
-            // -------------------- BOTÓN INGRESAR --------------------
+            //  boton ingresar
             Button(
                 onClick = {
-
-                    // Validación básica antes de llamar al backend
                     if (correo.isBlank() || contrasena.isBlank()) {
                         vm.setError("Debes completar ambos campos")
                         return@Button
@@ -127,7 +123,7 @@ fun LoginScreen(
                 Text("Ingresar", color = Color.Black, fontWeight = FontWeight.Bold)
             }
 
-            // -------------------- MOSTRAR ERROR --------------------
+            //  error
             if (!errorVM.isNullOrBlank()) {
                 Spacer(Modifier.height(12.dp))
                 Text(

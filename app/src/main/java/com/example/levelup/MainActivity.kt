@@ -30,9 +30,6 @@ class MainActivity : ComponentActivity() {
 
             LevelUpTheme {
 
-                // -------------------------
-                // Crear ViewModels globales
-                // -------------------------
                 val productosViewModel: ProductosViewModel = viewModel(
                     factory = ProductosViewModelFactoryApp(application)
                 )
@@ -45,10 +42,7 @@ class MainActivity : ComponentActivity() {
                     factory = OpinionesViewModelFactoryApp(application)
                 )
 
-
-                // -------------------------
-                // NavController global
-                // -------------------------
+                // NavController
                 val navController = rememberNavController()
 
                 Surface(

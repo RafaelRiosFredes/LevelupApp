@@ -130,8 +130,7 @@ fun RegistroScreen(
     }
 }
 
-// ------------------------ CAMPOS ------------------------
-
+// campos
 @Composable
 fun RegistroCampo(
     titulo: String,

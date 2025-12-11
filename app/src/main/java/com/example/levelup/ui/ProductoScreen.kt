@@ -55,7 +55,6 @@ private fun ProductoContent(
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
     val producto by productoFlow.collectAsState(initial = null)
 
-    // 🎯 Opiniones desde Room (Flow<List<OpinionEntity>>)
     val opiniones by opinionesViewModel.obtenerOpiniones(id)
         .collectAsState(initial = emptyList())
 
@@ -104,9 +103,7 @@ private fun ProductoContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // ========================
-                // DATOS DEL PRODUCTO
-                // ========================
+                // datos del producto
                 item {
                     Text(prod.nombre, fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.Bold)
 
@@ -158,17 +155,15 @@ private fun ProductoContent(
                     Spacer(Modifier.height(16.dp))
                 }
 
-                // ========================
-                // LISTA DE OPINIONES (ROOM)
-                // ========================
+
+                //lista de productos
+
                 items(opiniones) { op ->
                     OpinionCardLocal(op)
                     Spacer(Modifier.height(16.dp))
                 }
 
-                // ========================
-                // FORMULARIO PARA COMENTAR
-                // ========================
+                // formulario para comentar
                 item {
                     Spacer(Modifier.height(20.dp))
 
@@ -232,9 +227,7 @@ private fun ProductoContent(
 }
 
 
-// =====================================
-// CARD DE OPINIÓN LOCAL
-// =====================================
+// card de opinion
 @Composable
 fun OpinionCardLocal(op: OpinionEntity) {
 
@@ -274,9 +267,9 @@ fun OpinionCardLocal(op: OpinionEntity) {
 }
 
 
-// =====================================
-// ESTRELLAS (REUTILIZABLE)
-// =====================================
+
+// estrellas
+
 @Composable
 fun StarRating(selected: Int, onSelect: (Int) -> Unit = {}) {
     Row {

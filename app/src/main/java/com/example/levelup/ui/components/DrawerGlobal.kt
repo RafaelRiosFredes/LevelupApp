@@ -38,7 +38,6 @@ fun DrawerGlobal(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    // Título de la App
                     Text(
                         text = "LEVEL UP GAMER",
                         color = Color(0xFF39FF14), // GamerGreen
@@ -46,7 +45,7 @@ fun DrawerGlobal(
                         fontWeight = FontWeight.Bold
                     )
 
-                    // Lógica para mostrar el saludo si está logueado
+                    // muestra el saludo si está logueado
                     if (UserSession.isLogged()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -55,7 +54,7 @@ fun DrawerGlobal(
                             style = MaterialTheme.typography.titleMedium
                         )
                     } else {
-                        // Mensaje opcional para invitados
+                        // modo invitado
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Modo Invitado",
@@ -65,9 +64,9 @@ fun DrawerGlobal(
                     }
                 }
 
-                // -----------------------
+
                 // CLIENTE NORMAL
-                // -----------------------
+
                 DrawerItem(
                     label = "Inicio",
                     icon = Icons.Default.Home,
@@ -79,9 +78,9 @@ fun DrawerGlobal(
                     }
                 )
 
-                    // -----------------------
-                    // OPCIONES PARA INVITADOS
-                    // -----------------------
+
+                    // INVITADOS
+
                 if (!UserSession.isLogged()) {
 
                     DrawerItem(
@@ -143,9 +142,8 @@ fun DrawerGlobal(
                     }
                 )
 
-                // -----------------------
-                // ADMIN EXTRAS
-                // -----------------------
+
+                // ADMIN
                 if (UserSession.rol == "admin") {
                     Divider(color = Color.DarkGray)
 
@@ -188,9 +186,7 @@ fun DrawerGlobal(
 
 
 
-                // -----------------------
-                // CERRAR SESIÓN (solo si está logueado)
-                // -----------------------
+                // CERRAR SESIÓN
                 if (UserSession.isLogged()) {
                     DrawerItem(
                         label = "Cerrar sesión",

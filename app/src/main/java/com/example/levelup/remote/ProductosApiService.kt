@@ -40,7 +40,6 @@ interface ProductosApiService {
     @DELETE("api/v1/productos/{id}")
     suspend fun eliminarProducto(@Path("id") id: Long)
 
-    // --- CORREGIDO AQUÍ ---
     @POST("api/v1/productos/{id}/imagenes")
     @Headers("Content-Type: application/json")
     suspend fun agregarImagen(

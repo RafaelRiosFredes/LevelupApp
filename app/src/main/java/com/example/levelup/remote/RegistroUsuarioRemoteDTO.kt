@@ -6,6 +6,5 @@ data class RegistroUsuarioRemoteDTO(
     val correo: String,
     val contrasena: String,
     val telefono: Long,
-    // Lo mandamos como String "YYYY-MM-DD" y el backend lo parsea a LocalDate
     val fechaNacimiento: String
 )

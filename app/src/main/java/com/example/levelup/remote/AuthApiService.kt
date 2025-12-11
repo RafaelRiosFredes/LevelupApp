@@ -4,8 +4,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthApiService {
-    // Backend: AuthController @RequestMapping("/api/v1/auth")
-
     @POST("api/v1/auth/registro")
     suspend fun registrar(@Body dto: RegistroUsuarioRemoteDTO): UsuarioResponseRemoteDTO
 

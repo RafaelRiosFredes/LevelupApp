@@ -33,7 +33,7 @@ fun UsuariosScreen(
     onEditarClick: (Long) -> Unit,
 ) {
 
-    // Solo ADMIN
+    // ADMIN
     LaunchedEffect(Unit) {
         if (!currentUserRol.contains("ADMIN", ignoreCase = true)) {
             navController.navigate("PantallaPrincipal") {
@@ -142,7 +142,7 @@ fun UsuariosScreen(
             }
         }
 
-        // CONFIRMA ELIMINACIÓN
+        // confirma eliminacion
         if (showConfirmDelete && selectedUser != null) {
 
             AlertDialog(

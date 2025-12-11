@@ -31,28 +31,27 @@ fun CompraChecklistDialog(
     onDismiss: () -> Unit,
     onAnimationFinished: () -> Unit
 ) {
-    // Estados para controlar qué pasos están visibles/completos
-    var paso1 by remember { mutableStateOf(false) } // Verificando datos
-    var paso2 by remember { mutableStateOf(false) } // Procesando en servidor
-    var paso3 by remember { mutableStateOf(false) } // ¡Compra Exitosa!
+    var paso1 by remember { mutableStateOf(false) } // Verifica datos
+    var paso2 by remember { mutableStateOf(false) } // Procesa en servidor
+    var paso3 by remember { mutableStateOf(false) } // Compra Exitosa
 
-    // Lógica de secuencia de tiempo para la animación
+    // secuencia de tiempo para la animación
     LaunchedEffect(Unit) {
-        delay(600) // Simular tiempo de validación local
+        delay(600) // Simular tiempo de validación
         paso1 = true
 
-        delay(800) // Simular conexión segura
+        delay(800) //  conexión segura
         paso2 = true
 
         delay(800) // Finalizando
         paso3 = true
 
-        delay(1000) // Pausa para ver el mensaje de éxito final antes de navegar
-        onAnimationFinished() // Callback para navegar a la boleta
+        delay(1000)
+        onAnimationFinished()
     }
 
     Dialog(
-        onDismissRequest = { /* No permitir cerrar tocando afuera para obligar a ver el proceso */ },
+        onDismissRequest = {},
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     ) {
         Card(
@@ -61,7 +60,7 @@ fun CompraChecklistDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(2.dp, GamerGreen, RoundedCornerShape(16.dp))
-                .padding(4.dp) // Pequeño margen externo
+                .padding(4.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -77,17 +76,15 @@ fun CompraChecklistDialog(
                     modifier = Modifier.padding(bottom = 24.dp).align(Alignment.CenterHorizontally)
                 )
 
-                // Paso 1
+
                 ChecklistItem(text = "Verificando stock y datos...", isCompleted = paso1)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Paso 2
                 ChecklistItem(text = "Conectando con servidor seguro...", isCompleted = paso2)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Paso 3
                 ChecklistItem(text = "Generando boleta electrónica...", isCompleted = paso3)
 
                 // Mensaje final
@@ -125,7 +122,6 @@ fun ChecklistItem(text: String, isCompleted: Boolean) {
         )
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Animación suave del color del texto
         val colorTexto = if (isCompleted) PureWhite else Color.Gray
 
         Text(
