@@ -50,4 +50,8 @@ interface ProductosApiService {
 
     @GET("api/v1/categorias")
     suspend fun obtenerCategorias(): List<CategoriaRemoteDTO>
+
+    @DELETE("api/v1/imagenes/{idImagen}")
+    suspend fun eliminarImagen(@Path("idImagen") idImagen: Long)
+
 }

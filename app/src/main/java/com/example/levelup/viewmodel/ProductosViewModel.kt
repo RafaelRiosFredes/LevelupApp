@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelup.model.data.ProductosEntity
 import com.example.levelup.model.repository.ProductosRepository
+import com.example.levelup.remote.ProductoImagenCreateDTO
+import com.example.levelup.remote.RetrofitBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -121,5 +123,57 @@ class ProductosViewModel(
     init {
         sincronizarProductos()
         cargarCategorias() // <--- AGREGAR ESTO
+    }
+
+    fun editarProductoCompleto(
+        producto: ProductosEntity,
+        nuevaImagenBase64: String?,
+        imagenesAntiguasIds: List<Long>, // IDs de las imÃ¡genes que ya tiene el producto en backend
+        onResult: (Boolean) -> Unit
+    ) = viewModelScope.launch {
+        try {
+            // 1. Actualizar datos de texto (nombre, precio, stock, etc.)
+            repository.actualizarProductoBackend(producto)
+
+            // 2. Si hay nueva imagen, reemplazar las anteriores
+            if (nuevaImagenBase64 != null && producto.backendId != null) {
+
+                // A) Borrar imÃ¡genes antiguas una por una usando la API
+                imagenesAntiguasIds.forEach { idImagen ->
+                    try {
+                        RetrofitBuilder.productosApi.eliminarImagen(idImagen)
+                    } catch (e: Exception) {
+                        e.printStackTrace() // Si falla borrar una, seguimos intentando
+                    }
+                }
+
+                // B) Subir la nueva imagen
+                val imagenDto = ProductoImagenCreateDTO(
+                    nombreArchivo = "edit_foto_${System.currentTimeMillis()}.jpg",
+                    contentType = "image/jpeg",
+                    base64 = nuevaImagenBase64
+                )
+
+                RetrofitBuilder.productosApi.agregarImagen(
+                    idProducto = producto.backendId,
+                    dto = imagenDto
+                )
+            }
+
+            // 3. Sincronizar para ver cambios reflejados en local
+            sincronizarProductos()
+            onResult(true)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onResult(false)
+        }
+    }
+
+    // ... (MantÃ©n el init y crearProductoConImagen) ...
+
+    init {
+        sincronizarProductos()
+        cargarCategorias()
     }
 }
