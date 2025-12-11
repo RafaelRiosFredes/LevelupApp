@@ -25,9 +25,7 @@ class ProductosViewModel(
     private val _categorias = kotlinx.coroutines.flow.MutableStateFlow<List<com.example.levelup.remote.CategoriaRemoteDTO>>(emptyList())
     val categorias = _categorias.asStateFlow()
 
-    // =============================
     //   CRUD LOCAL (Room)
-    // =============================
 
     fun insertarProducto(producto: ProductosEntity) = viewModelScope.launch {
         repository.insertarProducto(producto)
@@ -45,10 +43,7 @@ class ProductosViewModel(
         repository.eliminarProducto(producto)
     }
 
-
-    // =============================
     //   CRUD BACKEND (Retrofit)
-    // =============================
 
     fun crearProductoBackend(producto: ProductosEntity) = viewModelScope.launch {
         repository.crearProducto(producto)
@@ -66,10 +61,7 @@ class ProductosViewModel(
         repository.obtenerProductoDesdeBackend(id)
     }
 
-
-    // =============================
     //   SINCRONIZACIÓN OPCIONAL
-    // =============================
 
     fun sincronizarProductos() = viewModelScope.launch {
         try {
@@ -119,35 +111,34 @@ class ProductosViewModel(
         _categorias.value = repository.obtenerCategoriasBackend()
     }
 
-    // 3. Asegúrate de llamar a cargarCategorias en el init
+    // Asegúrate de llamar a cargarCategorias en el init
     init {
         sincronizarProductos()
-        cargarCategorias() // <--- AGREGAR ESTO
+        cargarCategorias()
     }
 
     fun editarProductoCompleto(
         producto: ProductosEntity,
         nuevaImagenBase64: String?,
-        imagenesAntiguasIds: List<Long>, // IDs de las imÃ¡genes que ya tiene el producto en backend
+        imagenesAntiguasIds: List<Long>,
         onResult: (Boolean) -> Unit
     ) = viewModelScope.launch {
         try {
-            // 1. Actualizar datos de texto (nombre, precio, stock, etc.)
+            // Actualizar datos de texto (nombre, precio, stock, etc.)
             repository.actualizarProductoBackend(producto)
 
-            // 2. Si hay nueva imagen, reemplazar las anteriores
+            // Si hay nueva imagen, reemplazar las anteriores
             if (nuevaImagenBase64 != null && producto.backendId != null) {
 
-                // A) Borrar imÃ¡genes antiguas una por una usando la API
                 imagenesAntiguasIds.forEach { idImagen ->
                     try {
                         RetrofitBuilder.productosApi.eliminarImagen(idImagen)
                     } catch (e: Exception) {
-                        e.printStackTrace() // Si falla borrar una, seguimos intentando
+                        e.printStackTrace()
                     }
                 }
 
-                // B) Subir la nueva imagen
+                // Subir la nueva imagen
                 val imagenDto = ProductoImagenCreateDTO(
                     nombreArchivo = "edit_foto_${System.currentTimeMillis()}.jpg",
                     contentType = "image/jpeg",
@@ -160,7 +151,7 @@ class ProductosViewModel(
                 )
             }
 
-            // 3. Sincronizar para ver cambios reflejados en local
+            // Sincronizar para ver cambios reflejados en local
             sincronizarProductos()
             onResult(true)
 
@@ -170,7 +161,7 @@ class ProductosViewModel(
         }
     }
 
-    // ... (MantÃ©n el init y crearProductoConImagen) ...
+    // Manten el init y crearProductoConImagen
 
     init {
         sincronizarProductos()

@@ -14,9 +14,7 @@ class ProductosRepository(
     private val api: ProductosApiService
 ) {
 
-    // =======================
     //   CRUD LOCAL (ROOM)
-    // =======================
 
     fun obtenerProductos(): Flow<List<ProductosEntity>> = dao.obtenerTodos()
 
@@ -28,16 +26,13 @@ class ProductosRepository(
 
     suspend fun eliminarProducto(producto: ProductosEntity) = dao.eliminar(producto)
 
-
-    // =======================
     //   CRUD BACKEND
-    // =======================
 
     suspend fun obtenerProductoDesdeBackend(backendId: Long): ProductosEntity? {
         return try {
             val dto = api.obtenerProductoPorId(backendId)
             val entity = dto.toEntity()
-            dao.insertar(entity)   // REPLACE por índice unique backendId
+            dao.insertar(entity)
             entity
         } catch (e: Exception) {
             e.printStackTrace()
@@ -92,10 +87,7 @@ class ProductosRepository(
         }
     }
 
-
-    // =======================
     //   SINCRONIZACIÓN
-    // =======================
 
     suspend fun sincronizarProductosDesdeBackend() {
         try {
@@ -114,13 +106,9 @@ class ProductosRepository(
 
     suspend fun crearProductoRetornandoEntidad(producto: ProductosEntity): ProductosEntity? {
         return try {
-            // 1. Enviamos al backend
             val creadoRemoto = api.crearProducto(producto.toCreateRemote())
-            // 2. Convertimos la respuesta (que trae el ID real) a entidad local
             val entity = creadoRemoto.toEntity()
-            // 3. Guardamos en Room
             dao.insertar(entity)
-            // 4. Retornamos la entidad con el ID correcto
             entity
         } catch (e: Exception) {
             e.printStackTrace()
@@ -137,9 +125,7 @@ class ProductosRepository(
         }
     }
 
-    // =======================
     //   CREAR PRODUCTO + IMAGEN
-    // =======================
 
     suspend fun crearProductoConImagen(
         producto: ProductosEntity,
@@ -148,14 +134,14 @@ class ProductosRepository(
         contentType: String
     ): ProductosEntity? {
         return try {
-            // 1) Crear producto en backend
+            // Crear producto en backend
             val creadoRemoto = api.crearProducto(producto.toCreateRemote())
 
-            // 2) Guardar entidad en Room
+            // Guardar entidad en Room
             val entity = creadoRemoto.toEntity()
             dao.insertar(entity)
 
-            // 3) Subir imagen
+            // Subir imagen
             api.subirImagenProducto(
                 creadoRemoto.idProducto,
                 ProductoImagenCreateDTO(
@@ -172,9 +158,7 @@ class ProductosRepository(
         }
     }
 
-    // =======================
     //   SUBIR IMAGEN SUELTA
-    // =======================
 
     suspend fun subirImagenProducto(
         idProducto: Long,

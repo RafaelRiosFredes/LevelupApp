@@ -29,14 +29,13 @@ class CarritoViewModel(application: Application) : AndroidViewModel(application)
         repository = repositoryTest
     }
 
-    // --- CORRECCIÓN AQUÍ ---
     fun agregarProducto(productoId: Long, nombre: String, precio: Long, imagenUrl: String?) {
         viewModelScope.launch {
-            // 1. Buscamos si ya existe en el carrito
+            // Buscamos si ya existe en el carrito
             val productoExistente = repository.buscarPorBackendId(productoId)
 
             if (productoExistente != null) {
-                // 2. SI EXISTE: Solo aumentamos la cantidad
+                // si existe: Solo aumentamos la cantidad
                 val copiaActualizada = productoExistente.copy(
                     cantidad = productoExistente.cantidad + 1
                 )

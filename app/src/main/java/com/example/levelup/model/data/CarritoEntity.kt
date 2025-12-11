@@ -9,8 +9,8 @@ data class CarritoEntity(
     val id: Long = 0L,
 
     val backendId: Long,      // id del producto backend
-    val nombre: String,        // nombre del producto
-    val precio: Long,          // PRECIO EN LONG (no Double)
-    val cantidad: Int = 1,     // cantidad
+    val nombre: String,
+    val precio: Long,
+    val cantidad: Int = 1,
     val imagenUrl: String?     // url opcional (nullable)
 )

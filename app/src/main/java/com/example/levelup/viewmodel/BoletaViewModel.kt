@@ -22,8 +22,7 @@ class BoletaViewModel (application: Application) : AndroidViewModel(application)
     private val _boletaActual = MutableStateFlow<BoletaRemoteDTO?>(null)
     val boletaActual: StateFlow<BoletaRemoteDTO?> = _boletaActual
 
-
-    //  HISTORIAL DE BOLETAS
+    // historial de boletas
     private val _historial = MutableStateFlow<List<BoletaRemoteDTO>>(emptyList())
     val historial: StateFlow<List<BoletaRemoteDTO>> = _historial
 
@@ -68,7 +67,7 @@ class BoletaViewModel (application: Application) : AndroidViewModel(application)
     }
 
 
-    //  OBTENER HISTORIAL DE BOLETAS
+    // obtener historial de boletas
     fun obtenerBoletas(page: Int = 0, size: Int = 20) {
         if (UserSession.jwt.isNullOrBlank())
             throw IllegalStateException("Usuario no logueado")

@@ -28,13 +28,11 @@ class UsuariosViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-
-    // ---------- LOGIN ----------
 // ---------- LOGIN ----------
     fun login(correo: String, contrasena: String, onSuccess: () -> Unit) =
         viewModelScope.launch {
             try {
-                // 1) LOGIN
+                // LOGIN
                 val resp = repo.login(correo, contrasena)
 
                 val rawRoles = resp.roles.toString()
@@ -57,7 +55,7 @@ class UsuariosViewModel(
                 )
 
 
-                // 4) Obtener datos completos
+                // Obtener datos completos
                 val usuario = repo.obtenerUsuario(resp.idUsuario)
 
                 UserSession.nombre = usuario.nombres
