@@ -55,11 +55,4 @@ object RetrofitBuilder {
         retrofit.create(UsuariosApiService::class.java)
     }
 
-    // ============================
-    //   API DE OPINIONES
-    // ============================
-        val opinionesApi: OpinionesApiService by lazy {
-            retrofit.create(OpinionesApiService::class.java)
-        }
-
 }

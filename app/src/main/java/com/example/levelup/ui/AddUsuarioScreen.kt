@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.levelup.core.UserSession
@@ -82,12 +83,16 @@ private fun AddUsuarioContent(
         ) {
 
             // CAMPOS sin foto
-            CampoTexto("Nombres", nombres) { nombres = it }
-            CampoTexto("Apellidos", apellidos) { apellidos = it }
-            CampoTexto("Correo", correo) { correo = it }
-            CampoTexto("Contraseña", contrasena) { contrasena = it }
-            CampoTexto("Teléfono", telefono) { telefono = it }
-            CampoTexto("Fecha nacimiento (YYYY-MM-DD)", fechaNacimiento) { fechaNacimiento = it }
+            CampoTexto("Nombres", nombres, KeyboardType.Number) { nombres = it }
+            CampoTexto("Apellidos", apellidos, KeyboardType.Number) { apellidos = it }
+            CampoTexto("Correo", correo, KeyboardType.Number) { correo = it }
+            CampoTexto("Contraseña", contrasena, KeyboardType.Number) { contrasena = it }
+            CampoTexto("Teléfono", telefono, KeyboardType.Number) { telefono = it }
+            CampoTexto(
+                "Fecha nacimiento (YYYY-MM-DD)",
+                fechaNacimiento,
+                KeyboardType.Number
+            ) { fechaNacimiento = it }
 
             Spacer(Modifier.height(12.dp))
 
@@ -142,6 +147,7 @@ private fun AddUsuarioContent(
 fun CampoTexto(
     titulo: String,
     valor: String,
+    onChange1: KeyboardType,
     onChange: (String) -> Unit
 ) {
     OutlinedTextField(

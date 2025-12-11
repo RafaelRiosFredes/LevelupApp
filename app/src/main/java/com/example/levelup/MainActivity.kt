@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.levelup.core.UserSession
 import com.example.levelup.ui.LevelUpNavHost
 import com.example.levelup.ui.theme.LevelUpTheme
+import com.example.levelup.viewmodel.OpinionesViewModel
+import com.example.levelup.viewmodel.OpinionesViewModelFactoryApp
 import com.example.levelup.viewmodel.ProductosViewModel
 import com.example.levelup.viewmodel.ProductosViewModelFactoryApp
 import com.example.levelup.viewmodel.UsuariosViewModel
@@ -39,6 +41,11 @@ class MainActivity : ComponentActivity() {
                     factory = UsuariosViewModelFactoryApp(application)
                 )
 
+                val opinionesViewModel: OpinionesViewModel = viewModel(
+                    factory = OpinionesViewModelFactoryApp(application)
+                )
+
+
                 // -------------------------
                 // NavController global
                 // -------------------------
@@ -51,7 +58,8 @@ class MainActivity : ComponentActivity() {
                     LevelUpNavHost(
                         navController = navController,
                         productosViewModel = productosViewModel,
-                        usuariosViewModel = usuariosViewModel
+                        usuariosViewModel = usuariosViewModel,
+                        opinionesViewModel = opinionesViewModel
                     )
                 }
             }

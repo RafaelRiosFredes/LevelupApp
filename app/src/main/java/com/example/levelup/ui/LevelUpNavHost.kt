@@ -17,32 +17,26 @@ import androidx.navigation.navArgument
 import com.example.levelup.viewmodel.BoletaViewModelFactoryApp
 import com.example.levelup.viewmodel.CarritoViewModelFactory
 import com.example.levelup.viewmodel.OpinionesViewModel
-import com.example.levelup.model.repository.OpinionesRepository
-import com.example.levelup.remote.RetrofitBuilder
-import com.example.levelup.viewmodel.OpinionesViewModelFactory
 
 
 @Composable
 fun LevelUpNavHost(
     navController: NavHostController,
     productosViewModel: ProductosViewModel,
-    usuariosViewModel: UsuariosViewModel
+    usuariosViewModel: UsuariosViewModel,
+    opinionesViewModel: OpinionesViewModel
 ) {
 
     val context = LocalContext.current
 
     // ============================
-    // CARRO / BOLETAS / OPINIONES
+    // CARRO / BOLETAS
     // ============================
     val carritoViewModel: CarritoViewModel =
         viewModel(factory = CarritoViewModelFactory(context.applicationContext as Application))
 
     val boletaViewModel: BoletaViewModel =
         viewModel(factory = BoletaViewModelFactoryApp(context.applicationContext as Application))
-
-    val opinionesRepository = OpinionesRepository(RetrofitBuilder.opinionesApi)
-    val opinionViewModel: OpinionesViewModel =
-        viewModel(factory = OpinionesViewModelFactory(opinionesRepository))
 
 
     NavHost(
@@ -82,7 +76,7 @@ fun LevelUpNavHost(
                 navController = navController,
                 productosViewModel = productosViewModel,
                 carritoViewModel = carritoViewModel,
-                opinionesViewModel = opinionViewModel,
+                opinionesViewModel = opinionesViewModel,   // ✔ AQUI EL CORRECTO
                 id = id
             )
         }

@@ -15,6 +15,12 @@ interface ProductosApiService {
         @Query("sort") sort: String = "idProducto,asc"
     ): PageRemoteDTO<ProductoRemoteDTO>
 
+    @POST("api/v1/productos/{idProducto}/imagenes")
+    suspend fun subirImagenProducto(
+        @Path("idProducto") idProducto: Long,
+        @Body body: ProductoImagenCreateDTO
+    ): ProductoImagenRemoteDTO
+
     @GET("api/v1/productos/{id}")
     suspend fun obtenerProductoPorId(@Path("id") id: Long): ProductoRemoteDTO
 

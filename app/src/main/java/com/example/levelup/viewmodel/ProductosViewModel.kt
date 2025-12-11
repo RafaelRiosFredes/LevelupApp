@@ -83,40 +83,35 @@ class ProductosViewModel(
 
     fun crearProductoConImagen(
         producto: ProductosEntity,
-        imagenBase64: String?,
+        base64: String,
+        nombreArchivo: String,
+        contentType: String,
         onResult: (Boolean) -> Unit
     ) = viewModelScope.launch {
         try {
-            // 1. Crear producto y obtener el ID generado por el backend
-            val productoCreado = repository.crearProductoRetornandoEntidad(producto)
 
-            if (productoCreado?.backendId != null && imagenBase64 != null) {
-                // 2. Si se creó y hay foto, subimos la imagen
-                val imagenDto = com.example.levelup.remote.ProductoImagenCreateDTO(
-                    nombreArchivo = "foto_camara_${System.currentTimeMillis()}.jpg",
-                    contentType = "image/jpeg",
-                    base64 = imagenBase64
-                )
+            // Usamos el método correcto del Repository
+            val creado = repository.crearProductoConImagen(
+                producto,
+                base64,
+                nombreArchivo,
+                contentType
+            )
 
-                // Llamamos al endpoint que agregamos en el Paso 2
-                // Accedemos a la API a través de RetrofitBuilder estático o necesitamos exponer api en repo.
-                // Para mantenerlo limpio, usaremos RetrofitBuilder directamente aquí o agregamos método en repo.
-                // Usaremos acceso directo para no modificar más el repo:
-                com.example.levelup.remote.RetrofitBuilder.productosApi.agregarImagen(
-                    idProducto = productoCreado.backendId!!,
-                    dto = imagenDto
-                )
+            // Si todo salió bien
+            if (creado != null) {
+                sincronizarProductos()   // refrescar Room con imagen incluida
+                onResult(true)
+            } else {
+                onResult(false)
             }
-            // Si llegamos aquí, todo ok
-            // Forzamos sincronización para que la imagen aparezca en la lista
-            sincronizarProductos()
-            onResult(true)
 
         } catch (e: Exception) {
             e.printStackTrace()
             onResult(false)
         }
     }
+
 
     fun cargarCategorias() = viewModelScope.launch {
         _categorias.value = repository.obtenerCategoriasBackend()

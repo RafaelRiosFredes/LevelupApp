@@ -2,6 +2,7 @@ package com.example.levelup.model.repository
 
 import com.example.levelup.model.data.ProductosDao
 import com.example.levelup.model.data.ProductosEntity
+import com.example.levelup.remote.ProductoImagenCreateDTO
 import com.example.levelup.remote.ProductosApiService
 import com.example.levelup.remote.mappers.toCreateRemote
 import com.example.levelup.remote.mappers.toEntity
@@ -135,4 +136,62 @@ class ProductosRepository(
             emptyList()
         }
     }
+
+    // =======================
+    //   CREAR PRODUCTO + IMAGEN
+    // =======================
+
+    suspend fun crearProductoConImagen(
+        producto: ProductosEntity,
+        base64: String,
+        nombreArchivo: String,
+        contentType: String
+    ): ProductosEntity? {
+        return try {
+            // 1) Crear producto en backend
+            val creadoRemoto = api.crearProducto(producto.toCreateRemote())
+
+            // 2) Guardar entidad en Room
+            val entity = creadoRemoto.toEntity()
+            dao.insertar(entity)
+
+            // 3) Subir imagen
+            api.subirImagenProducto(
+                creadoRemoto.idProducto,
+                ProductoImagenCreateDTO(
+                    nombreArchivo = nombreArchivo,
+                    contentType = contentType,
+                    base64 = base64
+                )
+            )
+            entity
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // =======================
+    //   SUBIR IMAGEN SUELTA
+    // =======================
+
+    suspend fun subirImagenProducto(
+        idProducto: Long,
+        base64: String,
+        nombreArchivo: String,
+        contentType: String
+    ) {
+        api.subirImagenProducto(
+            idProducto,
+            ProductoImagenCreateDTO(
+                nombreArchivo = nombreArchivo,
+                contentType = contentType,
+                base64 = base64
+            )
+        )
+    }
+
 }
+
+

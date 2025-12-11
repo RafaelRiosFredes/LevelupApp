@@ -21,11 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.levelup.core.UserSession
-import com.example.levelup.remote.OpinionRemoteDTO
 import com.example.levelup.viewmodel.CarritoViewModel
 import com.example.levelup.viewmodel.OpinionesViewModel
 import com.example.levelup.viewmodel.ProductosViewModel
+import com.example.levelup.model.data.OpinionEntity
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,29 +55,16 @@ private fun ProductoContent(
     val productoFlow = remember(id) { productosViewModel.obtenerProductoPorId(id) }
     val producto by productoFlow.collectAsState(initial = null)
 
-    val opiniones by opinionesViewModel.opiniones.collectAsState()
-    val loading by opinionesViewModel.loading.collectAsState()
+    // 🎯 Opiniones desde Room (Flow<List<OpinionEntity>>)
+    val opiniones by opinionesViewModel.obtenerOpiniones(id)
+        .collectAsState(initial = emptyList())
 
     var comentario by remember { mutableStateOf("") }
     var estrellas by remember { mutableStateOf(5) }
+    var nombreUsuario by remember { mutableStateOf("Usuario") }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // ================================
-    // DETECCIÓN DE TOKEN REAL JWT
-    // ================================
-    val token = UserSession.jwt
-    val tieneTokenReal = token != null && token.startsWith("eyJ")
-
-    // ================================
-    // SOLO CARGA OPINIONES SI HAY JWT REAL
-    // ================================
-    LaunchedEffect(id) {
-        if (tieneTokenReal) {
-            opinionesViewModel.cargarOpiniones(id)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -118,7 +104,9 @@ private fun ProductoContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                // ========================
                 // DATOS DEL PRODUCTO
+                // ========================
                 item {
                     Text(prod.nombre, fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.Bold)
 
@@ -170,68 +158,67 @@ private fun ProductoContent(
                     Spacer(Modifier.height(16.dp))
                 }
 
-                // LOADING SOLO SI TIENE TOKEN REAL
-                if (tieneTokenReal && loading) {
-                    item {
-                        CircularProgressIndicator(color = Color(0xFF39FF14))
-                    }
+                // ========================
+                // LISTA DE OPINIONES (ROOM)
+                // ========================
+                items(opiniones) { op ->
+                    OpinionCardLocal(op)
+                    Spacer(Modifier.height(16.dp))
                 }
 
-                // MOSTRAR OPINIONES SOLO SI HAY JWT REAL
-                if (tieneTokenReal) {
-                    items(opiniones) { op ->
-                        OpinionCard(op)
-                        Spacer(Modifier.height(16.dp))
+                // ========================
+                // FORMULARIO PARA COMENTAR
+                // ========================
+                item {
+                    Spacer(Modifier.height(20.dp))
+
+                    OutlinedTextField(
+                        value = nombreUsuario,
+                        onValueChange = { nombreUsuario = it },
+                        label = { Text("Tu nombre") },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.White)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    OutlinedTextField(
+                        value = comentario,
+                        onValueChange = { comentario = it },
+                        label = { Text("Comentario") },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.White)
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    StarRating(estrellas) { estrellas = it }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Button(
+                        onClick = {
+                            opinionesViewModel.insertarOpinion(
+                                OpinionEntity(
+                                    productoId = id,
+                                    comentario = comentario,
+                                    estrellas = estrellas,
+                                    nombreUsuario = nombreUsuario
+                                )
+                            )
+                            comentario = ""
+                            estrellas = 5
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF39FF14),
+                            contentColor = Color.Black
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Enviar opinión")
                     }
-                } else {
-                    item {
-                        Text(
-                            "Inicia sesión con tu cuenta real para ver y dejar opiniones.",
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    }
-                }
 
-                // FORMULARIO SOLO SI HAY JWT REAL
-                if (tieneTokenReal) {
-                    item {
-                        Spacer(Modifier.height(20.dp))
-
-                        Text("Deja tu opinión", color = Color.White, fontSize = 18.sp)
-
-                        OutlinedTextField(
-                            value = comentario,
-                            onValueChange = { comentario = it },
-                            label = { Text("Comentario") },
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = LocalTextStyle.current.copy(color = Color.White)
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        StarRating(estrellas) { estrellas = it }
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Button(
-                            onClick = {
-                                opinionesViewModel.enviarOpinion(id, comentario, estrellas)
-                                comentario = ""
-                                estrellas = 5
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF39FF14),
-                                contentColor = Color.Black
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Enviar opinión")
-                        }
-
-                        Spacer(Modifier.height(40.dp))
-                    }
+                    Spacer(Modifier.height(40.dp))
                 }
             }
 
@@ -246,10 +233,10 @@ private fun ProductoContent(
 
 
 // =====================================
-// CARD DE OPINIÓN
+// CARD DE OPINIÓN LOCAL
 // =====================================
 @Composable
-fun OpinionCard(op: OpinionRemoteDTO) {
+fun OpinionCardLocal(op: OpinionEntity) {
 
     Card(
         modifier = Modifier
@@ -265,7 +252,7 @@ fun OpinionCard(op: OpinionRemoteDTO) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = op.nombreUsuario ?: "Usuario",
+                text = op.nombreUsuario,
                 color = Color(0xFF39FF14),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -288,10 +275,10 @@ fun OpinionCard(op: OpinionRemoteDTO) {
 
 
 // =====================================
-// ESTRELLAS
+// ESTRELLAS (REUTILIZABLE)
 // =====================================
 @Composable
-fun StarRating(selected: Int, onSelect: ((Int) -> Unit)? = null) {
+fun StarRating(selected: Int, onSelect: (Int) -> Unit = {}) {
     Row {
         for (i in 1..5) {
             val color = if (i <= selected) Color(0xFFFFD700) else Color.Gray
@@ -302,7 +289,7 @@ fun StarRating(selected: Int, onSelect: ((Int) -> Unit)? = null) {
                 color = color,
                 modifier = Modifier
                     .padding(4.dp)
-                    .let { if (onSelect != null) it.clickable { onSelect(i) } else it }
+                    .clickable { onSelect(i) }
             )
         }
     }
