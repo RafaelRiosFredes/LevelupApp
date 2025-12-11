@@ -204,7 +204,7 @@ fun ProductoRow(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(text = "ID: ${producto.id}", color = PureWhite)
+            Text(text = "ID: ${producto.backendId}", color = PureWhite)
             Text(text = "Precio: $${producto.precio}", color = PureWhite)
 
             if (isSelected) {
