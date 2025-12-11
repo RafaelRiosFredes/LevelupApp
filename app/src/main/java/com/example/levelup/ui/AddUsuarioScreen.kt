@@ -62,7 +62,7 @@ private fun AddUsuarioContent(
     var contrasena by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var fechaNacimiento by remember { mutableStateOf("") }
-    var rol by remember { mutableStateOf("user") }
+    var rol by remember { mutableStateOf("USER") }
 
     Scaffold(
         containerColor = JetBlack,
@@ -97,7 +97,7 @@ private fun AddUsuarioContent(
             Spacer(Modifier.height(12.dp))
 
             // SELECTOR DE ROL
-            RolSelector(rolActual = rol) { rol = it }
+            //RolSelector(rolActual = rol) { rol = it }
 
             Spacer(Modifier.height(24.dp))
 
@@ -195,19 +195,5 @@ fun RolSelector(rolActual: String, onChange: (String) -> Unit) {
             )
         )
 
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            listOf("user", "admin").forEach {
-                DropdownMenuItem(
-                    text = { Text(it) },
-                    onClick = {
-                        onChange(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
     }
 }

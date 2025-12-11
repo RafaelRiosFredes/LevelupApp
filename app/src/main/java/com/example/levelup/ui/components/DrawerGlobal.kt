@@ -157,15 +157,6 @@ fun DrawerGlobal(
                     )
 
                     DrawerItem(
-                        label = "Gestión de Usuarios",
-                        icon = Icons.Default.Person,
-                        onClick = {
-                            navController.navigate("admin_usuarios")
-                            scope.launch { drawerState.close() }
-                        }
-                    )
-
-                    DrawerItem(
                         label = "Agregar Usuario",
                         icon = Icons.Default.PersonAdd,
                         onClick = {
@@ -173,18 +164,7 @@ fun DrawerGlobal(
                             scope.launch { drawerState.close() }
                         }
                     )
-
-                    DrawerItem(
-                        label = "Historial de Boletas",
-                        icon = Icons.Default.List,
-                        onClick = {
-                            navController.navigate("historial_boletas")
-                            scope.launch { drawerState.close() }
-                        }
-                    )
                 }
-
-
 
                 // CERRAR SESIÓN
                 if (UserSession.isLogged()) {
