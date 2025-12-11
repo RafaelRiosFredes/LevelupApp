@@ -2,7 +2,7 @@ package com.example.levelup.remote
 
 data class BoletaRemoteDTO(
     val idBoleta: Long,
-    val fechaEmision: String,  // backend envía LocalDateTime
+    val fechaEmision: String,
     val idUsuario: Long,
     val nombreUsuario: String,
     val totalSinDescuento: Long,
