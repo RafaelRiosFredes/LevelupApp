@@ -47,7 +47,7 @@ __C) Instalación__
 __Para Android:__
 
 1. Clona el repositorio
-git clone https://github.com/usuario/LevelUpApp.git
+git clone https://github.com/RafaelRiosFredes/LevelupApp.git
 2. Abre Android Studio
 3. Sincroniza Gradle
 4. Ejecuta en un emulador Android
