@@ -55,6 +55,8 @@ __Para Android:__
 3. Sincroniza Gradle
  
 4. Ejecuta en un emulador Android
+   
+5. *Apk firmado y .jks en carpeta llamada apk
 
 __Para Backend:__
 
